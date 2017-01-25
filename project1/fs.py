@@ -2,6 +2,7 @@ import os
 
 #Initializes file system
 def init(fsname):
+
     
 #Creates a file with a size of nbytes
 def create(filename, nbytes):
