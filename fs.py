@@ -1,4 +1,9 @@
-
+import os
 
 class fs:
-    __init__:
+    def __init__(self):
+        self.x = 0
+
+
+
+
