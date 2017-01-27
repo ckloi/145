@@ -28,7 +28,7 @@ class TextFile:
             raise Exception("Out of bound")
         else:
             # master file/fsname position moves pos position
-            self.nativeFilePos = self.byteStart + pos;
+            self.nativeFilePos = self.byteStart + pos
             # user file position now is equal pos
             self.userFilePos = pos
 
@@ -56,8 +56,8 @@ class TextFile:
         if rbyte <= self.length() - self.userFilePos:
             if self.isOpen and self.mode is 'r':
                 nativeFD.seek(self.nativeFilePos)
-                self.nativeFilePos = self.nativeFilePos + rbyte
-                self.userFilePos = self.userFilePos + rbyte
+                self.nativeFilePos += rbyte
+                self.userFilePos += rbyte
                 return nativeFD.read(rbyte).translate(None, '\x00')  # exclude the null char
             else:
                 raise Exception('the file is either not open or not in read mode')
@@ -67,6 +67,11 @@ class TextFile:
     def readlines(self):
         if self.mode is 'r' or self.mode is 'r+w':
             print("placeholder")  # haven't start yet
+
+    def __str__(self):
+        name = '\'' + self.fileName + '\''
+        mode = '\'' + self.mode + '\''
+        return '<open file {0}, mode {1} at {2}>'.format(name, mode, hex(id(self)))
 
 
 class Directory:
@@ -83,7 +88,7 @@ def init(fsname):
     # file descriptor of fsname
     global nativeFD
     nativeFD = __builtin__.open(fsname, 'r+w')
-    # size of system file 
+    # size of system file
     size = os.path.getsize(fsname)
     print size
     # size = 6
@@ -116,7 +121,7 @@ def create(filename, nbytes):
     # find number of consecutive bytes that are available in fsname for the file with nbyte
     for index, byte in enumerate(memory):
         if byte is 0:
-            byteCount = byteCount + 1
+            byteCount += 1
         if byteCount is nbytes:
             endIndex = index
             startIndex = index - byteCount + 1
@@ -132,22 +137,22 @@ def create(filename, nbytes):
 
     # print(memory)
 
-    if (startIndex is -1 and endIndex is -1):
+    if startIndex is -1 and endIndex is -1:
         raise Exception('Cannot Create File')
     else:
-        file = TextFile(filename, startIndex, endIndex)
+        f = TextFile(filename, startIndex, endIndex)
         # file.write('\x00')
-        fileList.append(file)
+        fileList.append(f)
 
 
 # #Opens a file with the given mode
 def open(filename, mode):
-    for file in fileList:
+    for f in fileList:
         # if file object is created before
-        if file.fileName is filename:
-            file.mode = mode
-            file.isOpen = True
-            return file
+        if f.fileName is filename:
+            f.mode = mode
+            f.isOpen = True
+            return f
     raise Exception('No such File')
 
 

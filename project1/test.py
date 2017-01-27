@@ -45,4 +45,13 @@ fs.seek(fd2,0)
 
 print(fs.read(fd2,2))
 
+print(fd2)
+
+
+
+x = 'ss'
+
+
+
+
 
