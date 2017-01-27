@@ -19,10 +19,16 @@ class TextFile:
         # for i in fileLength:
 
     def write(self, str):
-        for i in range(self.byteStart, self.byteEnd + 1):
-            fd.seek(i)
-            memory[i] = 1
-            fd.write(str)
+        if self.mode is 'w' or self.mode is 'r+w':
+            for i in range(self.byteStart, self.byteEnd + 1):
+                fd.seek(i)
+                fd.write(str)
+        else:
+            raise ValueError('is not Write mode')
+    def readlines(self):
+        if self.mode is 'r' or self.mode is 'r+w':
+            print("placeholder")
+
 
 
 class Directory:
@@ -74,6 +80,8 @@ def create(filename, nbytes):
         if byteCount is nbytes:
             endIndex = index
             startIndex = index - byteCount + 1
+            for i in range(startIndex, endIndex + 1):
+                memory[i] = 1
             break
             # if consecutive available bytes is less thatn nbyte and the following flag is 1
             # set byteCount to 0 and continue the for loop
@@ -86,7 +94,7 @@ def create(filename, nbytes):
         raise ValueError('Cannot Create File')
     else:
         file = TextFile(filename, startIndex, endIndex)
-        file.write('\x00')
+        #file.write('\x00')
         fileList.append(file)
 
 

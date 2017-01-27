@@ -20,6 +20,7 @@ fs.create('f2',7)
 
 fs.open('f1','r')
 
+fd = open('abc')
 
 
 #print (os.path.getsize('abc'))
