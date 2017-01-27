@@ -36,14 +36,3 @@ fs.write(fd,"22")
 print(fs.pos(fd))
 
 fs.write(fd2,"qq")
-
-#fs.write(fd,"2")
-#
-#print(fs.pos(fd))
-
-
-
-
-
-
-#print (os.path.getsize('abc'))
