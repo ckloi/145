@@ -68,6 +68,7 @@ def init(fsname):
     # list of flag for space availibility of system file fsname
     # 0 for available and 1 for used
     global memory
+    #make the flag list have the same size with the master/fsname file
     memory = [0] * size
     # memory = [1,1,0,0,0,1]
     # print(memory[size-1])
