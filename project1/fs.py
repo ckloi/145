@@ -6,7 +6,9 @@ import os
 class TextFile:
     def __init__(self,name,startIndex,endIndex):
         self.fileName = name
+        #stating position at fsname
         self.byteStart = startIndex
+        #ending position at fsname
         self.byteEnd  = endIndex  # -1 is undefined
         self.isOpen = False
     def content(self):
@@ -30,11 +32,15 @@ class Directory:
 
 
 def init(fsname):
+    #file descriptor of fsname
     global fd
     fd = open(fsname,'r+w')
+    # size of system file 
     size = os.path.getsize(fsname)
     print size
     #size = 6
+    # list of flag for space availibility of system file fsname
+    # 0 for available and 1 for used
     global memory
     memory = [0] * size
     #memory = [1,1,0,0,0,1]
@@ -58,7 +64,7 @@ def create(filename, nbytes):
     startIndex = -1
     endIndex = -1
 
-
+    #find number of consecutive bytes that are available in fsname for the file with nbyte
     for index, byte in enumerate(memory):
         if byte is 0:
             byteCount = byteCount + 1
@@ -66,6 +72,8 @@ def create(filename, nbytes):
             endIndex = index
             startIndex = index - byteCount + 1
             break
+            #if consecutive available bytes is less thatn nbyte and the following flag is 1
+            #set byteCount to 0 and continue the for loop
         elif byteCount is not nbytes and byte is 1:
             byteCount = 0
 
