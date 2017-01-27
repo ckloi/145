@@ -22,6 +22,12 @@ fd = fs.open('f1','r')
 
 fs.seek(fd,0)
 
+fs.seek(fd,1)
+
+fs.seek(fd,0)
+
+print(fs.pos(fd))
+
 
 
 
