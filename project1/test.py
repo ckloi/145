@@ -43,6 +43,6 @@ fd2 = fs.open('f2','r')
 
 fs.seek(fd2,0)
 
-print(fs.read(fd2,4))
+print(fs.read(fd2,2))
 
 
