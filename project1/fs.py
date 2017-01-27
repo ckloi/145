@@ -25,7 +25,7 @@ class TextFile:
     def seek(self, pos):
         # if seek position greater than bytes, exception
         if pos >= self.length():
-            raise ValueError("Out of bound")
+            raise Exception("Out of bound")
         else:
             # master file/fsname position moves pos position
             self.nativeFilePos = self.byteStart + pos;
@@ -46,11 +46,11 @@ class TextFile:
                         self.nativeFilePos += 1
                         self.userFilePos += 1
                 else:
-                    raise ValueError('The file is not in Write Mode')
+                    raise Exception('The file is not in Write Mode')
             else:
-                raise ValueError('The file is not open')
+                raise Exception('The file is not open')
         else:
-            raise ValueError('Content exceeds size of file')
+            raise Exception('Content exceeds size of file')
 
     def read(self, rbyte):
         if rbyte <= self.length() - self.userFilePos:
@@ -60,9 +60,9 @@ class TextFile:
                 self.userFilePos = self.userFilePos + rbyte
                 return nativeFD.read(rbyte).translate(None, '\x00')  # exclude the null char
             else:
-                raise ValueError('the file is either not open or not in read mode')
+                raise Exception('the file is either not open or not in read mode')
         else:
-            raise ValueError('can not read: exceeds size of file')
+            raise Exception('can not read: exceeds size of file')
 
     def readlines(self):
         if self.mode is 'r' or self.mode is 'r+w':
@@ -133,7 +133,7 @@ def create(filename, nbytes):
     # print(memory)
 
     if (startIndex is -1 and endIndex is -1):
-        raise ValueError('Cannot Create File')
+        raise Exception('Cannot Create File')
     else:
         file = TextFile(filename, startIndex, endIndex)
         # file.write('\x00')
@@ -148,7 +148,7 @@ def open(filename, mode):
             file.mode = mode
             file.isOpen = True
             return file
-    raise ValueError('No such File')
+    raise Exception('No such File')
 
 
 #
