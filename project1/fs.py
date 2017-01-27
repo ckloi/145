@@ -51,9 +51,25 @@ class TextFile:
                 raise ValueError('The file is not open')
         else:
             raise ValueError('Content exceeds size of file')  # haven't finished readlines
+
+    def read(self, rbyte):
+        if rbyte <= self.length() - self.filePos:
+            if self.isOpen and self.mode is 'r':
+                nativeFD.seek(self.fsPos)
+                self.fsPos = self.fsPos + rbyte
+                self.filePos = self.filePos + rbyte
+                return nativeFD.read(rbyte)
+            else:
+                raise ValueError('the file is either not open or not in read mode')
+        else:
+            raise ValueError('can not read: exceeds size of file')
+
+
     def readlines(self):
         if self.mode is 'r' or self.mode is 'r+w':
             print("placeholder")  # haven't start directory class
+
+
 class Directory:
     def __init__(self):
         self.dirlist = []
@@ -160,7 +176,8 @@ def seek(fd, pos):
 
 #
 # #returns a string; raises an exception if the read would extend beyond the current length of the file
-# def read(fd, nbtes):
+def read(fd, nbytes):
+    return fd.read(nbytes)
 #
 # #Writes to a file, where writebuf is a string
 def write(fd, writebuf):
