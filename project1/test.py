@@ -18,6 +18,8 @@ fs.create('f1',2)
 
 fs.create('f2',7)
 
+fs.open('f1','r')
+
 
 
 #print (os.path.getsize('abc'))

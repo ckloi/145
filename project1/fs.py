@@ -1,27 +1,28 @@
-
-#Initializes file system
+# Initializes file system
 
 import os
+import __builtin__
+
 
 class TextFile:
-    def __init__(self,name,startIndex,endIndex):
+    def __init__(self, name, startIndex, endIndex):
         self.fileName = name
-        #stating position at fsname
+        # stating position at fsname
         self.byteStart = startIndex
-        #ending position at fsname
-        self.byteEnd  = endIndex  # -1 is undefined
+        # ending position at fsname
+        self.byteEnd = endIndex  # -1 is undefined
+        self.mode = ''
         self.isOpen = False
+
     def content(self):
-        fileLength = self.byteEnd - self.byteStart +1
-        #for i in fileLength:
-    def write(self,str):
+        fileLength = self.byteEnd - self.byteStart + 1
+        # for i in fileLength:
+
+    def write(self, str):
         for i in range(self.byteStart, self.byteEnd + 1):
             fd.seek(i)
             memory[i] = 1
             fd.write(str)
-
-
-
 
 
 class Directory:
@@ -30,32 +31,34 @@ class Directory:
         self.files = []
 
 
+fileList = []
+
 
 def init(fsname):
-    #file descriptor of fsname
+    # file descriptor of fsname
     global fd
-    fd = open(fsname,'r+w')
+    fd = __builtin__.open(fsname, 'r+w')
     # size of system file 
     size = os.path.getsize(fsname)
     print size
-    #size = 6
+    # size = 6
     # list of flag for space availibility of system file fsname
     # 0 for available and 1 for used
     global memory
     memory = [0] * size
-    #memory = [1,1,0,0,0,1]
-    #print(memory[size-1])
+    # memory = [1,1,0,0,0,1]
+    # print(memory[size-1])
 
 
-#use seek(5) and write to it # check if it has enough space, make a list to keep check the space available
+# use seek(5) and write to it # check if it has enough space, make a list to keep check the space available
 
-#\xoo is null in python # create set lines to null
+# \xoo is null in python # create set lines to null
 
 
-#fd = open('abc')
+# fd = open('abc')
 
-#fd.write
-#fd.open
+# fd.write
+# fd.open
 
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
@@ -64,7 +67,7 @@ def create(filename, nbytes):
     startIndex = -1
     endIndex = -1
 
-    #find number of consecutive bytes that are available in fsname for the file with nbyte
+    # find number of consecutive bytes that are available in fsname for the file with nbyte
     for index, byte in enumerate(memory):
         if byte is 0:
             byteCount = byteCount + 1
@@ -72,24 +75,37 @@ def create(filename, nbytes):
             endIndex = index
             startIndex = index - byteCount + 1
             break
-            #if consecutive available bytes is less thatn nbyte and the following flag is 1
-            #set byteCount to 0 and continue the for loop
+            # if consecutive available bytes is less thatn nbyte and the following flag is 1
+            # set byteCount to 0 and continue the for loop
         elif byteCount is not nbytes and byte is 1:
             byteCount = 0
 
-    #print(memory)
+    # print(memory)
 
     if (startIndex is -1 and endIndex is -1):
-        print("Cannot Create File")
+        raise ValueError('Cannot Create File')
     else:
-        file = TextFile(filename,startIndex,endIndex)
+        file = TextFile(filename, startIndex, endIndex)
         file.write('\x00')
+        fileList.append(file)
+
 
 # #Opens a file with the given mode
-# def open(filename, mode):
+def open(filename, mode):
+    for file in fileList:
+        if file.fileName is filename:
+            file.mode = mode
+            file.isOpen = True
+            return file
+    raise ValueError('No such File')
+
+
 #
 # #Closes a certain file
-# def close(fd):
+def close(fd):
+    fd.isOpen = False
+    return fd
+
 #
 # #Returns the length (in bytes) of a given file
 # def length(fd):
