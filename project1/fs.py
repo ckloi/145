@@ -35,17 +35,20 @@ class TextFile:
     def write(self, content):
         # make sure the string length is less than or equal to the file length
         if len(content) <= self.length() - self.filePos:  # tracks the seek pointer
-            #if self.mode is 'w' or self.mode is 'r+w':
-            for i in range(len(content)):
+            if self.isOpen:
+                if self.mode is 'w':
+                    for i in range(len(content)):
             # start write to master/fsname, find the position first
-                nativeFD.seek(self.fsPos)
+                        nativeFD.seek(self.fsPos)
                 # write into master/fsname file
-                nativeFD.write(content[i])
+                        nativeFD.write(content[i])
             # increment the postion on both master file and user file
-                self.fsPos += 1
-                self.filePos += 1
-            #else:
-                #raise ValueError('is not Write mode')
+                        self.fsPos += 1
+                        self.filePos += 1
+                else:
+                    raise ValueError('The file is not in Write Mode')
+            else:
+                raise ValueError('The file is not open')
         else:
             raise ValueError('Content exceeds size of file')  # haven't finished readlines
     def readlines(self):
