@@ -35,17 +35,17 @@ class TextFile:
     def write(self, content):
         # make sure the string length is less than or equal to the file length
         if len(content) <= self.length() - self.filePos:  # tracks the seek pointer
-            if self.mode is 'w' or self.mode is 'r+w':
-                for i in range(len(content)):
+            #if self.mode is 'w' or self.mode is 'r+w':
+            for i in range(len(content)):
             # start write to master/fsname, find the position first
-                    fd.seek(self.fsPos)
+                nativeFD.seek(self.fsPos)
                 # write into master/fsname file
-                    fd.write(content[i])
+                nativeFD.write(content[i])
             # increment the postion on both master file and user file
-                    self.fsPos += 1
-                    self.filePos += 1
-            else:
-                raise ValueError('is not Write mode')
+                self.fsPos += 1
+                self.filePos += 1
+            #else:
+                #raise ValueError('is not Write mode')
         else:
             raise ValueError('Content exceeds size of file')  # haven't finished readlines
     def readlines(self):
@@ -63,8 +63,8 @@ fileList = []
 
 def init(fsname):
     # file descriptor of fsname
-    global fd
-    fd = __builtin__.open(fsname, 'r+w')
+    global nativeFD
+    nativeFD = __builtin__.open(fsname, 'r+w')
     # size of system file 
     size = os.path.getsize(fsname)
     print size
@@ -160,7 +160,8 @@ def seek(fd, pos):
 # def read(fd, nbtes):
 #
 # #Writes to a file, where writebuf is a string
-# def write(fd, writebuf):
+def write(fd, writebuf):
+    fd.write(writebuf)
 #
 # #reads the entire file, returning a list of strings; treats any 0xa byte it encounters as end of a line; does NOT change the pos value
 # def readlines(fd):
