@@ -31,16 +31,22 @@ class TextFile:
             self.fsPos = self.byteStart + pos;
             # user file position now is equal pos
             self.filePos = pos
-    # haven't finished write
-    def write(self, str):
-        if self.mode is 'w' or self.mode is 'r+w':
-            for i in range(len(str)):
-                fd.seek(i)
-                fd.write(str[i])
-                self.fsPos += 1
-                self.fileName += 1
-        else:
-            raise ValueError('is not Write mode')
+    def write(self,content):
+        #make sure the string length is less than or equal to the file length
+        if len(content) <= self.length():
+            if self.mode is 'w' or self.mode is 'r+w':
+                for i in range(len(content)):
+                    #start write to master/fsname, find the position first
+                    fd.seek(self.fsPos)
+                    #write into master/fsname file
+                    fd.write(content[i])
+                    #increment the postion on both master file and user file
+                    self.fsPos += 1
+                    self.fileName += 1
+            else:
+                raise ValueError('is not Write mode')
+        else:
+            raise ValueError('Content is greater than the size of file')
     #haven't finished readlines
     def readlines(self):
         if self.mode is 'r' or self.mode is 'r+w':
