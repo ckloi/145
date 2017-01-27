@@ -13,16 +13,27 @@ class TextFile:
         self.byteEnd = endIndex  # -1 is undefined
         self.mode = ''
         self.isOpen = False
+        self.fsPos = startIndex
+        self.filePos = 0
 
-    def content(self):
-        fileLength = self.byteEnd - self.byteStart + 1
+    def length(self):
+        return self.byteEnd - self.byteStart + 1
         # for i in fileLength:
+
+    def seek(self, pos):
+        if pos >= self.length():
+            raise ValueError("Out of bound")
+        else:
+            self.fsPos += pos
+            self.filePos += pos
 
     def write(self, str):
         if self.mode is 'w' or self.mode is 'r+w':
-            for i in range(self.byteStart, self.byteEnd + 1):
+            for i in range(len(str)):
                 fd.seek(i)
-                fd.write(str)
+                fd.write(str[i])
+                self.fsPos += 1
+                self.fileName += 1
         else:
             raise ValueError('is not Write mode')
     def readlines(self):
@@ -116,13 +127,17 @@ def close(fd):
 
 #
 # #Returns the length (in bytes) of a given file
-# def length(fd):
+def length(fd):
+    return fd.length()
 #
 # #Returns the current read/write position in the file
-# def pos(fd):
+def pos(fd):
+    return fd.filePos
+
 #
 # #Sets the read/write position to pos
-# def seek(fd, pos):
+def seek(fd, pos):
+    fd.seek(pos)
 #
 # #returns a string; raises an exception if the read would extend beyond the current length of the file
 # def read(fd, nbtes):

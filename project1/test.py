@@ -18,9 +18,14 @@ fs.create('f1',2)
 
 fs.create('f2',7)
 
-fs.open('f1','r')
+fd = fs.open('f1','r')
 
-fd = open('abc')
+fs.seek(fd,0)
+
+print(fs.pos(fd))
+
+
+
 
 
 #print (os.path.getsize('abc'))
