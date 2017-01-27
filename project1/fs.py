@@ -29,12 +29,6 @@ class Directory:
 
 
 
-
-fd = None
-memory = []
-
-
-
 def init(fsname):
     global fd
     fd = open(fsname,'r+w')
