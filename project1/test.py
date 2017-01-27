@@ -36,3 +36,13 @@ fs.write(fd,"22")
 print(fs.pos(fd))
 
 fs.write(fd2,"qq")
+
+fs.close(fd2)
+
+fd2 = fs.open('f2','r')
+
+fs.seek(fd2,0)
+
+print(fs.read(fd2,4))
+
+
