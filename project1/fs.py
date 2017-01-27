@@ -13,9 +13,9 @@ class TextFile:
         self.byteEnd = endIndex  # -1 is undefined
         self.mode = ''
         self.isOpen = False
-        #position of the system file/native file
+        # position of the system file/native file
         self.fsPos = startIndex
-        #position of the user input/edit file
+        # position of the user input/edit file
         self.filePos = 0
 
     def length(self):
@@ -23,43 +23,41 @@ class TextFile:
         # for i in fileLength:
 
     def seek(self, pos):
-        #if seek position greater than bytes, exception
+        # if seek position greater than bytes, exception
         if pos >= self.length():
             raise ValueError("Out of bound")
         else:
-            #master file/fsname position moves pos position
+            # master file/fsname position moves pos position
             self.fsPos = self.byteStart + pos;
             # user file position now is equal pos
             self.filePos = pos
-    def write(self,content):
-        #make sure the string length is less than or equal to the file length
-        if len(content) <= self.length():
-            if self.mode is 'w' or self.mode is 'r+w':
-                for i in range(len(content)):
-                    #start write to master/fsname, find the position first
-                    fd.seek(self.fsPos)
-                    #write into master/fsname file
-                    fd.write(content[i])
-                    #increment the postion on both master file and user file
-                    self.fsPos += 1
-                    self.fileName += 1
-            else:
-                raise ValueError('is not Write mode')
-        else:
-            raise ValueError('Content is greater than the size of file')
-    #haven't finished readlines
+
+    def write(self, content):
+        # make sure the string length is less than or equal to the file length
+        if len(content) <= self.length():
+            if self.mode is 'w' or self.mode is 'r+w':
+                for i in range(len(content)):
+            # start write to master/fsname, find the position first
+                    fd.seek(self.fsPos)
+                # write into master/fsname file
+                    fd.write(content[i])
+            # increment the postion on both master file and user file
+                    self.fsPos += 1
+                    self.fileName += 1
+            else:
+                raise ValueError('is not Write mode')
+        else:
+            raise ValueError('Content is greater than the size of file')  # haven't finished readlines
     def readlines(self):
         if self.mode is 'r' or self.mode is 'r+w':
-            print("placeholder")
-
-
-#haven't start directory class
+            print("placeholder")  # haven't start directory class
 class Directory:
     def __init__(self):
         self.dirlist = []
         self.files = []
 
-#list to hold file object
+
+# list to hold file object
 fileList = []
 
 
@@ -74,7 +72,7 @@ def init(fsname):
     # list of flag for space availibility of system file fsname
     # 0 for available and 1 for used
     global memory
-    #make the flag list have the same size with the master/fsname file
+    # make the flag list have the same size with the master/fsname file
     memory = [0] * size
     # memory = [1,1,0,0,0,1]
     # print(memory[size-1])
@@ -118,14 +116,14 @@ def create(filename, nbytes):
         raise ValueError('Cannot Create File')
     else:
         file = TextFile(filename, startIndex, endIndex)
-        #file.write('\x00')
+        # file.write('\x00')
         fileList.append(file)
 
 
 # #Opens a file with the given mode
 def open(filename, mode):
     for file in fileList:
-        #if file object is created before
+        # if file object is created before
         if file.fileName is filename:
             file.mode = mode
             file.isOpen = True
@@ -139,19 +137,24 @@ def close(fd):
     fd.isOpen = False
     return fd
 
+
 #
 # #Returns the length (in bytes) of a given file
 def length(fd):
     return fd.length()
+
+
 #
 # #Returns the current read/write position in the file
 def pos(fd):
     return fd.filePos
 
+
 #
 # #Sets the read/write position to pos
 def seek(fd, pos):
     fd.seek(pos)
+
 #
 # #returns a string; raises an exception if the read would extend beyond the current length of the file
 # def read(fd, nbtes):
