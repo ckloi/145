@@ -13,7 +13,9 @@ class TextFile:
         self.byteEnd = endIndex  # -1 is undefined
         self.mode = ''
         self.isOpen = False
+        #position of the system file/native file
         self.fsPos = startIndex
+        #position of the user input/edit file
         self.filePos = 0
 
     def length(self):
@@ -21,12 +23,15 @@ class TextFile:
         # for i in fileLength:
 
     def seek(self, pos):
+        #if seek position greater than bytes, exception
         if pos >= self.length():
             raise ValueError("Out of bound")
         else:
-            self.fsPos += pos
-            self.filePos += pos
-
+            #master file/fsname position moves pos position
+            self.fsPos = self.byteStart + pos;
+            # user file position now is equal pos
+            self.filePos = pos
+    # haven't finished write
     def write(self, str):
         if self.mode is 'w' or self.mode is 'r+w':
             for i in range(len(str)):
@@ -36,18 +41,19 @@ class TextFile:
                 self.fileName += 1
         else:
             raise ValueError('is not Write mode')
+    #haven't finished readlines
     def readlines(self):
         if self.mode is 'r' or self.mode is 'r+w':
             print("placeholder")
 
 
-
+#haven't start directory class
 class Directory:
     def __init__(self):
         self.dirlist = []
         self.files = []
 
-
+#list to hold file object
 fileList = []
 
 
@@ -112,6 +118,7 @@ def create(filename, nbytes):
 # #Opens a file with the given mode
 def open(filename, mode):
     for file in fileList:
+        #if file object is created before
         if file.fileName is filename:
             file.mode = mode
             file.isOpen = True
