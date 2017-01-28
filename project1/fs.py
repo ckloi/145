@@ -23,62 +23,41 @@ class TextFile:
         # for i in fileLength:
 
     def seek(self, pos):
-        # if seek position greater than bytes, exception
-        if pos >= self.length():
-            raise Exception("Out of bound")
-        else:
-            # master file/fsname position moves pos position
-            self.nativeFilePos = self.byteStart + pos
-            # user file position now is equal pos
-            self.userFilePos = pos
+        # master file/fsname position moves pos position
+        self.nativeFilePos = self.byteStart + pos
+        # user file position now is equal pos
+        self.userFilePos = pos
 
     def write(self, content):
-        # make sure the string length is less than or equal to the file length
-        if len(content) <= self.length() - self.userFilePos:  # tracks the seek pointer
-            if self.isOpen:
-                if self.mode is 'w':
-                    for i in range(len(content)):
-                        # start write to master/fsname, find the position first
-                        nativeFD.seek(self.nativeFilePos)
-                        # write into master/fsname file
-                        nativeFD.write(content[i])
-                        # increment the position on both master file and user file
-                        self.nativeFilePos += 1
-                        self.userFilePos += 1
-                else:
-                    raise Exception('The file is not in Write Mode')
-            else:
-                raise Exception('The file is not open')
-        else:
-            raise Exception('Content exceeds size of file')
+        for i in range(len(content)):
+            # start write to master/fsname, find the position first
+            nativeFD.seek(self.nativeFilePos)
+            # write into master/fsname file
+            nativeFD.write(content[i])
+            # increment the position on both master file and user file
+            self.nativeFilePos += 1
+            self.userFilePos += 1
 
     def read(self, rbyte):
-        if rbyte <= self.length() - self.userFilePos:
-            if self.isOpen and self.mode is 'r':
-                nativeFD.seek(self.nativeFilePos)
-                self.nativeFilePos += rbyte
-                self.userFilePos += rbyte
-                return nativeFD.read(rbyte).translate(None, '\x00')  # exclude the null char
-            else:
-                raise Exception('the file is either not open or not in read mode')
-        else:
-            raise Exception('can not read: exceeds size of file')
+        nativeFD.seek(self.nativeFilePos)
+        self.nativeFilePos += rbyte
+        self.userFilePos += rbyte
+        return nativeFD.read(rbyte).translate(None, '\x00')  # exclude the null char
 
     #haven't tested
     #treat 0xa byte as end of line, not change the pos value
+    #Currently returns a list of characters (including \n and null). Needs to return a list of strings
     def readlines(self):
+        rstring = ''
         wfile_list = []
-        numchar = 0
-        if self.isOpen and self.mode is 'r':
-            nativeFD.seek(self.nativeFilePos)
-            for i in range(self.length()):
-                if i is '\n':
-                    break
-                else:
-                    wfile_list.append(nativeFD.read(1).translate(None, '\x00'))
-            return wfile_list
-        else:
-            raise Exception(' the file is either not open or not in read mode')
+        #This is not pos
+        nativeFD.seek(self.nativeFilePos)
+        for i in range(self.length()):
+            if i is '\n':
+                break
+            else:
+                wfile_list.append(nativeFD.read(1).translate(None, '\x00'))
+        return wfile_list
 
 
     def __str__(self):
@@ -187,29 +166,49 @@ def length(fd):
 #
 # #Returns the current read/write position in the file
 def pos(fd):
+    # if seek position greater than bytes, exception
+    if pos >= fd.length():
+        raise Exception("Out of bounds")
     return fd.userFilePos
 
 
 #
 # #Sets the read/write position to pos
 def seek(fd, pos):
+    if pos
     fd.seek(pos)
 
 
 #
 # #returns a string; raises an exception if the read would extend beyond the current length of the file
 def read(fd, nbytes):
+    if not fd.isOpen:
+        raise Exception("Failed to read: File is not open.")
+    if fd.mode != 'r':
+        raise Exception("Failed to read: File is not in read mode.")
+    if nbytes > fd.length() - fd.userFilePos:
+        raise Exception("Failed to read: Exceeded size of file.")
     return fd.read(nbytes)
 
 
 #
 # #Writes to a file, where writebuf is a string
 def write(fd, writebuf):
+    if not fd.isOpen:
+        raise Exception("Failed to write: File is not open.")
+    if fd.mode != 'w':
+        raise Exception("Failed to write: File is not in write mode.")
+    if len(writebuff) > fd.length() - fd.userFilePos:
+        raise Exception("Failed to write: Content exceeds size of file.")
     fd.write(writebuf)
 
 #
 # #reads the entire file, returning a list of strings; treats any 0xa byte it encounters as end of a line; does NOT change the pos value
 def readlines(fd):
+    if not fd.isOpen:
+        raise Exception("Failed to read: File is not open.")
+    if fd.mode != 'r':
+        raise Exception("Failed to read: File is not in read mode.")
     return fd.readlines()
 #
 # #Deletes a given file
