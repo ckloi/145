@@ -197,8 +197,16 @@ def write(fd, writebuf):
 # def readlines(fd):
 #
 # #Deletes a given file
-# def delfile(filename):
-#
+def delfile(filename):
+    for index, f in enumerate(fileList):
+        # if file object is created before
+        if f.fileName is filename:
+            for i in range(f.byteStart, f.byteEnd + 1):
+                memory[i] = 0
+            del fileList[index]
+            return
+    raise Exception('No such File')
+
 # #Creates a directory named "dirname"
 # def mkdir(dirname):
 #
