@@ -51,7 +51,7 @@ class TextFile:
         rstring = ""
         wfile_list = []
         nativeFD.seek(self.byteStart)
-        for i in nativeFD.read(self.length()+1)
+        for i in nativeFD.read(self.length()+1):
             if i == '\n':
                 #Append current string to list
                 wfile_list.append(rstring)
