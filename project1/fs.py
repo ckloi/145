@@ -75,8 +75,7 @@ class TextFile:
                 if i is '\n':
                     break
                 else:
-                    numchar+=1
-            wfile_list.append(nativeFD.read(numchar).translate(None, '\x00'))
+                    wfile_list.append(nativeFD.read(1).translate(None, '\x00'))
             return wfile_list
         else:
             raise Exception(' the file is either not open or not in read mode')
