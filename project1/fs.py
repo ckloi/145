@@ -166,6 +166,8 @@ def open(filename, mode):
         if f.fileName is filename:
             f.mode = mode
             f.isOpen = True
+            #Set file pointer to beginning of file
+            f.seek(0)
             return f
     raise Exception('No such File')
 
