@@ -166,16 +166,14 @@ def length(fd):
 #
 # #Returns the current read/write position in the file
 def pos(fd):
-    # if seek position greater than bytes, exception
-    if pos >= fd.length():
-        raise Exception("Out of bounds")
     return fd.userFilePos
 
 
 #
 # #Sets the read/write position to pos
 def seek(fd, pos):
-    if pos
+    if pos >= fd.length():
+        raise Exception("Out of bounds")
     fd.seek(pos)
 
 
