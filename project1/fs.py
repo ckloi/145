@@ -19,10 +19,6 @@ class TextFile:
         # position of the user input/edit file
         self.userFilePos = 0
 
-    def length(self):
-        return self.bytesUsed
-        # for i in fileLength:
-
     def seek(self, pos):
         # master file/fsname position moves pos position
         self.nativeFilePos = self.byteStart + pos
@@ -171,7 +167,7 @@ def close(fd):
 #
 # #Returns the length of used bytes in the file
 def length(fd):
-    return fd.length()
+    return fd.bytesUsed
 
 
 #
