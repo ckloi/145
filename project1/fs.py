@@ -64,9 +64,23 @@ class TextFile:
         else:
             raise Exception('can not read: exceeds size of file')
 
+    #haven't tested
+    #treat 0xa byte as end of line, not change the pos value
     def readlines(self):
-        if self.mode is 'r' or self.mode is 'r+w':
-            print("placeholder")  # haven't start yet
+        wfile_list = []
+        numchar = 0
+        if self.isOpen and self.mode is 'r':
+            nativeFD.seek(self.nativeFilePos)
+            for i in range(self.length()):
+                if i is '\n':
+                    break
+                else:
+                    numchar+=1
+            wfile_list.append(nativeFD.read(numchar).translate(None, '\x00'))
+            return wfile_list
+        else:
+            raise Exception(' the file is either not open or not in read mode')
+
 
     def __str__(self):
         name = '\'' + self.fileName + '\''
@@ -152,6 +166,8 @@ def open(filename, mode):
         if f.fileName is filename:
             f.mode = mode
             f.isOpen = True
+            #Set file pointer to beginning of file
+            f.seek(0)
             return f
     raise Exception('No such File')
 
@@ -194,7 +210,8 @@ def write(fd, writebuf):
 
 #
 # #reads the entire file, returning a list of strings; treats any 0xa byte it encounters as end of a line; does NOT change the pos value
-# def readlines(fd):
+def readlines(fd):
+    return fd.readlines()
 #
 # #Deletes a given file
 def delfile(filename):
