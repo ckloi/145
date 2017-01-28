@@ -11,6 +11,7 @@ class TextFile:
         self.byteStart = startIndex
         # ending position at fsname
         self.byteEnd = endIndex  # -1 is undefined
+        self.bytesUsed = 0
         self.mode = ''
         self.isOpen = False
         # position of the system file/native file
@@ -19,7 +20,7 @@ class TextFile:
         self.userFilePos = 0
 
     def length(self):
-        return self.byteEnd - self.byteStart + 1
+        return self.bytesUsed
         # for i in fileLength:
 
     def seek(self, pos):
@@ -34,6 +35,8 @@ class TextFile:
             nativeFD.seek(self.nativeFilePos)
             # write into master/fsname file
             nativeFD.write(content[i])
+            #Increment the length of the file
+            self.bytesUsed += 1
             # increment the position on both master file and user file
             self.nativeFilePos += 1
             self.userFilePos += 1
@@ -138,7 +141,7 @@ def create(filename, nbytes):
     # print(memory)
 
     if startIndex is -1 and endIndex is -1:
-        raise Exception('Cannot Create File')
+        raise Exception('Cannot Create File: Not enough space')
     else:
         f = TextFile(filename, startIndex, endIndex)
         # file.write('\x00')
@@ -166,7 +169,7 @@ def close(fd):
 
 
 #
-# #Returns the length (in bytes) of a given file
+# #Returns the length of used bytes in the file
 def length(fd):
     return fd.length()
 
@@ -192,7 +195,7 @@ def read(fd, nbytes):
         raise Exception("Failed to read: File is not open.")
     if fd.mode != 'r':
         raise Exception("Failed to read: File is not in read mode.")
-    if nbytes > fd.length() - fd.userFilePos:
+    if nbytes > fd.byteEnd + fd.byteStart - fd.userFilePos:
         raise Exception("Failed to read: Exceeded size of file.")
     return fd.read(nbytes)
 
@@ -204,7 +207,7 @@ def write(fd, writebuf):
         raise Exception("Failed to write: File is not open.")
     if fd.mode != 'w':
         raise Exception("Failed to write: File is not in write mode.")
-    if len(writebuf) > fd.length() - fd.userFilePos:
+    if len(writebuf) > fd.byteEnd + fd.byteStart - fd.userFilePos:
         raise Exception("Failed to write: Content exceeds size of file.")
     fd.write(writebuf)
 
