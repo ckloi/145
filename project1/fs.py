@@ -48,15 +48,23 @@ class TextFile:
     #treat 0xa byte as end of line, not change the pos value
     #Currently returns a list of characters (including \n and null). Needs to return a list of strings
     def readlines(self):
-        rstring = ''
+        rstring = ""
         wfile_list = []
-        #This is not pos
-        nativeFD.seek(self.nativeFilePos)
-        for i in range(self.length()):
-            if i is '\n':
+        nativeFD.seek(self.byteStart)
+        for i in nativeFD.read(self.length()+1)
+            if i == '\n':
+                #Append current string to list
+                wfile_list.append(rstring)
+                #Reset string
+                rstring = ""
+                continue
+            #If null character is reached, exit loop
+            if i is '\x00':
                 break
-            else:
-                wfile_list.append(nativeFD.read(1).translate(None, '\x00'))
+            rstring += i
+        #Add last string to list if it is not empty
+        if rstring != "":
+            wfile_list.append(rstring)
         return wfile_list
 
 
@@ -196,7 +204,7 @@ def write(fd, writebuf):
         raise Exception("Failed to write: File is not open.")
     if fd.mode != 'w':
         raise Exception("Failed to write: File is not in write mode.")
-    if len(writebuff) > fd.length() - fd.userFilePos:
+    if len(writebuf) > fd.length() - fd.userFilePos:
         raise Exception("Failed to write: Content exceeds size of file.")
     fd.write(writebuf)
 
