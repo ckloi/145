@@ -50,20 +50,13 @@ class TextFile:
         rstring = ""
         wfile_list = []
         nativeFD.seek(self.byteStart)
-        for i in nativeFD.read(self.length()+1):
+        for i in nativeFD.read(self.bytesUsed + 1):
             if i == '\n':
-                #Append current string to list
-                wfile_list.append(rstring)
-                #Reset string
-                rstring = ""
                 continue
             #If null character is reached, exit loop
             if i is '\x00':
                 break
-            rstring += i
-        #Add last string to list if it is not empty
-        if rstring != "":
-            wfile_list.append(rstring)
+            wfile_list.append(i)
         return wfile_list
 
 
