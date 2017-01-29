@@ -43,9 +43,7 @@ class TextFile:
         self.userFilePos += rbyte
         return nativeFD.read(rbyte) # exclude the null char
 
-    #haven't tested
     #treat 0xa byte as end of line, not change the pos value
-    #Currently returns a list of characters (including \n and null). Needs to return a list of strings
     def readlines(self):
         rstring = ""
         wfile_list = []
@@ -96,19 +94,6 @@ def init(fsname):
     global memory
     # make the flag list have the same size with the master/fsname file
     memory = [0] * size
-    # memory = [1,1,0,0,0,1]
-    # print(memory[size-1])
-
-
-# use seek(5) and write to it # check if it has enough space, make a list to keep check the space available
-
-# \xoo is null in python # create set lines to null
-
-
-# fd = open('abc')
-
-# fd.write
-# fd.open
 
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
@@ -134,13 +119,10 @@ def create(filename, nbytes):
         elif byteCount is not nbytes and byte is 1:
             byteCount = 0
 
-    # print(memory)
-
     if startIndex is -1 and endIndex is -1:
         raise Exception('Cannot Create File: Not enough space')
     else:
         f = TextFile(filename, startIndex, endIndex)
-        # file.write('\x00')
         fileList.append(f)
 
 
