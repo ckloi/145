@@ -41,7 +41,7 @@ class TextFile:
         nativeFD.seek(self.nativeFilePos)
         self.nativeFilePos += rbyte
         self.userFilePos += rbyte
-        return nativeFD.read(rbyte).translate(None, '\x00')  # exclude the null char
+        return nativeFD.read(rbyte) # exclude the null char
 
     #haven't tested
     #treat 0xa byte as end of line, not change the pos value
@@ -179,7 +179,7 @@ def pos(fd):
 #
 # #Sets the read/write position to pos
 def seek(fd, pos):
-    if pos >= fd.length():
+    if pos >= fd.bytesUsed:
         raise Exception("Out of bounds")
     fd.seek(pos)
 
@@ -191,7 +191,7 @@ def read(fd, nbytes):
         raise Exception("Failed to read: File is not open.")
     if fd.mode != 'r':
         raise Exception("Failed to read: File is not in read mode.")
-    if nbytes > fd.byteEnd + fd.byteStart - fd.userFilePos:
+    if nbytes > fd.byteEnd + fd.byteStart + 1 - fd.userFilePos:
         raise Exception("Failed to read: Exceeded size of file.")
     return fd.read(nbytes)
 
@@ -203,7 +203,7 @@ def write(fd, writebuf):
         raise Exception("Failed to write: File is not open.")
     if fd.mode != 'w':
         raise Exception("Failed to write: File is not in write mode.")
-    if len(writebuf) > fd.byteEnd + fd.byteStart - fd.userFilePos:
+    if len(writebuf) > fd.byteEnd + fd.byteStart + 1 - fd.userFilePos:
         raise Exception("Failed to write: Content exceeds size of file.")
     fd.write(writebuf)
 
@@ -223,6 +223,8 @@ def delfile(filename):
         if f.fileName is filename:
             for i in range(f.byteStart, f.byteEnd + 1):
                 memory[i] = 0
+                nativeFD.seek(i)
+                nativeFD.write('\x00')  # write null char in file
             del fileList[index]
             return
     raise Exception('No such File')
