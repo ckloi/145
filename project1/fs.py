@@ -52,11 +52,18 @@ class TextFile:
         nativeFD.seek(self.byteStart)
         for i in nativeFD.read(self.bytesUsed + 1):
             if i == '\n':
+                #Append current string to List
+                if rstring != "":
+                    wfile_list.append(rstring)
+                #Reset String
+                rstring = ""
                 continue
             #If null character is reached, exit loop
             if i is '\x00':
                 break
-            wfile_list.append(i)
+            rstring += i
+        if rstring != "":
+            wfile_list.append(rstring)
         return wfile_list
 
 

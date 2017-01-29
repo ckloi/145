@@ -22,7 +22,7 @@ fs.write(fd1,'a')
 # fd1 = fs.open('f1','w')
 
 
-fs.write(fd1,'\n\nc')
+fs.write(fd1,'c\n')
 
 fd1 = fs.open('f1','r')
 
