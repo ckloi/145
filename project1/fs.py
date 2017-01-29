@@ -31,7 +31,7 @@ class TextFile:
             nativeFD.seek(self.nativeFilePos)
             # write into master/fsname file
             nativeFD.write(content[i])
-            #Increment the length of the file
+            # Increment the length of the file
             self.bytesUsed += 1
             # increment the position on both master file and user file
             self.nativeFilePos += 1
@@ -41,29 +41,28 @@ class TextFile:
         nativeFD.seek(self.nativeFilePos)
         self.nativeFilePos += rbyte
         self.userFilePos += rbyte
-        return nativeFD.read(rbyte) # exclude the null char
+        return nativeFD.read(rbyte)  # exclude the null char
 
-    #treat 0xa byte as end of line, not change the pos value
+    # treat 0xa byte as end of line, not change the pos value
     def readlines(self):
         rstring = ""
         wfile_list = []
         nativeFD.seek(self.byteStart)
         for i in nativeFD.read(self.bytesUsed):
             if i == '\n':
-                #Append current string to List
+                # Append current string to List
                 if rstring != "":
                     wfile_list.append(rstring)
-                #Reset String
+                # Reset String
                 rstring = ""
                 continue
-            #If null character is reached, exit loop
+            # If null character is reached, exit loop
             if i is '\x00':
                 break
             rstring += i
         if rstring != "":
             wfile_list.append(rstring)
         return wfile_list
-
 
     def __str__(self):
         name = '\'' + self.fileName + '\''
@@ -72,19 +71,20 @@ class TextFile:
 
 
 class Directory:
-    def __init__(self):
-        self.dirlist = []
-        self.files = []
+    def __init__(self, name, prevD):
+        self.dirName = name
+        self.contentList = []
+        self.previousDir = prevD
 
 
 # list to hold file object
-fileList = []
+
 
 
 def init(fsname):
     # file descriptor of fsname
     global nativeFD
-    nativeFD = __builtin__.open(fsname, 'r+w')
+    nativeFD = __builtin__.open(fsname, 'r+')
     # size of system file
     size = os.path.getsize(fsname)
     print size
@@ -94,6 +94,34 @@ def init(fsname):
     global memory
     # make the flag list have the same size with the master/fsname file
     memory = [0] * size
+    global curDir
+    curDir = Directory('root', None)
+
+
+def chdir(dirname):
+    global curDir
+    if dirname == '..':
+        if curDir.previousDir is None:
+            return
+        else:
+            curDir = curDir.previousDir
+    else:
+        curDir = find(dirname, 'd')[1]
+
+
+# return a list
+# list[0] = index list[1] = object
+def find(name, searchType):
+    if searchType is 'd':  # Directory
+        for index, d in enumerate(curDir.contentList):
+            if isinstance(d, Directory) and d.dirName is name:
+                return [index, d]
+    elif searchType is 'f':  # file
+        for index, f in enumerate(curDir.contentList):
+            if isinstance(f, TextFile) and f.fileName is name:
+                return [index, f]
+    raise Exception('No such file or directory')
+
 
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
@@ -123,20 +151,18 @@ def create(filename, nbytes):
         raise Exception('Cannot Create File: Not enough space')
     else:
         f = TextFile(filename, startIndex, endIndex)
-        fileList.append(f)
+        curDir.contentList.append(f)
 
 
 # #Opens a file with the given mode
 def open(filename, mode):
-    for f in fileList:
-        # if file object is created before
-        if f.fileName is filename:
-            f.mode = mode
-            f.isOpen = True
-            #Set file pointer to beginning of file
-            f.seek(0)
-            return f
-    raise Exception('No such File')
+    f = find(filename,'f')[1]
+    f.mode = mode
+    f.isOpen = True
+    # Set file pointer to beginning of file
+    f.seek(0)
+    return f
+
 
 
 #
@@ -189,6 +215,7 @@ def write(fd, writebuf):
         raise Exception("Failed to write: Content exceeds size of file.")
     fd.write(writebuf)
 
+
 #
 # #reads the entire file, returning a list of strings; treats any 0xa byte it encounters as end of a line; does NOT change the pos value
 def readlines(fd):
@@ -197,30 +224,49 @@ def readlines(fd):
     if fd.mode != 'r':
         raise Exception("Failed to read: File is not in read mode.")
     return fd.readlines()
+
+
 #
 # #Deletes a given file
 def delfile(filename):
-    for index, f in enumerate(fileList):
-        # if file object is created before
-        if f.fileName is filename:
-            for i in range(f.byteStart, f.byteEnd + 1):
-                memory[i] = 0
-            del fileList[index]
-            return
-    raise Exception('No such File')
+    temp = find(filename, 'f')
+    index = temp[0]
+    f = temp[1]
+    for i in range(f.byteStart, f.byteEnd + 1):
+        memory[i] = 0
+    del curDir.contentList[index]
+    # Set file pointer to beginning of file
+    f.seek(0)
+
+
 
 # #Creates a directory named "dirname"
-# def mkdir(dirname):
+def mkdir(dirname):
+    curDir.contentList.append(Directory(dirname, curDir))
+
+
 #
 # #Deletes a given directory
-# def deldir(dirname):
+def deldir(dirname):
+    index = find(dirname, 'd')[0]
+    del curDir.contentList[index]
+
+
 #
 # #Returns true if "dirname" is a directory, false otherwise
-# def isdir(dirname):
+def isdir(dirname):
+    for index, f in enumerate(curDir.contentList):
+        if isinstance(f, Directory) and f.dirName is dirname:
+            return True
+    return False
+
 #
 # #Lists all files in directory "dirname"
 # def listdir(dirname):
 #
+
+
+
 # #Suspends the current file system
 # def suspend():
 #
