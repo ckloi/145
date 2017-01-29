@@ -223,8 +223,6 @@ def delfile(filename):
         if f.fileName is filename:
             for i in range(f.byteStart, f.byteEnd + 1):
                 memory[i] = 0
-                nativeFD.seek(i)
-                nativeFD.write('\x00')  # write null char in file
             del fileList[index]
             return
     raise Exception('No such File')
