@@ -95,7 +95,7 @@ def init(fsname):
     # make the flag list have the same size with the master/fsname file
     memory = [0] * size
     global curDir
-    curDir = Directory('root', None)
+    curDir = Directory('/', None)
 
 
 def chdir(dirname):
@@ -232,6 +232,8 @@ def delfile(filename):
     temp = find(filename, 'f')
     index = temp[0]
     f = temp[1]
+    if f.isOpen:
+        raise Exception("Unable to delete file: File is open.")
     for i in range(f.byteStart, f.byteEnd + 1):
         memory[i] = 0
     del curDir.contentList[index]
@@ -248,7 +250,10 @@ def mkdir(dirname):
 #
 # #Deletes a given directory
 def deldir(dirname):
-    index = find(dirname, 'd')[0]
+    temp = find(dirname, 'd')
+    index = temp[0]
+    if temp[1] is curDir:
+        raise Exception("Cannot delete directory: Currently in directory to be deleted")
     del curDir.contentList[index]
 
 
