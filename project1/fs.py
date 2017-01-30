@@ -112,9 +112,7 @@ def chdir(dirname):
     for dr in dirList:
         #If first character in dirname is '/', the first string will be blank
         if dr == '':
-            #Since first character is '/', switch to root directory
-            if dr is dirList[0]:
-                curDir = rootDir
+            curDir = rootDir
             continue
         #'.' means current directory, so just move onto the next dir in the list
         if dr == '.':
