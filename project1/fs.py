@@ -82,6 +82,10 @@ class Directory:
 def init(fsname):
     # file descriptor of fsname
     global nativeFD
+    global isActive
+    isActive = True
+    global numFilesOpen
+    numFilesOpen = 0
     nativeFD = __builtin__.open(fsname, 'r+')
     # size of system file
     size = os.path.getsize(fsname)
@@ -182,9 +186,15 @@ def create(filename, nbytes):
 
 # #Opens a file with the given mode
 def open(filename, mode):
+    #If file system is suspended, can't open file
+    if not isActive:
+        raise Exception("Cannot open file: file system is currently suspended")
+
+    global numFilesOpen
     f = find(filename,'f')[1]
     f.mode = mode
     f.isOpen = True
+    numFilesOpen += 1
     # Set file pointer to beginning of file
     f.seek(0)
     return f
@@ -194,7 +204,12 @@ def open(filename, mode):
 #
 # #Closes a certain file
 def close(fd):
+    if not fd.isOpen:
+        raise Exception("Cannot close file: File was never opened")
+
+    global numFilesOpen
     fd.isOpen = False
+    numFilesOpen -= 1
     return fd
 
 
@@ -316,7 +331,12 @@ def listdir(dirname):
 
 # #Suspends the current file system
 def suspend():
+    #If any files are still open, cannot suspend file system
+    if numFilesOpen != 0:
+        raise Exception("Cannot suspend file system: a file is still open.")
+
     global saveName
+    isActive = False
     saveName = nativeFD.name + '.fssave'
     saveDict = {"memory":memory, "rootDir":rootDir,"curDir":curDir , "fsname": nativeFD.name}
     pickle_file = __builtin__.open(saveName,'wb')
