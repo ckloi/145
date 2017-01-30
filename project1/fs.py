@@ -2,6 +2,7 @@
 
 import os
 import __builtin__
+import pickle
 
 
 class TextFile:
@@ -316,7 +317,23 @@ def listdir(dirname):
 
 
 # #Suspends the current file system
-# def suspend():
+def suspend():
+    saveDict = {"memory":memory, "rootDir":rootDir,"curDir":curDir , "fsname": nativeFD.name}
+    pickle_file = __builtin__.open('f.fssave','wb')
+    pickle.dump(saveDict,pickle_file)
+    nativeFD.close()  # close the master file
+    pickle_file.close()
 #
 # #Resumes the previously suspended file system
-# def resume():
+def resume():
+    pickle_file = __builtin__.open('f.fssave','rb')
+    saveDict = pickle.load(pickle_file)
+    global nativeFD
+    nativeFD = __builtin__.open(saveDict["fsname"], 'r+')
+    global memory
+    memory = saveDict["memory"]
+    global rootDir
+    rootDir = saveDict["rootDir"]
+    global curDir
+    curDir = saveDict["curDir"]
+    pickle_file.close()
