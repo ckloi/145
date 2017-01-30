@@ -50,7 +50,7 @@ class TextFile:
         wfile_list = []
         nativeFD.seek(self.byteStart)
         for i in nativeFD.read(self.bytesUsed):
-            # treat 0xa byte as end of line
+            #treat 0xa byte as end of line
             if i == '\n' or i == '0xa':
                 # Append current string to List
                 if rstring != "":
@@ -82,6 +82,10 @@ class Directory:
 def init(fsname):
     # file descriptor of fsname
     global nativeFD
+    global isActive
+    isActive = True
+    global numFilesOpen
+    numFilesOpen = 0
     nativeFD = __builtin__.open(fsname, 'r+')
     # size of system file
     size = os.path.getsize(fsname)
@@ -94,46 +98,45 @@ def init(fsname):
     memory = [0] * size
     global curDir
     global rootDir
-    # DO NOT CHANGE THIS
+    #DO NOT CHANGE THIS
     rootDir = Directory('/', None)
-    # This will change
+    #This will change
     curDir = rootDir
 
-
-# THIS DOES NOT WORK YET
-# Only works for single directory arguments. Doesn't work for lists of directories (e.g. "/d1/d1_1").
-# Account for '/' at end of path
+#THIS DOES NOT WORK YET
+#Only works for single directory arguments. Doesn't work for lists of directories (e.g. "/d1/d1_1").
+#Account for '/' at end of path
 def chdir(dirname):
     global curDir
-    # Split dirname into list of strings (or directories in this case). Separater character is '/'
+    #Split dirname into list of strings (or directories in this case). Separater character is '/'
     dirList = dirname.split('/')
-    # If '' is last element, that means that '/' is the last character in the path and can be ignored
+    #If '' is last element, that means that '/' is the last character in the path and can be ignored
     if dirList[-1] == '':
         del dirList[-1]
     for dr in dirList:
-        # If first character in dirname is '/', the first string will be blank
+        #If first character in dirname is '/', the first string will be blank
         if dr == '':
             curDir = rootDir
             continue
-        # '.' means current directory, so just move onto the next dir in the list
+        #'.' means current directory, so just move onto the next dir in the list
         if dr == '.':
             continue
-        # '..' means previous directory, so change curDir to previousDir, and resume
+        #'..' means previous directory, so change curDir to previousDir, and resume
         if dr == '..':
             curDir = curDir.previousDir
             continue
-        # Otherwise, go through the list trying to find the right directory
+        #Otherwise, go through the list trying to find the right directory
         curDir = find(dr, 'd')[1]
-        # if dirname == '/' or dirname == ""
-        #    curDir = rootDir
-        #    return
-        # if dirname == '..':
-        #    if curDir.previousDir is None:
-        #        return
-        #    else:
-        #        curDir = curDir.previousDir
-        # else:
-        #    curDir = find(dirname, 'd')[1]
+    #if dirname == '/' or dirname == ""
+    #    curDir = rootDir
+    #    return
+    #if dirname == '..':
+    #    if curDir.previousDir is None:
+    #        return
+    #    else:
+    #        curDir = curDir.previousDir
+    #else:
+    #    curDir = find(dirname, 'd')[1]
 
 
 # return a list
@@ -153,53 +156,60 @@ def find(name, searchType):
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
-    try:
-        find(filename, 'f')
-    except:
-        byteCount = 0
-        startIndex = -1
-        endIndex = -1
+    byteCount = 0
+    startIndex = -1
+    endIndex = -1
 
-        # find number of consecutive bytes that are available in fsname for the file with nbyte
-        for index, byte in enumerate(memory):
-            if byte is 0:
-                byteCount += 1
-            if byteCount is nbytes:
-                endIndex = index
-                startIndex = index - byteCount + 1
-                for i in range(startIndex, endIndex + 1):
-                    memory[i] = 1
-                    nativeFD.seek(i)
-                    nativeFD.write('\x00')  # write null char in file
-                break
-                # if consecutive available bytes is less thatn nbyte and the following flag is 1
-                # set byteCount to 0 and continue the for loop
-            elif byteCount is not nbytes and byte is 1:
-                byteCount = 0
+    # find number of consecutive bytes that are available in fsname for the file with nbyte
+    for index, byte in enumerate(memory):
+        if byte is 0:
+            byteCount += 1
+        if byteCount is nbytes:
+            endIndex = index
+            startIndex = index - byteCount + 1
+            for i in range(startIndex, endIndex + 1):
+                memory[i] = 1
+                nativeFD.seek(i)
+                nativeFD.write('\x00')  # write null char in file
+            break
+            # if consecutive available bytes is less thatn nbyte and the following flag is 1
+            # set byteCount to 0 and continue the for loop
+        elif byteCount is not nbytes and byte is 1:
+            byteCount = 0
 
-        if startIndex is -1 and endIndex is -1:
-            raise Exception('Cannot Create File: Not enough space')
-        else:
-            f = TextFile(filename, startIndex, endIndex)
-            curDir.contentList.append(f)
-        return
-    raise Exception("Already created " + filename + " directory")
+    if startIndex is -1 and endIndex is -1:
+        raise Exception('Cannot Create File: Not enough space')
+    else:
+        f = TextFile(filename, startIndex, endIndex)
+        curDir.contentList.append(f)
 
 
 # #Opens a file with the given mode
 def open(filename, mode):
-    f = find(filename, 'f')[1]
+    #If file system is suspended, can't open file
+    if not isActive:
+        raise Exception("Cannot open file: file system is currently suspended")
+
+    global numFilesOpen
+    f = find(filename,'f')[1]
     f.mode = mode
     f.isOpen = True
+    numFilesOpen += 1
     # Set file pointer to beginning of file
     f.seek(0)
     return f
 
 
+
 #
 # #Closes a certain file
 def close(fd):
+    if not fd.isOpen:
+        raise Exception("Cannot close file: File was never opened")
+
+    global numFilesOpen
     fd.isOpen = False
+    numFilesOpen -= 1
     return fd
 
 
@@ -272,14 +282,10 @@ def delfile(filename):
     f.seek(0)
 
 
+
 # #Creates a directory named "dirname"
 def mkdir(dirname):
-    try:
-        find(dirname, 'd')
-    except:
-        curDir.contentList.append(Directory(dirname, curDir))  # no duplicate dirname
-        return
-    raise Exception("Already created " + dirname + " directory")
+    curDir.contentList.append(Directory(dirname, curDir))
 
 
 #
@@ -300,13 +306,12 @@ def isdir(dirname):
             return True
     return False
 
-
-# FOR TESTING
+#FOR TESTING
 def getcwd():
     print curDir.dirName
 
 
-# Lists all files in directory "dirname"
+#Lists all files in directory "dirname"
 def listdir(dirname):
     global curDir
     tempDir = curDir
@@ -322,21 +327,26 @@ def listdir(dirname):
     print fileList
 
 
+
+
 # #Suspends the current file system
 def suspend():
+    #If any files are still open, cannot suspend file system
+    if numFilesOpen != 0:
+        raise Exception("Cannot suspend file system: a file is still open.")
+
     global saveName
+    isActive = False
     saveName = nativeFD.name + '.fssave'
-    saveDict = {"memory": memory, "rootDir": rootDir, "curDir": curDir, "fsname": nativeFD.name}
-    pickle_file = __builtin__.open(saveName, 'wb')
-    pickle.dump(saveDict, pickle_file)
+    saveDict = {"memory":memory, "rootDir":rootDir,"curDir":curDir , "fsname": nativeFD.name}
+    pickle_file = __builtin__.open(saveName,'wb')
+    pickle.dump(saveDict,pickle_file)
     nativeFD.close()  # close the master file
     pickle_file.close()
-
-
 #
 # #Resumes the previously suspended file system
 def resume():
-    pickle_file = __builtin__.open(saveName, 'rb')
+    pickle_file = __builtin__.open(saveName,'rb')
     saveDict = pickle.load(pickle_file)
     global nativeFD
     nativeFD = __builtin__.open(saveDict["fsname"], 'r+')
