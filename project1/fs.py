@@ -107,6 +107,7 @@ def chdir(dirname):
     global curDir
     #Split dirname into list of strings (or directories in this case). Separater character is '/'
     dirList = dirname.split('/')
+    print dirList
     for dr in dirList:
         #If first character in dirname is '/', the first string will be blank
         if dr == '':
@@ -139,11 +140,11 @@ def chdir(dirname):
 def find(name, searchType):
     if searchType is 'd':  # Directory
         for index, d in enumerate(curDir.contentList):
-            if isinstance(d, Directory) and d.dirName is name:
+            if isinstance(d, Directory) and d.dirName == name:
                 return [index, d]
     elif searchType is 'f':  # file
         for index, f in enumerate(curDir.contentList):
-            if isinstance(f, TextFile) and f.fileName is name:
+            if isinstance(f, TextFile) and f.fileName == name:
                 return [index, f]
     raise Exception('No such file or directory')
 
