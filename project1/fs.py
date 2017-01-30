@@ -156,32 +156,37 @@ def find(name, searchType):
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
-    byteCount = 0
-    startIndex = -1
-    endIndex = -1
+    try:
+        find(filename, 'f')
+    except:
+        byteCount = 0
+        startIndex = -1
+        endIndex = -1
 
-    # find number of consecutive bytes that are available in fsname for the file with nbyte
-    for index, byte in enumerate(memory):
-        if byte is 0:
-            byteCount += 1
-        if byteCount is nbytes:
-            endIndex = index
-            startIndex = index - byteCount + 1
-            for i in range(startIndex, endIndex + 1):
-                memory[i] = 1
-                nativeFD.seek(i)
-                nativeFD.write('\x00')  # write null char in file
-            break
-            # if consecutive available bytes is less thatn nbyte and the following flag is 1
-            # set byteCount to 0 and continue the for loop
-        elif byteCount is not nbytes and byte is 1:
-            byteCount = 0
+        # find number of consecutive bytes that are available in fsname for the file with nbyte
+        for index, byte in enumerate(memory):
+            if byte is 0:
+                byteCount += 1
+            if byteCount is nbytes:
+                endIndex = index
+                startIndex = index - byteCount + 1
+                for i in range(startIndex, endIndex + 1):
+                    memory[i] = 1
+                    nativeFD.seek(i)
+                    nativeFD.write('\x00')  # write null char in file
+                break
+                # if consecutive available bytes is less thatn nbyte and the following flag is 1
+                # set byteCount to 0 and continue the for loop
+            elif byteCount is not nbytes and byte is 1:
+                byteCount = 0
 
-    if startIndex is -1 and endIndex is -1:
-        raise Exception('Cannot Create File: Not enough space')
-    else:
-        f = TextFile(filename, startIndex, endIndex)
-        curDir.contentList.append(f)
+        if startIndex is -1 and endIndex is -1:
+            raise Exception('Cannot Create File: Not enough space')
+        else:
+            f = TextFile(filename, startIndex, endIndex)
+            curDir.contentList.append(f)
+        return
+    raise Exception("Already created " + filename + " file")
 
 
 # #Opens a file with the given mode
@@ -286,8 +291,12 @@ def delfile(filename):
 
 # #Creates a directory named "dirname"
 def mkdir(dirname):
-    curDir.contentList.append(Directory(dirname, curDir))
-
+    try:
+        find(dirname, 'd')
+    except:
+        curDir.contentList.append(Directory(dirname, curDir))  # no duplicate dirname
+        return
+    raise Exception("Already created " + dirname + " directory")
 
 #
 # #Deletes a given directory

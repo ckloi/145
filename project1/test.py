@@ -11,25 +11,52 @@ fs.create('f2',7)
 
 fs.create('f3',8)
 
+fs.mkdir('asd')
+
+fs.chdir('asd')
+
+fs.mkdir('bsd')
+
+fs.chdir('bsd')
+
+fs.create('fs',5)
+
+fs.mkdir('ade')
 
 
-fd1 = fs.open('f1','w')
+fs.chdir('/asd/bsd/ade')
 
-fs.write(fd1,'a')
 
-# fs.close(fd1)
+print fs.curDir.contentList
+
+print fs.memory
+
+print fs.curDir.dirName
+
+print fs.nativeFD
+
+print fs.rootDir.dirName
+
+print fs.rootDir.contentList
+
+
+
+# fs.suspend()
 #
-# fd1 = fs.open('f1','w')
-
-
-fs.write(fd1,'c\n')
-
-fd1 = fs.open('f1','r')
-
-fs.delfile('f3')
-
-print fs.readlines(fd1)
-
+# fs.resume()
+#
+#
+# print fs.curDir.contentList
+#
+# print fs.memory
+#
+# print fs.curDir.dirName
+#
+# print fs.nativeFD
+#
+# print fs.rootDir.dirName
+#
+# print fs.rootDir.contentList
 
 #
 # fd = open('vsa','r+w')
