@@ -316,15 +316,17 @@ def listdir(dirname):
 
 # #Suspends the current file system
 def suspend():
+    global saveName
+    saveName = nativeFD.name + '.fssave'
     saveDict = {"memory":memory, "rootDir":rootDir,"curDir":curDir , "fsname": nativeFD.name}
-    pickle_file = __builtin__.open('f.fssave','wb')
+    pickle_file = __builtin__.open(saveName,'wb')
     pickle.dump(saveDict,pickle_file)
     nativeFD.close()  # close the master file
     pickle_file.close()
 #
 # #Resumes the previously suspended file system
 def resume():
-    pickle_file = __builtin__.open('f.fssave','rb')
+    pickle_file = __builtin__.open(saveName,'rb')
     saveDict = pickle.load(pickle_file)
     global nativeFD
     nativeFD = __builtin__.open(saveDict["fsname"], 'r+')
