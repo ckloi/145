@@ -49,16 +49,14 @@ class TextFile:
         wfile_list = []
         nativeFD.seek(self.byteStart)
         for i in nativeFD.read(self.bytesUsed):
-            if i == '\n':
+            #treat 0xa byte as end of line
+            if i == '\n' or i == '0xa':
                 # Append current string to List
                 if rstring != "":
                     wfile_list.append(rstring)
                 # Reset String
                 rstring = ""
                 continue
-            # If null character is reached, exit loop
-            if i is '\x00':
-                break
             rstring += i
         if rstring != "":
             wfile_list.append(rstring)
@@ -145,7 +143,7 @@ def find(name, searchType):
         for index, f in enumerate(curDir.contentList):
             if isinstance(f, TextFile) and f.fileName == name:
                 return [index, f]
-    raise Exception('No such file or directory')
+    raise Exception('No such file or directory: ' + name)
 
 
 # focus on create file first then directory
@@ -224,7 +222,7 @@ def read(fd, nbytes):
         raise Exception("Failed to read: File is not open.")
     if fd.mode != 'r':
         raise Exception("Failed to read: File is not in read mode.")
-    if nbytes > fd.byteEnd + fd.byteStart + 1 - fd.userFilePos:
+    if nbytes > length(fd) - fd.userFilePos:
         raise Exception("Failed to read: Exceeded size of file.")
     return fd.read(nbytes)
 
@@ -236,7 +234,7 @@ def write(fd, writebuf):
         raise Exception("Failed to write: File is not open.")
     if fd.mode != 'w':
         raise Exception("Failed to write: File is not in write mode.")
-    if len(writebuf) > fd.byteEnd + fd.byteStart + 1 - fd.userFilePos:
+    if len(writebuf) > length(fd) - fd.userFilePos:
         raise Exception("Failed to write: Content exceeds size of file.")
     fd.write(writebuf)
 
