@@ -78,7 +78,6 @@ class Directory:
 # list to hold file object
 
 
-
 def init(fsname):
     # file descriptor of fsname
     global nativeFD
@@ -101,15 +100,20 @@ def init(fsname):
 
 #THIS DOES NOT WORK YET
 #Only works for single directory arguments. Doesn't work for lists of directories (e.g. "/d1/d1_1").
+#Account for '/' at end of path
 def chdir(dirname):
     global curDir
     #Split dirname into list of strings (or directories in this case). Separater character is '/'
     dirList = dirname.split('/')
+    #If '' is last element, that means that '/' is the last character in the path and can be ignored
+    if dirList[-1] == '':
+        del dirList[-1]
     for dr in dirList:
         #If first character in dirname is '/', the first string will be blank
         if dr == '':
             #Since first character is '/', switch to root directory
-            curDir = rootDir
+            if dr is dirList[0]:
+                curDir = rootDir
             continue
         #'.' means current directory, so just move onto the next dir in the list
         if dr == '.':
@@ -222,7 +226,7 @@ def read(fd, nbytes):
         raise Exception("Failed to read: File is not open.")
     if fd.mode != 'r':
         raise Exception("Failed to read: File is not in read mode.")
-    if nbytes > length(fd) - fd.userFilePos:
+    if nbytes > fd.byteStart + fd.byteEnd + 1 - fd.userFilePos:
         raise Exception("Failed to read: Exceeded size of file.")
     return fd.read(nbytes)
 
@@ -234,7 +238,7 @@ def write(fd, writebuf):
         raise Exception("Failed to write: File is not open.")
     if fd.mode != 'w':
         raise Exception("Failed to write: File is not in write mode.")
-    if len(writebuf) > length(fd) - fd.userFilePos:
+    if len(writebuf) > fd.byteStart + fd.byteEnd + 1 - fd.userFilePos:
         raise Exception("Failed to write: Content exceeds size of file.")
     fd.write(writebuf)
 
@@ -295,21 +299,17 @@ def getcwd():
 
 #Lists all files in directory "dirname"
 def listdir(dirname):
-    if dirname == '/':
-        tempDir = rootDir
-    elif dirname == '.':
-        tempDir = curDir
-    elif dirname == '..':
-        tempDir = curDir.previousDir
-    else:
-        tempDir = find(dirname, 'd')[1]
+    global curDir
+    tempDir = curDir
+    chdir(dirname)
+
     fileList = []
-    for inst in tempDir.contentList:
+    for inst in curDir.contentList:
         if isinstance(inst, TextFile):
             fileList.append(inst.fileName)
-            continue
-        if isinstance(inst, Directory):
+        elif isinstance(inst, Directory):
             fileList.append(inst.dirName)
+    curDir = tempDir
     print fileList
 
 
