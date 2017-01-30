@@ -95,18 +95,43 @@ def init(fsname):
     # make the flag list have the same size with the master/fsname file
     memory = [0] * size
     global curDir
-    curDir = Directory('/', None)
+    global rootDir
+    #DO NOT CHANGE THIS
+    rootDir = Directory('/', None)
+    #This will change
+    curDir = rootDir
 
-
+#THIS DOES NOT WORK YET
+#Only works for single directory arguments. Doesn't work for lists of directories (e.g. "/d1/d1_1").
 def chdir(dirname):
     global curDir
-    if dirname == '..':
-        if curDir.previousDir is None:
-            return
-        else:
+    #Split dirname into list of strings (or directories in this case). Separater character is '/'
+    dirList = dirname.split('/')
+    for dr in dirList:
+        #If first character in dirname is '/', the first string will be blank
+        if dr == '':
+            #Since first character is '/', switch to root directory
+            curDir = rootDir
+            continue
+        #'.' means current directory, so just move onto the next dir in the list
+        if dr == '.':
+            continue
+        #'..' means previous directory, so change curDir to previousDir, and resume
+        if dr == '..':
             curDir = curDir.previousDir
-    else:
-        curDir = find(dirname, 'd')[1]
+            continue
+        #Otherwise, go through the list trying to find the right directory
+        curDir = find(dr, 'd')[1]
+    #if dirname == '/' or dirname == ""
+    #    curDir = rootDir
+    #    return
+    #if dirname == '..':
+    #    if curDir.previousDir is None:
+    #        return
+    #    else:
+    #        curDir = curDir.previousDir
+    #else:
+    #    curDir = find(dirname, 'd')[1]
 
 
 # return a list
@@ -265,10 +290,30 @@ def isdir(dirname):
             return True
     return False
 
-#
-# #Lists all files in directory "dirname"
-# def listdir(dirname):
-#
+#FOR TESTING
+def getcwd():
+    print curDir.dirName
+
+
+#Lists all files in directory "dirname"
+def listdir(dirname):
+    if dirname == '/':
+        tempDir = rootDir
+    elif dirname == '.':
+        tempDir = curDir
+    elif dirname == '..':
+        tempDir = curDir.previousDir
+    else:
+        tempDir = find(dirname, 'd')[1]
+    fileList = []
+    for inst in tempDir.contentList:
+        if isinstance(inst, TextFile):
+            fileList.append(inst.fileName)
+            continue
+        if isinstance(inst, Directory):
+            fileList.append(inst.dirName)
+    print fileList
+
 
 
 
