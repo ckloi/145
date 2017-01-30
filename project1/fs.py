@@ -107,7 +107,6 @@ def chdir(dirname):
     global curDir
     #Split dirname into list of strings (or directories in this case). Separater character is '/'
     dirList = dirname.split('/')
-    print dirList
     for dr in dirList:
         #If first character in dirname is '/', the first string will be blank
         if dr == '':
