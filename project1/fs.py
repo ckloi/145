@@ -193,8 +193,10 @@ def open(filename, mode):
     global numFilesOpen
     f = find(filename,'f')[1]
     f.mode = mode
+    #Only increment if a non-opened file is being opened
+    if not f.isOpen:
+        numFilesOpen += 1
     f.isOpen = True
-    numFilesOpen += 1
     # Set file pointer to beginning of file
     f.seek(0)
     return f
@@ -204,12 +206,11 @@ def open(filename, mode):
 #
 # #Closes a certain file
 def close(fd):
-    if not fd.isOpen:
-        raise Exception("Cannot close file: File was never opened")
-
     global numFilesOpen
+    #Only decrement if an open file is being closed
+    if fd.isOpen:
+        numFilesOpen -= 1
     fd.isOpen = False
-    numFilesOpen -= 1
     return fd
 
 
