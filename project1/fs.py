@@ -312,18 +312,14 @@ def deldir(dirname):
 # #Returns true if "dirname" is a directory, false otherwise
 def isdir(dirname):
     global curDir
-    lastDirName = dirname.split('.')[-1]
     tempDir = curDir  # save curDir ref
-    chdir(dirname)  # change dirname
-    chdir('..')  # go back one level
     try:
-        find(lastDirName, 'd')
+        chdir(dirname)  # change dirname
         found = True
     except:
         found = False
-    curDir = tempDir  # restore back
+    curDir = tempDir
     return found
-
 
 # FOR TESTING
 def getcwd():

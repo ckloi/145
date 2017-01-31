@@ -24,7 +24,7 @@ fs.create('fs',5)
 fs.mkdir('ade')
 
 
-fs.chdir('/asd/bsd/ade')
+print fs.isdir('/asd/bsd/ade')
 
 
 print fs.curDir.contentList
