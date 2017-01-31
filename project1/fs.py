@@ -349,8 +349,9 @@ def suspend():
         raise Exception("Cannot suspend file system: a file is still open.")
 
     global saveName
-    isActive = False
     saveName = nativeFD.name + '.fssave'
+    global isActive
+    isActive = False
     saveDict = {"memory": memory, "rootDir": rootDir, "curDir": curDir, "fsname": nativeFD.name}
     pickle_file = __builtin__.open(saveName, 'wb')
     pickle.dump(saveDict, pickle_file)
@@ -363,6 +364,8 @@ def suspend():
 def resume():
     pickle_file = __builtin__.open(saveName, 'rb')
     saveDict = pickle.load(pickle_file)
+    global isActive
+    isActive = True
     global nativeFD
     nativeFD = __builtin__.open(saveDict["fsname"], 'r+')
     global memory
