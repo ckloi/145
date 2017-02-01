@@ -330,7 +330,6 @@ def getcwd():
 def listdir(dirname):
     global curDir
     tempDir = curDir
-    curDir = rootDir
     chdir(dirname)
 
     fileList = []
