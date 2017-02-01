@@ -42,7 +42,7 @@ class TextFile:
         nativeFD.seek(self.nativeFilePos)
         self.nativeFilePos += rbyte
         self.userFilePos += rbyte
-        return nativeFD.read(rbyte)  # exclude the null char
+        return nativeFD.read(rbyte)
 
     # treat 0xa byte as end of line, not change the pos value
     def readlines(self):
@@ -76,29 +76,29 @@ class Directory:
         self.previousDir = prevD
 
 
-# list to hold file object
-
 
 def init(fsname):
     # file descriptor of fsname
     global nativeFD
+    #Used to check if the system is suspended or not
     global isActive
     isActive = True
+    #Tracks the number of files currently open
     global numFilesOpen
     numFilesOpen = 0
     nativeFD = __builtin__.open(fsname, 'r+')
     # size of system file
     size = os.path.getsize(fsname)
     print size
-    # size = 6
-    # list of flag for space availibility of system file fsname
-    # 0 for available and 1 for used
     global memory
     # make the flag list have the same size with the master/fsname file
+    # 0 for available and 1 for used
     memory = [0] * size
+    #Current directory
     global curDir
+    #Root directory
     global rootDir
-    # DO NOT CHANGE THIS
+    #DO NOT SET THIS EQUAL TO ANYTHING ELSE
     rootDir = Directory('/', None)
     # This will change
     curDir = rootDir
@@ -128,16 +128,6 @@ def chdir(dirname):
             continue
         # Otherwise, go through the list trying to find the right directory
         curDir = find(dr, 'd')[1]
-        # if dirname == '/' or dirname == ""
-        #    curDir = rootDir
-        #    return
-        # if dirname == '..':
-        #    if curDir.previousDir is None:
-        #        return
-        #    else:
-        #        curDir = curDir.previousDir
-        # else:
-        #    curDir = find(dirname, 'd')[1]
 
 
 # return a list
@@ -190,7 +180,7 @@ def create(filename, nbytes):
     raise Exception("Already created " + filename + " file")
 
 
-# #Opens a file with the given mode
+#Opens a file with the given mode
 def open(filename, mode):
     # If file system is suspended, can't open file
     if not isActive:
@@ -208,8 +198,7 @@ def open(filename, mode):
     return f
 
 
-#
-# #Closes a certain file
+#Closes a certain file
 def close(fd):
     global numFilesOpen
     # Only decrement if an open file is being closed
@@ -219,28 +208,24 @@ def close(fd):
     return fd
 
 
-#
-# #Returns the length of used bytes in the file
+#Returns the length of used bytes in the file
 def length(fd):
     return fd.bytesUsed
 
 
-#
-# #Returns the current read/write position in the file
+#Returns the current read/write position in the file
 def pos(fd):
     return fd.userFilePos
 
 
-#
-# #Sets the read/write position to pos
+#Sets the read/write position to pos
 def seek(fd, pos):
     if pos >= fd.bytesUsed:
         raise Exception("Out of bounds")
     fd.seek(pos)
 
 
-#
-# #returns a string; raises an exception if the read would extend beyond the current length of the file
+#returns a string; raises an exception if the read would extend beyond the current length of the file
 def read(fd, nbytes):
     if not fd.isOpen:
         raise Exception("Failed to read: File is not open.")
@@ -251,8 +236,7 @@ def read(fd, nbytes):
     return fd.read(nbytes)
 
 
-#
-# #Writes to a file, where writebuf is a string
+#Writes to a file, where writebuf is a string
 def write(fd, writebuf):
     if not fd.isOpen:
         raise Exception("Failed to write: File is not open.")
@@ -263,8 +247,8 @@ def write(fd, writebuf):
     fd.write(writebuf)
 
 
-#
-# #reads the entire file, returning a list of strings; treats any 0xa byte it encounters as end of a line; does NOT change the pos value
+#reads the entire file, returning a list of strings; treats any 0xa byte it
+#encounters as end of a line; does NOT change the pos value
 def readlines(fd):
     if not fd.isOpen:
         raise Exception("Failed to read: File is not open.")
@@ -273,8 +257,7 @@ def readlines(fd):
     return fd.readlines()
 
 
-#
-# #Deletes a given file
+#Deletes a given file
 def delfile(filename):
     temp = find(filename, 'f')
     index = temp[0]
@@ -288,7 +271,7 @@ def delfile(filename):
     f.seek(0)
 
 
-# #Creates a directory named "dirname"
+#Creates a directory named "dirname"
 def mkdir(dirname):
     try:
         find(dirname, 'd')
@@ -298,8 +281,7 @@ def mkdir(dirname):
     raise Exception("Already created " + dirname + " directory")
 
 
-#
-# #Deletes a given directory
+#Deletes a given directory
 def deldir(dirname):
     temp = find(dirname, 'd')
     index = temp[0]
@@ -308,8 +290,7 @@ def deldir(dirname):
     del curDir.contentList[index]
 
 
-#
-# #Returns true if "dirname" is a directory, false otherwise
+#Returns true if "dirname" is a directory, false otherwise
 def isdir(dirname):
     global curDir
     tempDir = curDir  # save curDir ref
@@ -329,20 +310,23 @@ def getcwd():
 # Lists all files in directory "dirname"
 def listdir(dirname):
     global curDir
+    #Save current directory object
     tempDir = curDir
     chdir(dirname)
 
     fileList = []
+    #Place all file/directory names in a list
     for inst in curDir.contentList:
         if isinstance(inst, TextFile):
             fileList.append(inst.fileName)
         elif isinstance(inst, Directory):
             fileList.append(inst.dirName)
+    #Restore current directory object
     curDir = tempDir
     print fileList
 
 
-# #Suspends the current file system
+#Suspends the current file system
 def suspend():
     # If any files are still open, cannot suspend file system
     if numFilesOpen != 0:
@@ -359,12 +343,15 @@ def suspend():
     pickle_file.close()
 
 
-#
 # #Resumes the previously suspended file system
 def resume():
+    global isActive
+    #Check if the file system is suspended
+    if isActive:
+        raise Exception("No file system has been suspended")
+
     pickle_file = __builtin__.open(saveName, 'rb')
     saveDict = pickle.load(pickle_file)
-    global isActive
     isActive = True
     global nativeFD
     nativeFD = __builtin__.open(saveDict["fsname"], 'r+')
