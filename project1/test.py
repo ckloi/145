@@ -3,6 +3,12 @@ import os
 
 import fs
 
+def prn(x):
+	try:
+		return "Dir " + x.dirName
+	except:
+		return "File " + x.fileName
+
 fs.init('abc')
 
 fs.create('f1',4)
@@ -11,33 +17,30 @@ fs.create('f2',7)
 
 fs.create('f3',8)
 
-fs.mkdir('asd')
+fs.mkdir('a')
 
-fs.chdir('asd')
+fs.chdir('a')
 
-fs.mkdir('bsd')
+fs.mkdir('b')
 
-fs.chdir('bsd')
+fs.chdir('b')
 
 fs.create('fs',5)
 
-fs.mkdir('ade')
+
+fs.mkdir('c')
+
+fs.mkdir('d')
 
 
-print fs.isdir('/asd/bsd/ade')
+print "Current Directory is " + fs.curDir.dirName
+
+print list(map(prn,fs.curDir.contentList))
 
 
-print fs.curDir.contentList
 
-print fs.memory
 
-print fs.curDir.dirName
 
-print fs.nativeFD
-
-print fs.rootDir.dirName
-
-print fs.rootDir.contentList
 
 
 
