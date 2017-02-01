@@ -156,7 +156,7 @@ def travel(path):
         # Join all strings except last (the directories) with '/' character so that
         # a path is passed into chdir
 	fDir = "/".join(fPath[0:-1])
-	if curDir.dirName != fPath[0]:
+	if curDir.dirName != fPath[0] and path[0] == '/':
 		fDir = '/' + fDir
         chdir(fDir)
     return name
