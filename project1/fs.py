@@ -147,8 +147,17 @@ def find(name, searchType):
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
+
+    global curDir
+    tempDir = curDir
+    fPath = filename.split('/')
+    fn = fPath[-1]
+    if len(fPath) > 1:
+        fDir = "/".join(fPath[0:-1])
+        chdir(fDir)
+
     try:
-        find(filename, 'f')
+        find(fn, 'f')
     except:
         byteCount = 0
         startIndex = -1
@@ -174,10 +183,11 @@ def create(filename, nbytes):
         if startIndex is -1 and endIndex is -1:
             raise Exception('Cannot Create File: Not enough space')
         else:
-            f = TextFile(filename, startIndex, endIndex)
+            f = TextFile(fn, startIndex, endIndex)
             curDir.contentList.append(f)
+        curDir = tempDir
         return
-    raise Exception("Already created " + filename + " file")
+    raise Exception("Already created " + fn + " file")
 
 
 #Opens a file with the given mode
