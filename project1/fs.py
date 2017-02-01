@@ -76,29 +76,28 @@ class Directory:
         self.previousDir = prevD
 
 
-
 def init(fsname):
     # file descriptor of fsname
     global nativeFD
-    #Used to check if the system is suspended or not
+    # Used to check if the system is suspended or not
     global isActive
     isActive = True
-    #Tracks the number of files currently open
+    # Tracks the number of files currently open
     global numFilesOpen
     numFilesOpen = 0
     nativeFD = __builtin__.open(fsname, 'r+')
     # size of system file
     size = os.path.getsize(fsname)
-    #print size
+    # print size
     global memory
     # make the flag list have the same size with the master/fsname file
     # 0 for available and 1 for used
     memory = [0] * size
-    #Current directory
+    # Current directory
     global curDir
-    #Root directory
+    # Root directory
     global rootDir
-    #DO NOT SET THIS EQUAL TO ANYTHING ELSE
+    # DO NOT SET THIS EQUAL TO ANYTHING ELSE
     rootDir = Directory('/', None)
     # This will change
     curDir = rootDir
@@ -144,25 +143,31 @@ def find(name, searchType):
     raise Exception('No such file or directory: ' + name)
 
 
+# travel to the directory that the user specified
+# return the file or directory name of the destination
+def travel(path):
+    fPath = path.split('/')
+    if fPath[-1] == '':
+        del fPath[-1]
+    # Last string in list should be file name to be created
+    name = fPath[-1]
+    # If only one element in the list, then only argument is file name, so no
+    # need to change directories
+    if len(fPath) > 1:
+        # Join all strings except last (the directories) with '/' character so that
+        # a path is passed into chdir
+        fDir = "/".join(fPath[0:-1])
+        chdir(fDir)
+    return name
+
+
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
-
     global curDir
     tempDir = curDir
-    fPath = filename.split('/')
-    if fPath[-1] == '':
-        del fPath[-1]
-    #Last string in list should be file name to be created
-    fn = fPath[-1]
-    #If only one element in the list, then only argument is file name, so no
-    #need to change directories
-    if len(fPath) > 1:
-        #Join all strings except last (the directories) with '/' character so that
-        #a path is passed into chdir
-        fDir = "/".join(fPath[0:-1])
-        chdir(fDir)
 
+    fn = travel(filename)
     try:
         find(fn, 'f')
     except:
@@ -199,7 +204,7 @@ def create(filename, nbytes):
     raise Exception("Already created " + fn + " file")
 
 
-#Opens a file with the given mode
+# Opens a file with the given mode
 def open(filename, mode):
     # If file system is suspended, can't open file
     if not isActive:
@@ -208,18 +213,8 @@ def open(filename, mode):
     global numFilesOpen
     global curDir
     tempDir = curDir
-    fPath = filename.split('/')
-    if fPath[-1] == '':
-        del fPath[-1]
-    #Last string in list should be file name to be opened
-    fn = fPath[-1]
-    #If only one element in the list, then only argument is file name, so no
-    #need to change directories
-    if len(fPath) > 1:
-        #Join all strings except last (the directories) with '/' character so that
-        #a path is passed into chdir
-        fDir = "/".join(fPath[0:-1])
-        chdir(fDir)
+
+    fn = travel(filename)
 
     f = find(fn, 'f')[1]
     f.mode = mode
@@ -233,7 +228,7 @@ def open(filename, mode):
     return f
 
 
-#Closes a certain file
+# Closes a certain file
 def close(fd):
     global numFilesOpen
     # Only decrement if an open file is being closed
@@ -243,24 +238,24 @@ def close(fd):
     return fd
 
 
-#Returns the length of used bytes in the file
+# Returns the length of used bytes in the file
 def length(fd):
     return fd.bytesUsed
 
 
-#Returns the current read/write position in the file
+# Returns the current read/write position in the file
 def pos(fd):
     return fd.userFilePos
 
 
-#Sets the read/write position to pos
+# Sets the read/write position to pos
 def seek(fd, pos):
     if pos >= fd.bytesUsed:
         raise Exception("Out of bounds")
     fd.seek(pos)
 
 
-#returns a string; raises an exception if the read would extend beyond the current length of the file
+# returns a string; raises an exception if the read would extend beyond the current length of the file
 def read(fd, nbytes):
     if not fd.isOpen:
         raise Exception("Failed to read: File is not open.")
@@ -271,7 +266,7 @@ def read(fd, nbytes):
     return fd.read(nbytes)
 
 
-#Writes to a file, where writebuf is a string
+# Writes to a file, where writebuf is a string
 def write(fd, writebuf):
     if not fd.isOpen:
         raise Exception("Failed to write: File is not open.")
@@ -282,8 +277,8 @@ def write(fd, writebuf):
     fd.write(writebuf)
 
 
-#reads the entire file, returning a list of strings; treats any 0xa byte it
-#encounters as end of a line; does NOT change the pos value
+# reads the entire file, returning a list of strings; treats any 0xa byte it
+# encounters as end of a line; does NOT change the pos value
 def readlines(fd):
     if not fd.isOpen:
         raise Exception("Failed to read: File is not open.")
@@ -292,22 +287,12 @@ def readlines(fd):
     return fd.readlines()
 
 
-#Deletes a given file
+# Deletes a given file
 def delfile(filename):
     global curDir
     tempDir = curDir
-    fPath = filename.split('/')
-    if fPath[-1] == '/':
-        del fPath[-1]
-    #Last string in list should be file name to be deleted
-    fn = fPath[-1]
-    #If only one element in the list, then only argument is file name, so no
-    #need to change directories
-    if len(fPath) > 1:
-        #Join all strings except last (the directories) with '/' character so that
-        #a path is passed into chdir
-        fDir = "/".join(fPath[0:-1])
-        chdir(fDir)
+
+    fn = travel(filename)
 
     temp = find(fn, 'f')
     index = temp[0]
@@ -323,23 +308,12 @@ def delfile(filename):
     curDir = tempDir
 
 
-#Creates a directory named "dirname"
+# Creates a directory named "dirname"
 def mkdir(dirname):
     global curDir
     tempDir = curDir
-    dPath = dirname.split('/')
-    #If last string is blank, it means last charater was '/' and can be deleted
-    if dPath[-1] == '':
-        del dPath[-1]
-    #Last string in list should be directory name to be created
-    dn = dPath[-1]
-    #If only one element in the list, then only argument is directory name, so no
-    #need to change directories
-    if len(dPath) > 1:
-        #Join all strings except last (the directories) with '/' character so that
-        #a path is passed into chdir
-        dDir = "/".join(dPath[0:-1])
-        chdir(dDir)
+
+    dn = travel(dirname)
 
     try:
         find(dn, 'd')
@@ -351,22 +325,12 @@ def mkdir(dirname):
     raise Exception("Already created " + dn + " directory")
 
 
-#Deletes a given directory
+# Deletes a given directory
 def deldir(dirname):
     global curDir
     tempDir = curDir
-    dPath = dirname.split('/')
-    if dPath[-1] == '':
-        del dPath[-1]
-    #Last string in list should be directory name to be created
-    dn = dPath[-1]
-    #If only one element in the list, then only argument is directory name, so no
-    #need to change directories
-    if len(dPath) > 1:
-        #Join all strings except last (the directories) with '/' character so that
-        #a path is passed into chdir
-        dDir = "/".join(dPath[0:-1])
-        chdir(dDir)
+
+    dn = travel(dirname)
 
     temp = find(dn, 'd')
     index = temp[0]
@@ -377,7 +341,7 @@ def deldir(dirname):
     curDir = tempDir
 
 
-#Returns true if "dirname" is a directory, false otherwise
+# Returns true if "dirname" is a directory, false otherwise
 def isdir(dirname):
     global curDir
     tempDir = curDir  # save curDir ref
@@ -389,6 +353,7 @@ def isdir(dirname):
     curDir = tempDir
     return found
 
+
 # FOR TESTING
 def getcwd():
     return curDir.dirName
@@ -397,23 +362,23 @@ def getcwd():
 # Lists all files in directory "dirname"
 def listdir(dirname):
     global curDir
-    #Save current directory object
+    # Save current directory object
     tempDir = curDir
     chdir(dirname)
 
     fileList = []
-    #Place all file/directory names in a list
+    # Place all file/directory names in a list
     for inst in curDir.contentList:
         if isinstance(inst, TextFile):
             fileList.append(inst.fileName)
         elif isinstance(inst, Directory):
             fileList.append(inst.dirName)
-    #Restore current directory object
+    # Restore current directory object
     curDir = tempDir
     return fileList
 
 
-#Suspends the current file system
+# Suspends the current file system
 def suspend():
     # If any files are still open, cannot suspend file system
     if numFilesOpen != 0:
@@ -433,7 +398,7 @@ def suspend():
 # #Resumes the previously suspended file system
 def resume():
     global isActive
-    #Check if the file system is suspended
+    # Check if the file system is suspended
     if isActive:
         raise Exception("No file system has been suspended")
 
