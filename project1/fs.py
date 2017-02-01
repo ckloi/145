@@ -89,7 +89,7 @@ def init(fsname):
     nativeFD = __builtin__.open(fsname, 'r+')
     # size of system file
     size = os.path.getsize(fsname)
-    print size
+    #print size
     global memory
     # make the flag list have the same size with the master/fsname file
     # 0 for available and 1 for used
@@ -304,7 +304,7 @@ def isdir(dirname):
 
 # FOR TESTING
 def getcwd():
-    print curDir.dirName
+    return curDir.dirName
 
 
 # Lists all files in directory "dirname"
@@ -323,7 +323,7 @@ def listdir(dirname):
             fileList.append(inst.dirName)
     #Restore current directory object
     curDir = tempDir
-    print fileList
+    return fileList
 
 
 #Suspends the current file system
