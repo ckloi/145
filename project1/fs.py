@@ -151,8 +151,15 @@ def create(filename, nbytes):
     global curDir
     tempDir = curDir
     fPath = filename.split('/')
+    if fPath[-1] == '':
+        del fPath[-1]
+    #Last string in list should be file name to be created
     fn = fPath[-1]
+    #If only one element in the list, then only argument is file name, so no
+    #need to change directories
     if len(fPath) > 1:
+        #Join all strings except last (the directories) with '/' character so that
+        #a path is passed into chdir
         fDir = "/".join(fPath[0:-1])
         chdir(fDir)
 
@@ -181,12 +188,14 @@ def create(filename, nbytes):
                 byteCount = 0
 
         if startIndex is -1 and endIndex is -1:
+            curDir = tempDir
             raise Exception('Cannot Create File: Not enough space')
         else:
             f = TextFile(fn, startIndex, endIndex)
             curDir.contentList.append(f)
         curDir = tempDir
         return
+    curDir = tempDir
     raise Exception("Already created " + fn + " file")
 
 
@@ -197,7 +206,22 @@ def open(filename, mode):
         raise Exception("Cannot open file: file system is currently suspended")
 
     global numFilesOpen
-    f = find(filename, 'f')[1]
+    global curDir
+    tempDir = curDir
+    fPath = filename.split('/')
+    if fPath[-1] == '':
+        del fPath[-1]
+    #Last string in list should be file name to be opened
+    fn = fPath[-1]
+    #If only one element in the list, then only argument is file name, so no
+    #need to change directories
+    if len(fPath) > 1:
+        #Join all strings except last (the directories) with '/' character so that
+        #a path is passed into chdir
+        fDir = "/".join(fPath[0:-1])
+        chdir(fDir)
+
+    f = find(fn, 'f')[1]
     f.mode = mode
     # Only increment if a non-opened file is being opened
     if not f.isOpen:
@@ -205,6 +229,7 @@ def open(filename, mode):
     f.isOpen = True
     # Set file pointer to beginning of file
     f.seek(0)
+    curDir = tempDir
     return f
 
 
@@ -269,35 +294,87 @@ def readlines(fd):
 
 #Deletes a given file
 def delfile(filename):
-    temp = find(filename, 'f')
+    global curDir
+    tempDir = curDir
+    fPath = filename.split('/')
+    if fPath[-1] == '/':
+        del fPath[-1]
+    #Last string in list should be file name to be deleted
+    fn = fPath[-1]
+    #If only one element in the list, then only argument is file name, so no
+    #need to change directories
+    if len(fPath) > 1:
+        #Join all strings except last (the directories) with '/' character so that
+        #a path is passed into chdir
+        fDir = "/".join(fPath[0:-1])
+        chdir(fDir)
+
+    temp = find(fn, 'f')
     index = temp[0]
     f = temp[1]
     if f.isOpen:
+        curDir = tempDir
         raise Exception("Unable to delete file: File is open.")
     for i in range(f.byteStart, f.byteEnd + 1):
         memory[i] = 0
     del curDir.contentList[index]
     # Set file pointer to beginning of file
     f.seek(0)
+    curDir = tempDir
 
 
 #Creates a directory named "dirname"
 def mkdir(dirname):
+    global curDir
+    tempDir = curDir
+    dPath = dirname.split('/')
+    #If last string is blank, it means last charater was '/' and can be deleted
+    if dPath[-1] == '':
+        del dPath[-1]
+    #Last string in list should be directory name to be created
+    dn = dPath[-1]
+    #If only one element in the list, then only argument is directory name, so no
+    #need to change directories
+    if len(dPath) > 1:
+        #Join all strings except last (the directories) with '/' character so that
+        #a path is passed into chdir
+        dDir = "/".join(dPath[0:-1])
+        chdir(dDir)
+
     try:
-        find(dirname, 'd')
+        find(dn, 'd')
     except:
-        curDir.contentList.append(Directory(dirname, curDir))  # no duplicate dirname
+        curDir.contentList.append(Directory(dn, curDir))  # no duplicate dirname
+        curDir = tempDir
         return
-    raise Exception("Already created " + dirname + " directory")
+    curDir = tempDir
+    raise Exception("Already created " + dn + " directory")
 
 
 #Deletes a given directory
 def deldir(dirname):
-    temp = find(dirname, 'd')
+    global curDir
+    tempDir = curDir
+    dPath = dirname.split('/')
+    if dPath[-1] == '':
+        del dPath[-1]
+    #Last string in list should be directory name to be created
+    dn = dPath[-1]
+    #If only one element in the list, then only argument is directory name, so no
+    #need to change directories
+    if len(dPath) > 1:
+        #Join all strings except last (the directories) with '/' character so that
+        #a path is passed into chdir
+        dDir = "/".join(dPath[0:-1])
+        chdir(dDir)
+
+    temp = find(dn, 'd')
     index = temp[0]
     if temp[1] is curDir:
+        curDir = tempDir
         raise Exception("Cannot delete directory: Currently in directory to be deleted")
     del curDir.contentList[index]
+    curDir = tempDir
 
 
 #Returns true if "dirname" is a directory, false otherwise
