@@ -16,10 +16,6 @@ class TextFile:
         # position of the user input/edit file
         self.userFilePos = 0
 
-    def seek(self, pos):
-        # user file position now is equal pos
-        self.userFilePos = pos
-
     def write(self, content):
         for i in range(len(content)):
             # start write to master/fsname, find the position first
@@ -33,6 +29,7 @@ class TextFile:
 
     def read(self, rbyte):
         output = ''
+        seek(self, rbyte)
         for i in self.byteList[rbyte:]:
             glbl.nativeFD.seek(i)
             c = glbl.nativeFD.read(1)
@@ -211,71 +208,28 @@ def create(filename, nbytes):
                     glbl.nativeFD.seek(i)
                     glbl.nativeFD.write('\x00')
                     glbl.spaceLeft -= 1
-                byteCount = 0
-                f = TextFile(fn, bList)
-                glbl.curDir.contentList.append(f)
-                glbl.lfc = f
-                glbl.curDir = tempDir
-                return
-        for index, byte in enumerate(glbl.memory[:startIndex]):
-            if byte is 0:
-                byteCount += 1
-                bList.append(index)
-            if byteCount is nbytes:
-                for i in bList:
-                    glbl.memory[i] = 1
-                    glbl.nativeFD.seek(i)
-                    glbl.nativeFD.write('\x00')
-                    glbl.spaceLeft -= 1
-                byteCount = 0
-                f = TextFile(fn, bList)
-                glbl.curDir.contentList.append(f)
-                glbl.lfc = f
-                glbl.curDir = tempDir
-                return
+                break
 
+        #If finished above loop and nbytes have not been allocated, start from beginning
+        if byteCount < nbytes:
+            for index, byte in enumerate(glbl.memory[:startIndex]):
+                if byte is 0:
+                    byteCount += 1
+                    bList.append(index)
+                if byteCount is nbytes:
+                    for i in bList:
+                        glbl.memory[i] = 1
+                        glbl.nativeFD.seek(i)
+                        glbl.nativeFD.write('\x00')
+                        glbl.spaceLeft -= 1
+                    break
 
-
-
-
-    # tempDir = glbl.curDir
-    #
-    # fn = travel(filename)
-    # try:
-    #     find(fn, 'f')
-    # except:
-    #     byteCount = 0
-    #     startIndex = -1
-    #     endIndex = -1
-    #
-    #     # find number of consecutive bytes that are available in fsname for the file with nbyte
-    #     for index, byte in enumerate(glbl.memory):
-    #         if byte is 0:
-    #             byteCount += 1
-    #         if byteCount is nbytes:
-    #             endIndex = index
-    #             startIndex = index - byteCount + 1
-    #             for i in range(startIndex, endIndex + 1):
-    #                 glbl.memory[i] = 1
-    #                 glbl.nativeFD.seek(i)
-    #                 glbl.nativeFD.write('\x00')  # write null char in file
-    #             break
-    #             # if consecutive available bytes is less thatn nbyte and the following flag is 1
-    #             # set byteCount to 0 and continue the for loop
-    #         elif byteCount is not nbytes and byte is 1:
-    #             byteCount = 0
-    #
-    #     if startIndex is -1 and endIndex is -1:
-    #         glbl.curDir = tempDir
-    #         raise Exception('Cannot Create File: Not enough space')
-    #     else:
-    #         f = TextFile(fn, startIndex, endIndex)
-    #         glbl.curDir.contentList.append(f)
-    #     glbl.curDir = tempDir
-    #     return
-    # glbl.curDir = tempDir
-    # raise Exception("Already created " + fn + " file")
-
+        byteCount = 0
+        f = TextFile(fn, bList)
+        glbl.curDir.contentList.append(f)
+        glbl.lfc = f
+        glbl.curDir = tempDir
+        return
 
 # Opens a file with the given mode
 def open(filename, mode):
@@ -294,7 +248,7 @@ def open(filename, mode):
         glbl.numFilesOpen += 1
     f.isOpen = True
     # Set file pointer to beginning of file
-    f.seek(0)
+    f.userFilePos = 0
     glbl.curDir = tempDir
     return f
 
@@ -322,7 +276,7 @@ def pos(fd):
 def seek(fd, pos):
     if pos >= fd.bytesUsed:
         raise Exception("Out of bounds")
-    fd.seek(pos)
+    fd.userFilePos = pos
 
 
 # returns a string; raises an exception if the read would extend beyond the current length of the file
@@ -374,7 +328,7 @@ def delfile(filename):
         glbl.spaceLeft += 1
     del glbl.curDir.contentList[index]
     # Set file pointer to beginning of file
-    f.seek(0)
+    seek(f, 0)
     glbl.curDir = tempDir
 
 
