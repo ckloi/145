@@ -33,30 +33,34 @@ class TextFile:
             # Increment the length of the file
             self.bytesUsed += 1
             # increment the position on both master file and user file
-            self.nativeFilePos += 1
             self.userFilePos += 1
+            self.nativeFilePos = self.byteList[userFilePos]
 
     def read(self, rbyte):
+        output = ''
         glbl.nativeFD.seek(self.nativeFilePos)
         self.nativeFilePos += rbyte
         self.userFilePos += rbyte
-        return glbl.nativeFD.read(rbyte)
+        for i in byteList[rbyte:]
+            output += i
+        return output
 
     # treat 0xa byte as end of line, not change the pos value
     def readlines(self):
         rstring = ""
         wfile_list = []
-        glbl.nativeFD.seek(self.byteStart)
-        for i in glbl.nativeFD.read(self.bytesUsed):
+        for i in self.byteList:
+            nativeFD.seek(byteList[i])
+            c = nativeFD.read(i)
             # treat 0xa byte as end of line
-            if i == '\n' or i == '0xa':
+            if c == '\n' or c == '0xa':
                 # Append current string to List
                 if rstring != "":
                     wfile_list.append(rstring)
                 # Reset String
                 rstring = ""
                 continue
-            rstring += i
+            rstring += c
         if rstring != "":
             wfile_list.append(rstring)
         return wfile_list
@@ -191,6 +195,7 @@ def create(filename, nbytes):
                         glbl.memory[i] = 1
                         glbl.nativeFD.seek(i)
                         glbl.nativeFD.write('\x00')
+                        glbl.spaceLeft -= 1
                     break
                 elif byteCount is not nbytes and byte is 1:
                     byteCount = 0
@@ -211,6 +216,7 @@ def create(filename, nbytes):
                     glbl.memory[i] = 1
                     glbl.nativeFD.seek(i)
                     glbl.nativeFD.write('\x00')
+                    glbl.spaceLeft -= 1
                 byteCount = 0
                 f = TextFile(fn, bList)
                 glbl.curDir.contentList.append(f)
@@ -226,6 +232,7 @@ def create(filename, nbytes):
                     glbl.memory[i] = 1
                     glbl.nativeFD.seek(i)
                     glbl.nativeFD.write('\x00')
+                    glbl.spaceLeft -= 1
                 byteCount = 0
                 f = TextFile(fn, bList)
                 glbl.curDir.contentList.append(f)
@@ -370,6 +377,7 @@ def delfile(filename):
         raise Exception("Unable to delete file: File is open.")
     for i in f.byteList:
         glbl.memory[i] = 0
+        glbl.spaceLeft += 1
     del glbl.curDir.contentList[index]
     # Set file pointer to beginning of file
     f.seek(0)
