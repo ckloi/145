@@ -14,13 +14,13 @@ class TextFile:
         self.mode = ''
         self.isOpen = False
         # position of the system file/native file
-        self.nativeFilePos = startIndex
+        self.nativeFilePos = bList[0]
         # position of the user input/edit file
         self.userFilePos = 0
 
     def seek(self, pos):
         # master file/fsname position moves pos position
-        self.nativeFilePos = self.byteStart + pos
+        self.nativeFilePos = self.byteList[pos]
         # user file position now is equal pos
         self.userFilePos = pos
 
@@ -117,7 +117,7 @@ def chdir(dirname):
     for dr in dirList:
         # If first character in dirname is '/', the first string will be blank
         if dr == '':
-            glbl.curDir = rootDir
+            glbl.curDir = glbl.rootDir
             continue
         # '.' means current directory, so just move onto the next dir in the list
         if dr == '.':
@@ -169,7 +169,7 @@ def travel(path):
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
     #If there's no space, raise exception
-    if nbytes > spaceLeft:
+    if nbytes > glbl.spaceLeft:
         raise Exception("Cannot create file: Not enough space")
 
     tempDir = glbl.curDir
@@ -194,7 +194,8 @@ def create(filename, nbytes):
                     break
                 elif byteCount is not nbytes and byte is 1:
                     byteCount = 0
-            f = Textfile(fn, bList)
+            f = TextFile(fn, bList)
+            glbl.curDir.contentList.append(f)
             glbl.lfc = f
             glbl.curDir = tempDir
             return
@@ -211,7 +212,8 @@ def create(filename, nbytes):
                     glbl.nativeFD.seek(i)
                     glbl.nativeFD.write('\x00')
                 byteCount = 0
-                f = Textfile(fn, bList)
+                f = TextFile(fn, bList)
+                glbl.curDir.contentList.append(f)
                 glbl.lfc = f
                 glbl.curDir = tempDir
                 return
@@ -225,7 +227,8 @@ def create(filename, nbytes):
                     glbl.nativeFD.seek(i)
                     glbl.nativeFD.write('\x00')
                 byteCount = 0
-                f = Textfile(fn, bList)
+                f = TextFile(fn, bList)
+                glbl.curDir.contentList.append(f)
                 glbl.lfc = f
                 glbl.curDir = tempDir
                 return
@@ -365,7 +368,7 @@ def delfile(filename):
     if f.isOpen:
         glbl.curDir = tempDir
         raise Exception("Unable to delete file: File is open.")
-    for i in range(f.byteStart, f.byteEnd + 1):
+    for i in f.byteList:
         glbl.memory[i] = 0
     del glbl.curDir.contentList[index]
     # Set file pointer to beginning of file
