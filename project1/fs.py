@@ -387,7 +387,6 @@ def suspend():
     if numFilesOpen != 0:
         raise Exception("Cannot suspend file system: a file is still open.")
 
-    global saveName
     saveName = nativeFD.name + '.fssave'
     global isActive
     isActive = False
@@ -399,13 +398,13 @@ def suspend():
 
 
 # #Resumes the previously suspended file system
-def resume():
+def resume(fname):
     global isActive
     # Check if the file system is suspended
     if isActive:
         raise Exception("No file system has been suspended")
 
-    pickle_file = __builtin__.open(saveName, 'rb')
+    pickle_file = __builtin__.open(fname, 'rb')
     saveDict = pickle.load(pickle_file)
     isActive = True
     global nativeFD
