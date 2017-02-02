@@ -6,12 +6,9 @@ import pickle
 
 
 class TextFile:
-    def __init__(self, name, startIndex, endIndex):
+    def __init__(self, name, bList):
         self.fileName = name
-        # stating position at fsname
-        self.byteStart = startIndex
-        # ending position at fsname
-        self.byteEnd = endIndex  # -1 is undefined
+        self.byteList = bList
         self.bytesUsed = 0
         self.mode = ''
         self.isOpen = False
@@ -82,12 +79,16 @@ class glbl:
     isActive = False
     # Tracks the number of files currently open
     numFilesOpen = 0
-    #Keeps track of available bits
+    # Keeps track of available bits
     memory = []
-    #Current directory
+    # Current directory
     curDir = None
-    #Root dirctory
+    # Root dirctory
     rootDir = None
+    # Last file created
+    lfc = None
+    # Keeps track of how much space is left in the native file
+    spaceLeft = 0
 
 
 def init(fsname):
@@ -96,6 +97,7 @@ def init(fsname):
     glbl.nativeFD = __builtin__.open(fsname, 'r+')
     # size of system file
     size = os.path.getsize(fsname)
+    glbl.spaceLeft = size
     # make the flag list have the same size with the master/fsname file
     # 0 for available and 1 for used
     glbl.memory = [0] * size
@@ -105,9 +107,6 @@ def init(fsname):
     glbl.curDir = glbl.rootDir
 
 
-# THIS DOES NOT WORK YET
-# Only works for single directory arguments. Doesn't work for lists of directories (e.g. "/d1/d1_1").
-# Account for '/' at end of path
 def chdir(dirname):
     # Split dirname into list of strings (or directories in this case). Separater character is '/'
     dirList = dirname.split('/')
@@ -168,43 +167,75 @@ def travel(path):
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
-    glbl.tempDir = glbl.curDir
+    if nbytes > spaceLeft:
+        raise Exception("Cannot create file: Not enough space")
 
+    tempDir = glbl.curDir
     fn = travel(filename)
     try:
         find(fn, 'f')
     except:
         byteCount = 0
-        startIndex = -1
-        endIndex = -1
+        bList = []
 
-        # find number of consecutive bytes that are available in fsname for the file with nbyte
-        for index, byte in enumerate(glbl.memory):
-            if byte is 0:
-                byteCount += 1
-            if byteCount is nbytes:
-                endIndex = index
-                startIndex = index - byteCount + 1
-                for i in range(startIndex, endIndex + 1):
-                    glbl.memory[i] = 1
-                    glbl.nativeFD.seek(i)
-                    glbl.nativeFD.write('\x00')  # write null char in file
-                break
-                # if consecutive available bytes is less thatn nbyte and the following flag is 1
-                # set byteCount to 0 and continue the for loop
-            elif byteCount is not nbytes and byte is 1:
-                byteCount = 0
+        if glbl.lfc is None:
+            for index, byte in enumerate(glbl.memory):
+                if byte is 0:
+                    byteCount += 1
+                    bList.append(index)
+                if byteCount is nbytes:
+                    for i in bList:
+                        glbl.memory[i] = 1
+                        glbl.nativeFD.seek(i)
+                        glbl.nativeFD.write('\x00')
+                    break
+                elif byteCount is not nbytes and byte is 1:
+                    byteCount = 0
+            f = Textfile(fn, bList)
+            glbl.lfc = f
+            glbl.curDir = tempDir
+            return
 
-        if startIndex is -1 and endIndex is -1:
-            glbl.curDir = glbl.tempDir
-            raise Exception('Cannot Create File: Not enough space')
-        else:
-            f = TextFile(fn, startIndex, endIndex)
-            glbl.curDir.contentList.append(f)
-        glbl.curDir = glbl.tempDir
-        return
-    glbl.curDir = glbl.tempDir
-    raise Exception("Already created " + fn + " file")
+
+
+
+    # tempDir = glbl.curDir
+    #
+    # fn = travel(filename)
+    # try:
+    #     find(fn, 'f')
+    # except:
+    #     byteCount = 0
+    #     startIndex = -1
+    #     endIndex = -1
+    #
+    #     # find number of consecutive bytes that are available in fsname for the file with nbyte
+    #     for index, byte in enumerate(glbl.memory):
+    #         if byte is 0:
+    #             byteCount += 1
+    #         if byteCount is nbytes:
+    #             endIndex = index
+    #             startIndex = index - byteCount + 1
+    #             for i in range(startIndex, endIndex + 1):
+    #                 glbl.memory[i] = 1
+    #                 glbl.nativeFD.seek(i)
+    #                 glbl.nativeFD.write('\x00')  # write null char in file
+    #             break
+    #             # if consecutive available bytes is less thatn nbyte and the following flag is 1
+    #             # set byteCount to 0 and continue the for loop
+    #         elif byteCount is not nbytes and byte is 1:
+    #             byteCount = 0
+    #
+    #     if startIndex is -1 and endIndex is -1:
+    #         glbl.curDir = tempDir
+    #         raise Exception('Cannot Create File: Not enough space')
+    #     else:
+    #         f = TextFile(fn, startIndex, endIndex)
+    #         glbl.curDir.contentList.append(f)
+    #     glbl.curDir = tempDir
+    #     return
+    # glbl.curDir = tempDir
+    # raise Exception("Already created " + fn + " file")
 
 
 # Opens a file with the given mode
@@ -213,7 +244,7 @@ def open(filename, mode):
     if not glbl.isActive:
         raise Exception("Cannot open file: file system is currently suspended")
 
-    glbl.tempDir = glbl.curDir
+    tempDir = glbl.curDir
 
     fn = travel(filename)
 
@@ -225,7 +256,7 @@ def open(filename, mode):
     f.isOpen = True
     # Set file pointer to beginning of file
     f.seek(0)
-    glbl.curDir = glbl.tempDir
+    glbl.curDir = tempDir
     return f
 
 
@@ -289,7 +320,7 @@ def readlines(fd):
 
 # Deletes a given file
 def delfile(filename):
-    glbl.tempDir = glbl.curDir
+    tempDir = glbl.curDir
 
     fn = travel(filename)
 
@@ -297,19 +328,19 @@ def delfile(filename):
     index = temp[0]
     f = temp[1]
     if f.isOpen:
-        glbl.curDir = glbl.tempDir
+        glbl.curDir = tempDir
         raise Exception("Unable to delete file: File is open.")
     for i in range(f.byteStart, f.byteEnd + 1):
         glbl.memory[i] = 0
     del glbl.curDir.contentList[index]
     # Set file pointer to beginning of file
     f.seek(0)
-    glbl.curDir = glbl.tempDir
+    glbl.curDir = tempDir
 
 
 # Creates a directory named "dirname"
 def mkdir(dirname):
-    glbl.tempDir = glbl.curDir
+    tempDir = glbl.curDir
 
     dn = travel(dirname)
 
@@ -317,36 +348,36 @@ def mkdir(dirname):
         find(dn, 'd')
     except:
         glbl.curDir.contentList.append(Directory(dn, glbl.curDir))  # no duplicate dirname
-        glbl.curDir = glbl.tempDir
+        glbl.curDir = tempDir
         return
-    glbl.curDir = glbl.tempDir
+    glbl.curDir = tempDir
     raise Exception("Already created " + dn + " directory")
 
 
 # Deletes a given directory
 def deldir(dirname):
-    glbl.tempDir = glbl.curDir
+    tempDir = glbl.curDir
 
     dn = travel(dirname)
 
     temp = find(dn, 'd')
     index = temp[0]
     if temp[1] is glbl.curDir:
-        glbl.curDir = glbl.tempDir
+        glbl.curDir = tempDir
         raise Exception("Cannot delete directory: Currently in directory to be deleted")
     del glbl.curDir.contentList[index]
-    glbl.curDir = glbl.tempDir
+    glbl.curDir = tempDir
 
 
 # Returns true if "dirname" is a directory, false otherwise
 def isdir(dirname):
-    glbl.tempDir = glbl.curDir  # save curDir ref
+    tempDir = glbl.curDir  # save curDir ref
     try:
         chdir(dirname)  # change dirname
         found = True
     except:
         found = False
-    glbl.curDir = glbl.tempDir
+    glbl.curDir = tempDir
     return found
 
 
@@ -358,7 +389,7 @@ def getcwd():
 # Lists all files in directory "dirname"
 def listdir(dirname):
     # Save current directory object
-    glbl.tempDir = glbl.curDir
+    tempDir = glbl.curDir
     chdir(dirname)
 
     fileList = []
@@ -369,7 +400,7 @@ def listdir(dirname):
         elif isinstance(inst, Directory):
             fileList.append(inst.dirName)
     # Restore current directory object
-    glbl.curDir = glbl.tempDir
+    glbl.curDir = tempDir
     return fileList
 
 
