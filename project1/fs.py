@@ -13,45 +13,39 @@ class TextFile:
         self.bytesUsed = 0
         self.mode = ''
         self.isOpen = False
-        # position of the system file/native file
-        self.nativeFilePos = bList[0]
         # position of the user input/edit file
         self.userFilePos = 0
 
     def seek(self, pos):
-        # master file/fsname position moves pos position
-        self.nativeFilePos = self.byteList[pos]
         # user file position now is equal pos
         self.userFilePos = pos
 
     def write(self, content):
         for i in range(len(content)):
             # start write to master/fsname, find the position first
-            glbl.nativeFD.seek(self.nativeFilePos)
+            glbl.nativeFD.seek(self.byteList[self.userFilePos])
             # write into master/fsname file
             glbl.nativeFD.write(content[i])
             # Increment the length of the file
             self.bytesUsed += 1
             # increment the position on both master file and user file
             self.userFilePos += 1
-            self.nativeFilePos = self.byteList[userFilePos]
 
     def read(self, rbyte):
         output = ''
-        glbl.nativeFD.seek(self.nativeFilePos)
-        self.nativeFilePos += rbyte
-        self.userFilePos += rbyte
-        for i in byteList[rbyte:]
-            output += i
+        for i in self.byteList[rbyte:]:
+            glbl.nativeFD.seek(i)
+            c = glbl.nativeFD.read(1)
+            output += c
         return output
 
     # treat 0xa byte as end of line, not change the pos value
     def readlines(self):
         rstring = ""
         wfile_list = []
-        for i in self.byteList:
-            nativeFD.seek(byteList[i])
-            c = nativeFD.read(i)
+        for i in range(self.bytesUsed):
+            glbl.nativeFD.seek(self.byteList[i])
+            c = glbl.nativeFD.read(1)
             # treat 0xa byte as end of line
             if c == '\n' or c == '0xa':
                 # Append current string to List
@@ -337,7 +331,7 @@ def read(fd, nbytes):
         raise Exception("Failed to read: File is not open.")
     if fd.mode != 'r':
         raise Exception("Failed to read: File is not in read mode.")
-    if nbytes > fd.byteStart + fd.byteEnd + 1 - fd.userFilePos:
+    if nbytes > len(fd.byteList[fd.userFilePos:]):
         raise Exception("Failed to read: Exceeded size of file.")
     return fd.read(nbytes)
 
@@ -348,7 +342,7 @@ def write(fd, writebuf):
         raise Exception("Failed to write: File is not open.")
     if fd.mode != 'w':
         raise Exception("Failed to write: File is not in write mode.")
-    if len(writebuf) > fd.byteStart + fd.byteEnd + 1 - fd.userFilePos:
+    if len(writebuf) > len(fd.byteList[fd.userFilePos:]):
         raise Exception("Failed to write: Content exceeds size of file.")
     fd.write(writebuf)
 
