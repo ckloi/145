@@ -393,6 +393,7 @@ def listdir(dirname):
             fileList.append(inst.fileName)
         elif isinstance(inst, Directory):
             fileList.append(inst.dirName)
+    fileList.sort()
     # Restore current directory object
     glbl.curDir = tempDir
     return fileList
