@@ -8,7 +8,7 @@ import pickle
 class TextFile:
     def __init__(self, name, bList):
         self.fileName = name
-        #Holds all byte numbers occupied by the file
+        # Holds all byte numbers occupied by the file
         self.byteList = bList
         self.bytesUsed = 0
         self.mode = ''
@@ -30,7 +30,7 @@ class TextFile:
     def read(self, rbyte):
         output = ''
         seek(self, rbyte)
-        for i in self.byteList[rbyte:]:
+        for i in self.byteList[self.userFilePos:rbyte]:
             glbl.nativeFD.seek(i)
             c = glbl.nativeFD.read(1)
             output += c
@@ -68,7 +68,8 @@ class Directory:
         self.contentList = []
         self.previousDir = prevD
 
-#Global class
+
+# Global class
 class glbl:
     # file descriptor of fsname
     nativeFD = None
@@ -164,7 +165,7 @@ def travel(path):
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
-    #If there's no space, raise exception
+    # If there's no space, raise exception
     if nbytes > glbl.spaceLeft:
         raise Exception("Cannot create file: Not enough space")
 
@@ -176,7 +177,7 @@ def create(filename, nbytes):
         byteCount = 0
         bList = []
 
-        #If lfc is none, then no files are created yet, so just find consecutive space
+        # If lfc is none, then no files are created yet, so just find consecutive space
         if glbl.lfc is None:
             for index, byte in enumerate(glbl.memory):
                 if byte is 0:
@@ -211,7 +212,7 @@ def create(filename, nbytes):
                     glbl.spaceLeft -= 1
                 break
 
-        #If finished above loop and nbytes have not been allocated, start from beginning
+        # If finished above loop and nbytes have not been allocated, start from beginning
         if byteCount < nbytes:
             for index, byte in enumerate(glbl.memory[:startIndex]):
                 if byte is 0:
@@ -231,6 +232,7 @@ def create(filename, nbytes):
         glbl.lfc = f
         glbl.curDir = tempDir
         return
+
 
 # Opens a file with the given mode
 def open(filename, mode):
