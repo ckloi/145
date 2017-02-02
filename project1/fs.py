@@ -159,6 +159,8 @@ def travel(path):
         if path[0] == '/':
             fDir = '/' + fDir
         chdir(fDir)
+    elif path[0] == '/':
+        chdir('/')
     return name
 
 
