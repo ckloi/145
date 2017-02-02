@@ -147,7 +147,7 @@ def find(name, searchType):
 # return the file or directory name of the destination
 def travel(path):
     fPath = path.split('/')
-    fPath = filter(lambda x: x != '',fPath)
+    fPath = filter(lambda x: x != '', fPath)
     # Last string in list should be file name to be created
     name = fPath[-1]
     # If only one element in the list, then only argument is file name, so no
@@ -155,10 +155,10 @@ def travel(path):
     if len(fPath) > 1:
         # Join all strings except last (the directories) with '/' character so that
         # a path is passed into chdir
-	fDir = "/".join(fPath[0:-1])
-	if curDir.dirName != fPath[0] and path[0] == '/':
-		fDir = '/' + fDir
-        chdir(fDir)
+        fDir = "/".join(fPath[0:-1])
+        if curDir.dirName != fPath[0] and path[0] == '/':
+            fDir = '/' + fDir
+            chdir(fDir)
     return name
 
 
