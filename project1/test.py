@@ -3,84 +3,62 @@ import os
 
 import fs
 
-def prn(x):
-	try:
-		return "Dir " + x.dirName
-	except:
-		return "File " + x.fileName
-
 fs.init('abc')
 
 fs.create('f1',4)
 
 fs.create('f2',7)
 
-fs.create('f3',8)
+#This one and the last one should be the same
+print fs.glbl.memory
 
 fs.mkdir('a')
 
 fs.chdir('a')
 
+fs.create('f3',8)
+
+#fd3 = fs.open('f3', 'w')
+
+#fs.write(fd3, "Hello\n")
+
+#fd3 = fs.close(fd3)
+
+#fd3 = fs.open('f3', 'r')
+
+#fs.read(fd3, 2)
+
+#fs.readlines(fd3)
+
+#fd3 = fs.close(fd3)
+
+fd1 = fs.open('/f1', 'w')
+
+fs.write(fd1, "\n")
+
+fd1 = fs.close(fd1)
+
+fs.delfile('/f1')
+
+print fs.glbl.memory
+
+fs.create('f4', 3)
+
 fs.mkdir('b')
 
 fs.chdir('b')
 
-fs.create('fs',5)
-
+fs.create('f5', 2)
 
 fs.mkdir('c')
 
-fs.mkdir('d')
+fs.chdir('c')
 
+fs.create('f6', 3)
 
-print "Current Directory is " + fs.curDir.dirName
+fs.chdir('/')
 
-print list(map(prn,fs.curDir.contentList))
+fs.deldir('a')
 
-
-
-
-
-
-
-
-# fs.suspend()
-#
-# fs.resume()
-#
-#
-# print fs.curDir.contentList
-#
-# print fs.memory
-#
-# print fs.curDir.dirName
-#
-# print fs.nativeFD
-#
-# print fs.rootDir.dirName
-#
-# print fs.rootDir.contentList
-
-#
-# fd = open('vsa','r+w')
-#
-# fd.write('first')
-#
-# fd.close()
-#
-# fd = open('vsa','r+w')
-#
-# fd.seek(6)
-#
-# fd.write('second')
-#
-# fd.seek(0)
-#
-# print fd.read(20)
-
-
-
-
-
-
-
+#This one and the first one should be the same
+print fs.glbl.memory
