@@ -76,19 +76,18 @@ class Directory:
         self.previousDir = prevD
 
 class glbl:
-    def __init__(self):
-        # file descriptor of fsname
-        nativeFD = None
-        # Used to check if the system is suspended or not
-        isActive = False
-        # Tracks the number of files currently open
-        numFilesOpen = 0
-        #Keeps track of available bits
-        memory = []
-        #Current directory
-        curDir = None
-        #Root dirctory
-        rootDir = None
+    # file descriptor of fsname
+    nativeFD = None
+    # Used to check if the system is suspended or not
+    isActive = False
+    # Tracks the number of files currently open
+    numFilesOpen = 0
+    #Keeps track of available bits
+    memory = []
+    #Current directory
+    curDir = None
+    #Root dirctory
+    rootDir = None
 
 
 def init(fsname):
