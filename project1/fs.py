@@ -68,6 +68,7 @@ class Directory:
         self.contentList = []
         self.previousDir = prevD
 
+#Global class
 class glbl:
     # file descriptor of fsname
     nativeFD = None
@@ -327,8 +328,6 @@ def delfile(filename):
         glbl.memory[i] = 0
         glbl.spaceLeft += 1
     del glbl.curDir.contentList[index]
-    # Set file pointer to beginning of file
-    seek(f, 0)
     glbl.curDir = tempDir
 
 
@@ -356,9 +355,19 @@ def deldir(dirname):
 
     temp = find(dn, 'd')
     index = temp[0]
-    if temp[1] is glbl.curDir:
+    if temp[1] == tempDir:
         glbl.curDir = tempDir
         raise Exception("Cannot delete directory: Currently in directory to be deleted")
+    # Temporarily change into directory to be deleted and delete everything in there
+    chdir(dn)
+    while glbl.curDir.contentList:
+        i = glbl.curDir.contentList[0]
+        if isinstance(i, TextFile):
+            delfile(i.fileName)
+        if isinstance(i, Directory):
+            deldir(i.dirName)
+    chdir('..')
+
     del glbl.curDir.contentList[index]
     glbl.curDir = tempDir
 
