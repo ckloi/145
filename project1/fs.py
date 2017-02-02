@@ -8,6 +8,7 @@ import pickle
 class TextFile:
     def __init__(self, name, bList):
         self.fileName = name
+        #Holds all byte numbers occupied by the file
         self.byteList = bList
         self.bytesUsed = 0
         self.mode = ''
@@ -167,6 +168,7 @@ def travel(path):
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
+    #If there's no space, raise exception
     if nbytes > spaceLeft:
         raise Exception("Cannot create file: Not enough space")
 
@@ -178,6 +180,7 @@ def create(filename, nbytes):
         byteCount = 0
         bList = []
 
+        #If lfc is none, then no files are created yet, so just find consecutive space
         if glbl.lfc is None:
             for index, byte in enumerate(glbl.memory):
                 if byte is 0:
@@ -195,6 +198,38 @@ def create(filename, nbytes):
             glbl.lfc = f
             glbl.curDir = tempDir
             return
+
+        # Otherwise, loop from last created byte
+        startIndex = glbl.lfc.byteList[-1]
+        for index, byte in enumerate(glbl.memory[startIndex:]):
+            if byte is 0:
+                byteCount += 1
+                bList.append(startIndex + index)
+            if byteCount is nbytes:
+                for i in bList:
+                    glbl.memory[i] = 1
+                    glbl.nativeFD.seek(i)
+                    glbl.nativeFD.write('\x00')
+                byteCount = 0
+                f = Textfile(fn, bList)
+                glbl.lfc = f
+                glbl.curDir = tempDir
+                return
+        for index, byte in enumerate(glbl.memory[:startIndex]):
+            if byte is 0:
+                byteCount += 1
+                bList.append(index)
+            if byteCount is nbytes:
+                for i in bList:
+                    glbl.memory[i] = 1
+                    glbl.nativeFD.seek(i)
+                    glbl.nativeFD.write('\x00')
+                byteCount = 0
+                f = Textfile(fn, bList)
+                glbl.lfc = f
+                glbl.curDir = tempDir
+                return
+
 
 
 
