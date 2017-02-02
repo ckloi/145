@@ -176,55 +176,17 @@ def create(filename, nbytes):
     except:
         byteCount = 0
         bList = []
-
-        # If lfc is none, then no files are created yet, so just find consecutive space
-        if glbl.lfc is None:
-            for index, byte in enumerate(glbl.memory):
-                if byte is 0:
-                    byteCount += 1
-                    bList.append(index)
-                if byteCount is nbytes:
-                    for i in bList:
-                        glbl.memory[i] = 1
-                        glbl.nativeFD.seek(i)
-                        glbl.nativeFD.write('\x00')
-                        glbl.spaceLeft -= 1
-                    break
-                elif byteCount is not nbytes and byte is 1:
-                    byteCount = 0
-            f = TextFile(fn, bList)
-            glbl.curDir.contentList.append(f)
-            glbl.lfc = f
-            glbl.curDir = tempDir
-            return
-
-        # Otherwise, loop from last created byte
-        startIndex = glbl.lfc.byteList[-1]
-        for index, byte in enumerate(glbl.memory[startIndex:]):
-            if byte is 0:
+        for index, byte in enumerate(glbl.memory):
+            if byte is 0 and byteCount is not nbytes:
                 byteCount += 1
-                bList.append(startIndex + index)
-            if byteCount is nbytes:
-                for i in bList:
-                    glbl.memory[i] = 1
-                    glbl.nativeFD.seek(i)
-                    glbl.nativeFD.write('\x00')
-                    glbl.spaceLeft -= 1
-                break
+                bList.append(index)
+                continue
 
-        # If finished above loop and nbytes have not been allocated, start from beginning
-        if byteCount < nbytes:
-            for index, byte in enumerate(glbl.memory[:startIndex]):
-                if byte is 0:
-                    byteCount += 1
-                    bList.append(index)
-                if byteCount is nbytes:
-                    for i in bList:
-                        glbl.memory[i] = 1
-                        glbl.nativeFD.seek(i)
-                        glbl.nativeFD.write('\x00')
-                        glbl.spaceLeft -= 1
-                    break
+        for i in bList:
+            glbl.memory[i] = 1
+            glbl.nativeFD.seek(i)
+            glbl.nativeFD.write('\x00')
+            glbl.spaceLeft -= 1
 
         byteCount = 0
         f = TextFile(fn, bList)
@@ -232,6 +194,8 @@ def create(filename, nbytes):
         glbl.lfc = f
         glbl.curDir = tempDir
         return
+    raise Exception("Already created " + fn + " file")
+
 
 
 # Opens a file with the given mode
