@@ -195,7 +195,7 @@ def create(filename, nbytes):
             glbl.lfc = f
             glbl.curDir = tempDir
             return
-            
+
 
 
 
