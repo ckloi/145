@@ -24,6 +24,7 @@ class TextFile:
             # Increment the length of the file
             # increment the position on both master file and user file
             self.userFilePos += 1
+
     def bytesUsed(self):
         tempSize = 0
         for i in self.byteList:
@@ -424,7 +425,7 @@ def suspend():
 
     saveName = glbl.nativeFD.name + '.fssave'
     glbl.isActive = False
-    saveDict = {"memory": glbl.memory, "rootDir": glbl.rootDir, "curDir": glbl.curDir, "fsname": glbl.nativeFD.name}
+    saveDict = {"memory": glbl.memory, "rootDir": glbl.rootDir, "curDir": glbl.curDir, "fsname": glbl.nativeFD.name, "spaceLeft": glbl.spaceLeft}
     pickle_file = __builtin__.open(saveName, 'wb')
     pickle.dump(saveDict, pickle_file)
     glbl.nativeFD.close()  # close the master file
@@ -444,4 +445,5 @@ def resume(fname):
     glbl.memory = saveDict["memory"]
     glbl.rootDir = saveDict["rootDir"]
     glbl.curDir = saveDict["curDir"]
+    glbl.spaceLeft = saveDict["spaceLeft"]
     pickle_file.close()
