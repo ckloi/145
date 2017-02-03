@@ -350,11 +350,6 @@ def isdir(dirname):
     return found
 
 
-# FOR TESTING
-def getcwd():
-    return glbl.curDir.dirName
-
-
 # Lists all files in directory "dirname"
 def listdir(dirname):
     # Save current directory object
