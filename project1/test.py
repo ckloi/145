@@ -48,12 +48,15 @@ fs.write(fcd, '\nnow we needtousegitagain\n')
 fs.close(fcd)
 fcd1 = fs.open('/a/b3/fc', 'r')
 print fs.readlines(fcd1)
-print fs.read(fcd1, 30)
+print fs.read(fcd1, 5)
+fs.seek(fcd1,5)
+print fs.read(fcd1, 10)
 fs.close(fcd1)
-fs.suspend()
+#fs.suspend()
 
 fs.chdir('..')
-fs.resume('abc')
+#resume is not sure
+#fs.resume('abc')
 fs.create('fb', 29)
 fbd = fs.open('fb', 'w')
 fs.write(fbd, 'quizz is so annoying.\n')
@@ -74,6 +77,8 @@ fs.close(fdd1)
 
 #now delete this file, to spare space for last file
 fs.delfile('fd')
+
+#fs.open('fd', 'r')
 
 fs.chdir('/a/')
 
