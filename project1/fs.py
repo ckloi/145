@@ -192,7 +192,6 @@ def create(filename, nbytes):
             glbl.nativeFD.write('\x00')
             glbl.spaceLeft -= 1
 
-        byteCount = 0
         f = TextFile(fn, bList)
         glbl.curDir.contentList.append(f)
         glbl.curDir = tempDir
