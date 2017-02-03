@@ -1,86 +1,80 @@
-
 import os
 
 import fs
 
+
 def prn(x):
-	try:
-		return "Dir " + x.dirName
-	except:
-		return "File " + x.fileName
+    try:
+        return "Dir " + x.dirName
+    except:
+        return "File " + x.fileName
 
-fs.init('abc')
 
-fs.create('f1',4)
+# file system tree #1
 
-fs.create('f2',7)
-
-fs.create('f3',8)
+fs.init('1')
 
 fs.mkdir('a')
 
+fs.mkdir('a/b1')
+
 fs.chdir('a')
 
-fs.mkdir('b')
+fs.chdir('/')
 
-fs.chdir('b')
+fs.create('fa', 17)
 
-fs.create('fs',5)
+fs.chdir('a')
 
+fs.mkdir('b2')
 
-fs.mkdir('c')
+fs.mkdir('/a/b3')
 
-fs.mkdir('d')
+fs.chdir('b3')
 
+fs.mkdir('/a/b1/c1')
 
-print "Current Directory is " + fs.curDir.dirName
+fs.create('/a/b3/fc', 24)
 
-print list(map(prn,fs.curDir.contentList))
+fs.chdir('..')
 
+fs.create('fb', 25)
 
+fs.chdir('/a/')
 
+fs.chdir('b1/c1')
 
+fs.create('fd', 50)
 
+fs.chdir('/a/')
 
+fs.chdir('b3/')
 
+fs.mkdir('c3')
 
-# fs.suspend()
+fs.chdir('/')
+
+# fs.create('/fa', 17)  # bug
 #
-# fs.resume()
-#
-#
-# print fs.curDir.contentList
-#
-# print fs.memory
-#
-# print fs.curDir.dirName
-#
-# print fs.nativeFD
-#
-# print fs.rootDir.dirName
-#
-# print fs.rootDir.contentList
+# fs.create('fa', 12)  # bug can create duplicate file
 
-#
-# fd = open('vsa','r+w')
-#
-# fd.write('first')
-#
-# fd.close()
-#
-# fd = open('vsa','r+w')
-#
-# fd.seek(6)
-#
-# fd.write('second')
-#
-# fd.seek(0)
-#
-# print fd.read(20)
+# fs.mkdir('a')        # mkdir can detect duplicate directory
+
+fs.mkdir('/a/b3/c3/d3')
+
+fs.create('a/b3/c3/d3/fg', 1)
+
+fs.chdir('a')
+
+fs.mkdir('b1/c2')  # fs.mkdir('/a/b1/c2')
 
 
+def printAll(root):
+    print "Current Directory is " + root.dirName
+    print list(map(prn, root.contentList))
+    for i in root.contentList:
+        if isinstance(i, fs.Directory):
+            printAll(i)
 
 
-
-
-
+printAll(fs.glbl.rootDir)
