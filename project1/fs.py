@@ -35,8 +35,7 @@ class TextFile:
 
     def read(self, rbyte):
         output = ''
-        seek(self, rbyte)
-        for i in self.byteList[self.userFilePos:rbyte]:
+        for i in self.byteList[self.userFilePos:rbyte+self.userFilePos]:
             glbl.nativeFD.seek(i)
             c = glbl.nativeFD.read(1)
             output += c

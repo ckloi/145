@@ -68,6 +68,22 @@ fs.chdir('a')
 
 fs.mkdir('b1/c2')  # fs.mkdir('/a/b1/c2')
 
+fa = fs.open('/fa','w')
+
+fs.write(fa,'wow,ecs145issuck!')
+
+fs.seek(fa,5)
+
+fs.write(fa,'sss')
+
+fa1 = fs.open('/fa','r')
+
+
+#fs.seek(fa1,2)
+
+print fs.read(fa1,5)
+
+
 
 def printAll(root):
     print "Current Directory is " + root.dirName
@@ -76,5 +92,17 @@ def printAll(root):
         if isinstance(i, fs.Directory):
             printAll(i)
 
+def printAllFiles(root):
+    for i in root.contentList:
+        if isinstance(i, fs.TextFile):
+            print "File Name : " + i.fileName
+            print i.readlines()
+            print "File size : " + str(i.bytesUsed())
+        else:
+            printAllFiles(i)
 
-printAll(fs.glbl.rootDir)
+
+
+#printAll(fs.glbl.rootDir)
+print '------------------------'
+#printAllFiles(fs.glbl.rootDir)
