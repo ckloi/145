@@ -72,16 +72,26 @@ fa = fs.open('/fa','w')
 
 fs.write(fa,'wow,ecs145issuck!')
 
-fs.seek(fa,5)
+fs.seek(fa,1)
 
 fs.write(fa,'sss')
 
 fa1 = fs.open('/fa','r')
 
 
-#fs.seek(fa1,2)
+
+
+fs.seek(fa1,12)
 
 print fs.read(fa1,5)
+
+
+fs.close(fa1)
+
+fs.chdir('/a')
+
+fs.delfile('/fa')
+
 
 
 
@@ -103,6 +113,6 @@ def printAllFiles(root):
 
 
 
-#printAll(fs.glbl.rootDir)
+printAll(fs.glbl.rootDir)
 print '------------------------'
-#printAllFiles(fs.glbl.rootDir)
+printAllFiles(fs.glbl.rootDir)
