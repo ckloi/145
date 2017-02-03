@@ -24,6 +24,7 @@ class TextFile:
             # Increment the length of the file
             # increment the position on both master file and user file
             self.userFilePos += 1
+
     def bytesUsed(self):
         tempSize = 0
         for i in self.byteList:
@@ -88,8 +89,6 @@ class glbl:
     curDir = None
     # Root dirctory
     rootDir = None
-    # Last file created
-    lfc = None
     # Keeps track of how much space is left in the native file
     spaceLeft = 0
 
@@ -196,50 +195,8 @@ def create(filename, nbytes):
         byteCount = 0
         f = TextFile(fn, bList)
         glbl.curDir.contentList.append(f)
-        glbl.lfc = f
         glbl.curDir = tempDir
         return
-        # #If lfc is none, then no files are created yet, so just find consecutive space
-        # if glbl.lfc is None:
-        #     for index, byte in enumerate(glbl.memory):
-        #         if byte is 0:
-        #             byteCount += 1
-        #             bList.append(index)
-        #
-        # # Otherwise, loop from last created byte
-        # startIndex = glbl.lfc.byteList[-1]
-        # for index, byte in enumerate(glbl.memory[startIndex:]):
-        #     if byte is 0:
-        #         byteCount += 1
-        #         bList.append(startIndex + index)
-        #     if byteCount is nbytes:
-        #         for i in bList:
-        #             glbl.memory[i] = 1
-        #             glbl.nativeFD.seek(i)
-        #             glbl.nativeFD.write('\x00')
-        #             glbl.spaceLeft -= 1
-        #         break
-        #
-        # #If finished above loop and nbytes have not been allocated, start from beginning
-        # if byteCount < nbytes:
-        #     for index, byte in enumerate(glbl.memory[:startIndex]):
-        #         if byte is 0:
-        #             byteCount += 1
-        #             bList.append(index)
-        #         if byteCount is nbytes:
-        #             for i in bList:
-        #                 glbl.memory[i] = 1
-        #                 glbl.nativeFD.seek(i)
-        #                 glbl.nativeFD.write('\x00')
-        #                 glbl.spaceLeft -= 1
-        #             break
-        #
-        # byteCount = 0
-        # f = TextFile(fn, bList)
-        # glbl.curDir.contentList.append(f)
-        # glbl.lfc = f
-        # glbl.curDir = tempDir
-        # return
     raise Exception("Already created " + fn + " file")
 
 # Opens a file with the given mode
@@ -426,7 +383,7 @@ def suspend():
 
     saveName = glbl.nativeFD.name + '.fssave'
     glbl.isActive = False
-    saveDict = {"memory": glbl.memory, "rootDir": glbl.rootDir, "curDir": glbl.curDir, "fsname": glbl.nativeFD.name}
+    saveDict = {"memory": glbl.memory, "rootDir": glbl.rootDir, "curDir": glbl.curDir, "fsname": glbl.nativeFD.name, "spaceLeft": glbl.spaceLeft}
     pickle_file = __builtin__.open(saveName, 'wb')
     pickle.dump(saveDict, pickle_file)
     glbl.nativeFD.close()  # close the master file
@@ -446,4 +403,5 @@ def resume(fname):
     glbl.memory = saveDict["memory"]
     glbl.rootDir = saveDict["rootDir"]
     glbl.curDir = saveDict["curDir"]
+    glbl.spaceLeft = saveDict["spaceLeft"]
     pickle_file.close()
