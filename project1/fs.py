@@ -83,8 +83,6 @@ class glbl:
     curDir = None
     # Root dirctory
     rootDir = None
-    # Last file created
-    lfc = None
     # Keeps track of how much space is left in the native file
     spaceLeft = 0
 
@@ -191,18 +189,17 @@ def create(filename, nbytes):
         byteCount = 0
         f = TextFile(fn, bList)
         glbl.curDir.contentList.append(f)
-        glbl.lfc = f
         glbl.curDir = tempDir
         return
-        # #If lfc is none, then no files are created yet, so just find consecutive space
-        # if glbl.lfc is None:
+        # #If  is none, then no files are created yet, so just find consecutive space
+        # if  is None:
         #     for index, byte in enumerate(glbl.memory):
         #         if byte is 0:
         #             byteCount += 1
         #             bList.append(index)
         #
         # # Otherwise, loop from last created byte
-        # startIndex = glbl.lfc.byteList[-1]
+        # startIndex = glbl..byteList[-1]
         # for index, byte in enumerate(glbl.memory[startIndex:]):
         #     if byte is 0:
         #         byteCount += 1
@@ -232,7 +229,7 @@ def create(filename, nbytes):
         # byteCount = 0
         # f = TextFile(fn, bList)
         # glbl.curDir.contentList.append(f)
-        # glbl.lfc = f
+        # glbl. = f
         # glbl.curDir = tempDir
         # return
     raise Exception("Already created " + fn + " file")
