@@ -174,27 +174,32 @@ def create(filename, nbytes):
         raise Exception("Cannot create file: Not enough space")
 
     tempDir = glbl.curDir
+    # Travel to specified directory
     fn = travel(filename)
     try:
+        # If this returns, then the file has already been created
         find(fn, 'f')
     except:
         byteCount = 0
         bList = []
         for index, byte in enumerate(glbl.memory):
+            # Increase byte count and append byte indices until specified number
+            # of byts have been allocated
             if byte is 0 and byteCount is not nbytes:
                 byteCount += 1
                 bList.append(index)
-                continue
 
+        # Go through byte list, update memory status, and write null characters
         for i in bList:
             glbl.memory[i] = 1
             glbl.nativeFD.seek(i)
             glbl.nativeFD.write('\x00')
             glbl.spaceLeft -= 1
 
-        byteCount = 0
         f = TextFile(fn, bList)
+        # Append the file to the content list of the current directory
         glbl.curDir.contentList.append(f)
+        # Restore curDir
         glbl.curDir = tempDir
         return
     raise Exception("Already created " + fn + " file")
@@ -291,10 +296,13 @@ def delfile(filename):
     if f.isOpen:
         glbl.curDir = tempDir
         raise Exception("Unable to delete file: File is open.")
+    # Goes through byte list of file, setting memory status' back to 0
     for i in f.byteList:
         glbl.memory[i] = 0
         glbl.spaceLeft += 1
+    # Deletes the file object from the directory's content list
     del glbl.curDir.contentList[index]
+    # Restore current directory
     glbl.curDir = tempDir
 
 
@@ -307,6 +315,7 @@ def mkdir(dirname):
     try:
         find(dn, 'd')
     except:
+        # Create a direcory object and append it to the current directory's content list
         glbl.curDir.contentList.append(Directory(dn, glbl.curDir))  # no duplicate dirname
         glbl.curDir = tempDir
         return
@@ -327,6 +336,7 @@ def deldir(dirname):
         raise Exception("Cannot delete directory: Currently in directory to be deleted")
     # Temporarily change into directory to be deleted and delete everything in there
     chdir(dn)
+    # Delete files/directories one-by-one until the content ist is empty
     while glbl.curDir.contentList:
         i = glbl.curDir.contentList[0]
         if isinstance(i, TextFile):
