@@ -8,7 +8,7 @@ import pickle
 class TextFile:
     def __init__(self, name, bList):
         self.fileName = name
-        #Holds all byte numbers occupied by the file
+        # Holds all byte numbers occupied by the file
         self.byteList = bList
         self.bytesUsed = 0
         self.mode = ''
@@ -30,7 +30,7 @@ class TextFile:
     def read(self, rbyte):
         output = ''
         seek(self, rbyte)
-        for i in self.byteList[rbyte:]:
+        for i in self.byteList[self.userFilePos:rbyte]:
             glbl.nativeFD.seek(i)
             c = glbl.nativeFD.read(1)
             output += c
@@ -68,7 +68,8 @@ class Directory:
         self.contentList = []
         self.previousDir = prevD
 
-#Global class
+
+# Global class
 class glbl:
     # file descriptor of fsname
     nativeFD = None
@@ -164,7 +165,7 @@ def travel(path):
 # focus on create file first then directory
 # #Creates a file with a size of nbytes
 def create(filename, nbytes):
-    #If there's no space, raise exception
+    # If there's no space, raise exception
     if nbytes > glbl.spaceLeft:
         raise Exception("Cannot create file: Not enough space")
 
@@ -234,6 +235,7 @@ def create(filename, nbytes):
         # glbl.lfc = f
         # glbl.curDir = tempDir
         # return
+    raise Exception("Already created " + fn + " file")
 
 # Opens a file with the given mode
 def open(filename, mode):
