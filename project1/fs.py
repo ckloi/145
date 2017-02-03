@@ -10,7 +10,6 @@ class TextFile:
         self.fileName = name
         # Holds all byte numbers occupied by the file
         self.byteList = bList
-        self.bytesUsed = 0
         self.mode = ''
         self.isOpen = False
         # position of the user input/edit file
@@ -23,9 +22,16 @@ class TextFile:
             # write into master/fsname file
             glbl.nativeFD.write(content[i])
             # Increment the length of the file
-            self.bytesUsed += 1
             # increment the position on both master file and user file
             self.userFilePos += 1
+    def bytesUsed(self):
+        tempSize = 0
+        for i in self.byteList:
+            glbl.nativeFD.seek(i)
+            c = glbl.nativeFD.read(1)
+            if c != '\x00':
+                tempSize += 1
+        return tempSize
 
     def read(self, rbyte):
         output = ''
@@ -40,7 +46,7 @@ class TextFile:
     def readlines(self):
         rstring = ""
         wfile_list = []
-        for i in range(self.bytesUsed):
+        for i in range(self.bytesUsed()):
             glbl.nativeFD.seek(self.byteList[i])
             c = glbl.nativeFD.read(1)
             # treat 0xa byte as end of line
@@ -267,7 +273,7 @@ def close(fd):
 
 # Returns the length of used bytes in the file
 def length(fd):
-    return fd.bytesUsed
+    return fd.bytesUsed()
 
 
 # Returns the current read/write position in the file
@@ -277,7 +283,7 @@ def pos(fd):
 
 # Sets the read/write position to pos
 def seek(fd, pos):
-    if pos >= fd.bytesUsed:
+    if pos >= fd.bytesUsed():
         raise Exception("Out of bounds")
     fd.userFilePos = pos
 
