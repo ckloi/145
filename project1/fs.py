@@ -409,4 +409,5 @@ def resume(fname):
     glbl.rootDir = saveDict["rootDir"]
     glbl.curDir = saveDict["curDir"]
     glbl.spaceLeft = saveDict["spaceLeft"]
+    glbl.numFilesOpen = 0
     pickle_file.close()
