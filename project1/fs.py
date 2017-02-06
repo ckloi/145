@@ -389,16 +389,16 @@ def suspend():
     saveName = glbl.nativeFD.name + '.fssave'
     glbl.isActive = False
     saveDict = {"memory": glbl.memory, "rootDir": glbl.rootDir, "curDir": glbl.curDir, "fsname": glbl.nativeFD.name, "spaceLeft": glbl.spaceLeft}
+    pickle_file = __builtin__.open(saveName, 'wb')
+    pickle.dump(saveDict, pickle_file)
+    glbl.nativeFD.close()  # close the master file
+    pickle_file.close()
     #Reset global variables so no changes can be made (these will be repopulated in resume or init)
     glbl.memory = []
     glbl.rootDir = None
     glbl.curDir = None
     glbl.nativeFD = None
     glbl.spaceLeft = 0
-    pickle_file = __builtin__.open(saveName, 'wb')
-    pickle.dump(saveDict, pickle_file)
-    glbl.nativeFD.close()  # close the master file
-    pickle_file.close()
 
 
 # #Resumes the previously suspended file system
