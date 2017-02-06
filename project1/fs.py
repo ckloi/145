@@ -399,7 +399,7 @@ def suspend():
 def resume(fname):
     # Check if the file system is suspended
     if glbl.isActive:
-        raise Exception("No file system has been suspended")
+        raise Exception("Cannot resume: A file system is still active")
 
     pickle_file = __builtin__.open(fname, 'rb')
     saveDict = pickle.load(pickle_file)
