@@ -247,7 +247,7 @@ def pos(fd):
 
 # Sets the read/write position to pos
 def seek(fd, pos):
-    if pos >= fd.bytesUsed():
+    if pos >= fd.bytesUsed() or pos < 0:
         raise Exception("Out of bounds")
     fd.userFilePos = pos
 
