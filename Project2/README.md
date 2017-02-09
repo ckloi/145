@@ -1,7 +1,7 @@
 <html><head></head><body bgcolor="white">
 <h1>Homework I</h1>
 
-<h2><strong>Due </strong></h2>
+<h2><strong>Due Thursday, February 16th</strong></h2>
 
 <h3>Problem A</h3>
 
