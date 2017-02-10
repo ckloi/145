@@ -22,7 +22,6 @@ def filtering(key, NAList):
 
 def calcfreqs(infile, nqs, maxrat):
     try:
-<<<<<<< Updated upstream
         fdfile = open(infile)
         freqs = {}
         inputList = list(fdfile.readlines())
@@ -44,46 +43,6 @@ def calcfreqs(infile, nqs, maxrat):
         return freqs
     except:
         raise Exception("Unable to open file")
-=======
-        f = open(infile)
-    except:
-        raise Exception('Cannot open file')
-
-    freqs = {}
-    # Initialize dictionary
-    for line in f.readlines():
-        key = line.split()
-        if 'NA' not in key:
-            key = ','.join(key)
-            freqs[key] = 0
-
-    #Reset file pointer
-    f.seek(0)
-    for line in f.readlines():
-        pattern = line.split()
-        # If pattern does not contain NA and matches one in the dictionary, add 1
-        if 'NA' not in pattern:
-            pattern = ','.join(pattern)
-            if pattern in freqs.keys():
-                freqs[pattern] += 1
-            continue
-
-        for key in freqs.keys():
-            toAdd = 0
-            keySplit = key.split(',')
-            for index in range(len(pattern)):
-                if pattern[index] != 'NA':
-                    if keySplit[index] is not pattern[index]:
-                        toAdd = 0
-                        break
-                    toAdd += pow(nqs, -1)
-            freqs[key] += toAdd
-
-    return freqs
-
-
-
->>>>>>> Stashed changes
 
 
 def highfreqs(freqs, k):
