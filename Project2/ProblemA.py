@@ -37,12 +37,10 @@ def calcfreqs(infile, nqs, maxrat):
                 NAList.append(i)
         # update the value when there is 'NA'
         for j in NAList:
-            # Look for any instances of NA (NA was replaced with *)
-            if "*" in j:
-                for i in freqs.keys():
-                    if isMatch(i, j):
-                        # Increment by (# of questions - number of NA's) / # of questions
-                        freqs[i] += float(nqs - j.count('*')) / float(nqs)
+            for i in freqs.keys():
+                if isMatch(i, j):
+                    # Increment by (# of questions - number of NA's) / # of questions
+                    freqs[i] += float(nqs - j.count('*')) / float(nqs)
         return freqs
 
     except:
