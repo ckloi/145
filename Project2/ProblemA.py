@@ -1,6 +1,7 @@
 import os
 
 #i am not sure what the maxrat should do, so haven't test
+#and it is way too long :<
 def calcfreqs(infile, nqs, maxrat):
     try:
         fdfile = open(infile)
