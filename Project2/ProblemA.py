@@ -1,21 +1,21 @@
 def refineString(x):
     result = x.replace(" ", ",").replace("NA", "*")
     return result[:-1]
+#
+# #return the number
+# def numOfNA(x):
+#     counter = 0
+#     for k in x:
+#         if k is "*":
+#             counter += 1
+#     return counter
 
-
-def numOfNA(x):
-    counter = 0
-    for k in x:
-        if k is "*":
-            counter += 1
-    return counter
-
-
-def filtering(key, NAList):
+#compare if key in dictonary is match with line with 'NA'/'*'
+def isMatch(key, NAkey):
     for i in range(len(key)):
-        if NAList[i] == "*":
+        if NAkey[i] == "*":
             continue
-        if key[i] != NAList[i]:
+        if key[i] != NAkey[i]:
             return False
     return True
 
@@ -24,22 +24,26 @@ def calcfreqs(infile, nqs, maxrat):
     try:
         fdfile = open(infile)
         freqs = {}
+        #read lines from file
         inputList = list(fdfile.readlines())
-
+        #replace ',' from ' ' and '*' from 'NA'
+        #so it would be '3,4,5' if with NA, '3,*,5'
         refinedInputList = map(refineString, inputList)
 
+        #initialize the dictonary
         for i in refinedInputList:
             if "*" not in i:
                 if i not in freqs:
                     freqs[i] = 1
                 else:
                     freqs[i] += 1
+        #update the value when there is 'NA'
         for j in refinedInputList:
             if "*" in j:
                 for i in freqs.keys():
-                    if filtering(i, j):
-                        size = numOfNA(j)
-                        freqs[i] += float(nqs - size) / float(nqs)
+                    if isMatch(i, j):
+                       # size = numOfNA(j)
+                        freqs[i] += float(nqs - j.count('*')) / float(nqs)
         return freqs
     except:
         raise Exception("Unable to open file")
