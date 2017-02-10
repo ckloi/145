@@ -61,7 +61,7 @@ def highfreqs(freqs, k):
             subfreqs[vkeys[vvaluesIndex]] = vvalues[vvaluesIndex]
             # delecte the max and find the next max
             vkeys.pop(vvaluesIndex)
-            vkeys.pop(vvaluesIndex)
+            vvalues.pop(vvaluesIndex)
     else:
         for i in range(k):
             # find the max value each time
@@ -70,5 +70,5 @@ def highfreqs(freqs, k):
             subfreqs[vkeys[vvaluesIndex]] = vvalues[vvaluesIndex]
             # delecte the max and find the next max
             vkeys.pop(vvaluesIndex)
-            vkeys.pop(vvaluesIndex)
+            vvalues.pop(vvaluesIndex)
     return subfreqs
