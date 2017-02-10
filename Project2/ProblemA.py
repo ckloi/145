@@ -12,8 +12,6 @@ def numOfNA(x):
 
 
 def filtering(key, NAList):
-    print key
-    print NAList
     for i in range(len(key)):
         if NAList[i] == "*":
             continue
@@ -28,7 +26,7 @@ def calcfreqs(infile, nqs, maxrat):
         freqs = {}
         inputList = list(fdfile.readlines())
 
-        refinedInputList = (map(refineString, inputList))
+        refinedInputList = map(refineString, inputList)
 
         for i in refinedInputList:
             if "*" not in i:
