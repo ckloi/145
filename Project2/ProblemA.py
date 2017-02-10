@@ -50,22 +50,17 @@ def highfreqs(freqs, k):
     subfreqs = {}
     vkeys = list(freqs.keys())
     vvalues = list(freqs.values())
-    if k < 0:
-        for i in range(k):
+    for i in range(abs(k)):
+        if k < 0:
             # find the min value each time
             vvaluesIndex = vvalues.index(min(vvalues))
-            # add this to the return list
-            subfreqs[vkeys[vvaluesIndex]] = vvalues[vvaluesIndex]
-            # delecte the max and find the next max
-            vkeys.pop(vvaluesIndex)
-            vvalues.pop(vvaluesIndex)
-    else:
-        for i in range(k):
+        else:
             # find the max value each time
             vvaluesIndex = vvalues.index(max(vvalues))
-            # add this to the return list
-            subfreqs[vkeys[vvaluesIndex]] = vvalues[vvaluesIndex]
-            # delecte the max and find the next max
-            vkeys.pop(vvaluesIndex)
-            vvalues.pop(vvaluesIndex)
+            
+        # add this to the return list
+        subfreqs[vkeys[vvaluesIndex]] = vvalues[vvaluesIndex]
+        # delete the max and find the next max
+        vkeys.pop(vvaluesIndex)
+        vvalues.pop(vvaluesIndex)
     return subfreqs
