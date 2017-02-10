@@ -1,14 +1,7 @@
+# Replace all spaces with commas and all NA's with *
 def refineString(x):
     result = x.replace(" ", ",").replace("NA", "*")
     return result[:-1]
-#
-# #return the number
-# def numOfNA(x):
-#     counter = 0
-#     for k in x:
-#         if k is "*":
-#             counter += 1
-#     return counter
 
 #compare if key in dictonary is match with line with 'NA'/'*'
 def isMatch(key, NAkey):
@@ -27,24 +20,28 @@ def calcfreqs(infile, nqs, maxrat):
         #read lines from file
         inputList = list(fdfile.readlines())
         #replace ',' from ' ' and '*' from 'NA'
-        #so it would be '3,4,5' if with NA, '3,*,5'
+        #so '3 4 5' would become '3,4,5' and '1 2 NA' would become '1,2,*'
         refinedInputList = map(refineString, inputList)
 
         #initialize the dictonary
         for i in refinedInputList:
             if "*" not in i:
                 if i not in freqs:
+                    # Should be 1 at first
                     freqs[i] = 1
                 else:
                     freqs[i] += 1
+
         #update the value when there is 'NA'
         for j in refinedInputList:
+            # Look for any instances of NA (NA was replaced with *)
             if "*" in j:
                 for i in freqs.keys():
                     if isMatch(i, j):
-                       # size = numOfNA(j)
+                       # Increment by (# of questions - number of NA's) / # of questions
                         freqs[i] += float(nqs - j.count('*')) / float(nqs)
         return freqs
+
     except:
         raise Exception("Unable to open file")
 
