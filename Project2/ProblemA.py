@@ -22,6 +22,7 @@ def filtering(key, NAList):
 
 def calcfreqs(infile, nqs, maxrat):
     try:
+<<<<<<< Updated upstream
         fdfile = open(infile)
         freqs = {}
         inputList = list(fdfile.readlines())
@@ -43,6 +44,46 @@ def calcfreqs(infile, nqs, maxrat):
         return freqs
     except:
         raise Exception("Unable to open file")
+=======
+        f = open(infile)
+    except:
+        raise Exception('Cannot open file')
+
+    freqs = {}
+    # Initialize dictionary
+    for line in f.readlines():
+        key = line.split()
+        if 'NA' not in key:
+            key = ','.join(key)
+            freqs[key] = 0
+
+    #Reset file pointer
+    f.seek(0)
+    for line in f.readlines():
+        pattern = line.split()
+        # If pattern does not contain NA and matches one in the dictionary, add 1
+        if 'NA' not in pattern:
+            pattern = ','.join(pattern)
+            if pattern in freqs.keys():
+                freqs[pattern] += 1
+            continue
+
+        for key in freqs.keys():
+            toAdd = 0
+            keySplit = key.split(',')
+            for index in range(len(pattern)):
+                if pattern[index] != 'NA':
+                    if keySplit[index] is not pattern[index]:
+                        toAdd = 0
+                        break
+                    toAdd += pow(nqs, -1)
+            freqs[key] += toAdd
+
+    return freqs
+
+
+
+>>>>>>> Stashed changes
 
 
 def highfreqs(freqs, k):
@@ -68,3 +109,42 @@ def highfreqs(freqs, k):
             vkeys.pop(vvaluesIndex)
             vkeys.pop(vvaluesIndex)
     return subfreqs
+
+
+
+
+    # try:
+    #     fdfile = open(infile)
+    #     freqs = {}
+    #     #first add the keys '1,2,3'
+    #     for i in fdfile.readlines():
+    #         #remove the whitespace characters
+    #         i.strip()
+    #         #remove the empty spcace
+    #         nkeys = i.replace(' ', ',')
+    #         if "NA" not in nkeys:
+    #             if nkeys not in freqs.keys():
+    #                 freqs[nkeys] = 0
+    #     #now update the value, repeat code because have to have the keys first
+    #     #otherwise if the line with NA before a unique store will be missed.
+    #     target = freqs.keys()
+    #     for j in fdfile.readlines():
+    #         j.strip()
+    #         k = j.replace(' ',',')
+    #         #now j should be '1,2,3..'
+    #
+    #         if 'NA' not in k:
+    #             freqs[k] += 1
+    #         else:
+    #             indexOfNA = nalist(k)
+    #             for i in len(k):
+    #                 for j in len(indexOfNA):
+    #                     if i is indexOfNA[j]:
+    #                         continue
+    #                     else:
+    #                         target = filter(lambda key: key[i] is k[i], target)
+    #             #
+    #             freqs[target] += (1 - len(indexOfNA)/nqs)
+    #
+    # except:
+    #     raise Exception("Unable to open file")
