@@ -3,7 +3,8 @@ def refineString(x):
     result = x.replace(" ", ",").replace("NA", "*")
     return result[:-1]
 
-#compare if key in dictonary is match with line with 'NA'/'*'
+
+# compare if key in dictonary is match with line with 'NA'/'*'
 def isMatch(key, NAkey):
     for i in range(len(key)):
         if NAkey[i] == "*":
@@ -17,13 +18,14 @@ def calcfreqs(infile, nqs, maxrat):
     try:
         fdfile = open(infile)
         freqs = {}
-        #read lines from file
+        # read lines from file
         inputList = list(fdfile.readlines())
-        #replace ',' from ' ' and '*' from 'NA'
-        #so '3 4 5' would become '3,4,5' and '1 2 NA' would become '1,2,*'
+        # replace ',' from ' ' and '*' from 'NA'
+        # so '3 4 5' would become '3,4,5' and '1 2 NA' would become '1,2,*'
         refinedInputList = map(refineString, inputList)
-
-        #initialize the dictonary
+        # create a nalist contain all key that has NA in it
+        NAList = []
+        # initialize the dictonary
         for i in refinedInputList:
             if "*" not in i:
                 if i not in freqs:
@@ -31,14 +33,15 @@ def calcfreqs(infile, nqs, maxrat):
                     freqs[i] = 1
                 else:
                     freqs[i] += 1
-
-        #update the value when there is 'NA'
-        for j in refinedInputList:
+            else:
+                NAList.append(i)
+        # update the value when there is 'NA'
+        for j in NAList:
             # Look for any instances of NA (NA was replaced with *)
             if "*" in j:
                 for i in freqs.keys():
                     if isMatch(i, j):
-                       # Increment by (# of questions - number of NA's) / # of questions
+                        # Increment by (# of questions - number of NA's) / # of questions
                         freqs[i] += float(nqs - j.count('*')) / float(nqs)
         return freqs
 
@@ -57,7 +60,7 @@ def highfreqs(freqs, k):
         else:
             # find the max value each time
             vvaluesIndex = vvalues.index(max(vvalues))
-            
+
         # add this to the return list
         subfreqs[vkeys[vvaluesIndex]] = vvalues[vvaluesIndex]
         # delete the max and find the next max
