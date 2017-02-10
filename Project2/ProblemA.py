@@ -1,5 +1,4 @@
 import os
-import re
 
 #i am not sure what the maxrat should do, so haven't test
 def calcfreqs(infile, nqs, maxrat):
