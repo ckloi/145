@@ -5,13 +5,18 @@ def refineString(x):
 
 
 # compare if key in dictonary is match with line with 'NA'/'*'
-def isMatch(key, NAkey):
+def nMatched(key, NAkey, numqs):
+    matched = 0
     for i in range(len(key)):
-        if NAkey[i] == "*":
+        # Don't increment if NA or comma (comma's should be at the same indices for both lists)
+        if NAkey[i] == "*" or key[i] == ',':
             continue
+        # If any part does not match, return 0
         if key[i] != NAkey[i]:
-            return False
-    return True
+            return 0
+        # Increment by a fraction of numqs for each i matched
+        matched += pow(numqs, -1)
+    return matched
 
 
 def calcfreqs(infile, nqs, maxrat):
@@ -41,9 +46,7 @@ def calcfreqs(infile, nqs, maxrat):
     # update the value when there is 'NA'
     for NARatings in NAList:
         for key in freqs.keys():
-            if isMatch(key, NARatings):
-                # Increment by (# of questions - number of NA's) / # of questions
-                freqs[key] += float(nqs - NARatings.count('*')) / float(nqs)
+            freqs[key] += nMatched(key, NARatings, nqs)
     return freqs
 
 
