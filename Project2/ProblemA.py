@@ -8,7 +8,7 @@ def refineString(x):
 def nMatch(key, NAkey, numqs):
     matched = 0
     for i in range(len(key)):
-        # Don't increment if NA or comma
+        # Don't increment if NA or comma (comma's should be at the same indices for both lists)
         if NAkey[i] == "*" or key[i] == ',':
             continue
         # If any part does not match, return 0
