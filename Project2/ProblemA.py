@@ -17,34 +17,34 @@ def isMatch(key, NAkey):
 def calcfreqs(infile, nqs, maxrat):
     try:
         fdfile = open(infile)
-        freqs = {}
-        # read lines from file
-        inputList = list(fdfile.readlines())
-        # replace ',' from ' ' and '*' from 'NA'
-        # so '3 4 5' would become '3,4,5' and '1 2 NA' would become '1,2,*'
-        refinedInputList = map(refineString, inputList)
-        # create a nalist contain all key that has NA in it
-        NAList = []
-        # initialize the dictonary
-        for i in refinedInputList:
-            if "*" not in i:
-                if i not in freqs:
-                    # Should be 1 at first
-                    freqs[i] = 1
-                else:
-                    freqs[i] += 1
-            else:
-                NAList.append(i)
-        # update the value when there is 'NA'
-        for j in NAList:
-            for i in freqs.keys():
-                if isMatch(i, j):
-                    # Increment by (# of questions - number of NA's) / # of questions
-                    freqs[i] += float(nqs - j.count('*')) / float(nqs)
-        return freqs
-
     except:
         raise Exception("Unable to open file")
+
+    freqs = {}
+    # read lines from file
+    inputList = list(fdfile.readlines())
+    # replace ',' from ' ' and '*' from 'NA'
+    # so '3 4 5' would become '3,4,5' and '1 2 NA' would become '1,2,*'
+    refinedInputList = map(refineString, inputList)
+    # create a nalist contain all key that has NA in it
+    NAList = []
+    # initialize the dictonary
+    for ratings in refinedInputList:
+        if "*" not in ratings:
+            if ratings not in freqs.keys():
+                # Should be 1 at first
+                freqs[ratings] = 1
+            else:
+                freqs[ratings] += 1
+        else:
+            NAList.append(ratings)
+    # update the value when there is 'NA'
+    for NARatings in NAList:
+        for key in freqs.keys():
+            if isMatch(key, NARatings):
+                # Increment by (# of questions - number of NA's) / # of questions
+                freqs[key] += float(nqs - NARatings.count('*')) / float(nqs)
+    return freqs
 
 
 def highfreqs(freqs, k):
