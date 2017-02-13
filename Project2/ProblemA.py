@@ -27,7 +27,7 @@ def calcfreqs(infile, nqs, maxrat):
 
     freqs = {}
     # read lines from file
-    inputList = list(fdfile.readlines())
+    inputList = fdfile.readlines()
     # replace ',' from ' ' and '*' from 'NA'
     # so '3 4 5' would become '3,4,5' and '1 2 NA' would become '1,2,*'
     refinedInputList = map(refineString, inputList)
@@ -52,19 +52,27 @@ def calcfreqs(infile, nqs, maxrat):
 
 def highfreqs(freqs, k):
     subfreqs = {}
-    vkeys = list(freqs.keys())
-    vvalues = list(freqs.values())
+    vkeys = freqs.keys()
+    vvalues = freqs.values()
+    offset = 0
     for i in range(abs(k)):
+        vvaluesIndices = []
         if k < 0:
-            # find the min value each time
-            vvaluesIndex = vvalues.index(min(vvalues))
+            minValue = min(vvalues)
+            for value in vvalues:
+                if value == minValue:
+                    vvaluesIndices.append(vvalues.index(value))
         else:
-            # find the max value each time
-            vvaluesIndex = vvalues.index(max(vvalues))
+            maxValue = max(vvalues)
+            for vIndex in range(len(vvalues)):
+                if vvalues[vIndex] == maxValue:
+                    vvaluesIndices.append(vIndex)
 
-        # add this to the return list
-        subfreqs[vkeys[vvaluesIndex]] = vvalues[vvaluesIndex]
-        # delete the max and find the next max
-        vkeys.pop(vvaluesIndex)
-        vvalues.pop(vvaluesIndex)
+        for index in vvaluesIndices:
+            # add this to the return list
+            subfreqs[vkeys[index - offset]] = vvalues[index - offset]
+            # delete the max and find the next max
+            vkeys.pop(index - offset)
+            vvalues.pop(index - offset)
+            offset += 1
     return subfreqs
