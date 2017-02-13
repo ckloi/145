@@ -66,7 +66,7 @@ def highfreqs(freqs, k):
         for item in filter(lambda x: freqs[x] == value, freqs.keys()):
             vIndex = vkeys.index(item)
             # add this to the return list
-            subfreqs[vkeys[vIndex]] = vvalues[vIndex]
+            subfreqs[item] = vvalues[vIndex]
             # delete the max and find the next max
             vkeys.pop(vIndex)
             vvalues.pop(vIndex)
