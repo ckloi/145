@@ -35,6 +35,9 @@ def calcfreqs(infile, nqs, maxrat):
     NAList = []
     # initialize the dictonary
     for ratings in refinedInputList:
+        # Check if the line has more/less ratings than # of questions
+        if len(ratings.split(',')) != nq:
+            raise Exception("Error: one or more lines are not in the correct format.")
         if "*" not in ratings:
             if ratings not in freqs.keys():
                 # Should be 1 at first
