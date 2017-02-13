@@ -27,7 +27,7 @@ def calcfreqs(infile, nqs, maxrat):
 
     freqs = {}
     # read lines from file
-    inputList = list(fdfile.readlines())
+    inputList = fdfile.readlines()
     # replace ',' from ' ' and '*' from 'NA'
     # so '3 4 5' would become '3,4,5' and '1 2 NA' would become '1,2,*'
     refinedInputList = map(refineString, inputList)
@@ -52,8 +52,8 @@ def calcfreqs(infile, nqs, maxrat):
 
 def highfreqs(freqs, k):
     subfreqs = {}
-    vkeys = list(freqs.keys())
-    vvalues = list(freqs.values())
+    vkeys = freqs.keys()
+    vvalues = freqs.values()
     for i in range(abs(k)):
         if k < 0:
             value = min(vvalues)
