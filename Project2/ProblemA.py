@@ -38,10 +38,6 @@ def calcfreqs(infile, nqs, maxrat):
         # Check if the line has more/less ratings than # of questions
         if len(ratings.split(',')) != nqs:
             raise Exception("Error: one or more lines are not in the correct format.")
-        # Check for any ratings above maxrat, excluding NA ratings
-        for rat in ratings.split(','):
-            if rat > maxrat and not rat is 'NA':
-                raise Exception("Error: one or more ratings above maximum rating")
         if "*" not in ratings:
             if ratings not in freqs.keys():
                 # Should be 1 at first
