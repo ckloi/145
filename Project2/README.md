@@ -1,7 +1,17 @@
 <html><head></head><body bgcolor="white">
 <h1>Homework II</h1>
 
-<h2><strong>Due Thursday, February 16th</strong></h2>
+<h2><strong>Problem A due February 16</strong>
+<br>
+<strong>Problem B due February 23</strong>
+<br>
+<strong>Problem C due </strong>
+</h2>
+
+<h3>
+Note:
+As always, do not deviate from the problem specs.
+</h3>
 
 <h3>Problem A</h3>
 
@@ -67,7 +77,8 @@ so we might count it as 2/3 of a match to (5,4,5). So, the frequency of
 (5,4,5) would be 3 2/3.  And if we had had, say, a (5,4,1) record in 
 our data, that would count 2/3 as well.  If we have 4 questions in 
 our survey, a record with 2 NAs but which matches an intact record in 
-the other 2 components, it would count as half a match.
+the other 2 components, it would count as half a match.  Partial 
+matches are made only of nonintact patterns to intact patterns.
 </p>
 
 <p>
@@ -108,4 +119,95 @@ frequent patterns, not the most.
 </li> <p></p>
 
 </ul>
+
+<p>
+Below is an example, using the file <b>y</b>,
+</p>
+
+<pre>5 4 5
+NA 3 3
+5 2 3
+5 4 5
+1 4 2
+5 4 NA
+4 NA 1
+5 4 1
+3 3 3
+5 2 3
+5 4 5
+1 4 2
+</pre>
+
+<pre>&gt;&gt;&gt; from Freq import *
+&gt;&gt;&gt; fr = calcfreqs('y',3,5)
+&gt;&gt;&gt; fr
+{'5,4,5': 3.6666666666666665, '1,4,2': 2, '5,4,1': 1.6666666666666665,
+'3,3,3': 1.6666666666666665, '5,2,3': 2}
+&gt;&gt;&gt; highfreqs(fr,2)
+{'5,4,5': 3.6666666666666665, '1,4,2': 2, '5,2,3': 2}
+</pre>
+
+<h2>Problem B:</h2>
+
+<p>
+Here you will write code to perform a type of file data operation, using
+Python threads. 
+
+You are required to use either the <b>thread</b> or
+<b>threading</b> module.
+</p>
+
+<p>
+The problem statement is simple (and the code is not difficult):  Write
+a function with declaration
+</p>
+
+<pre>def linelengths(filenm,ntrh):
+</pre>
+
+<p>
+which returns a Python <b>list</b>, the i<sup>th</sup> element of which
+is the number of characters in line i of the file.
+Here are the details:
+</p>
+
+<ul>
+
+<li> Do not count the EOL character in the line length.  But allow for
+empty lines, i.e. length 0.
+</li> <p></p>
+
+<li>
+If the last byte in the file is not the EOL character, operate as if
+there is one, i.e. treat the last set of bytes in the file as a line.
+</li> <p></p> 
+
+<li> Have the threads work on approximately equal chunks of the file,
+starting at about equally-spaced points.  For instance, say the file is
+1200 bytes long (including EOLs) and you run 3 threads.  Have thread 0
+start at byte 0, thread 1 start at byte 400, and thread 2 start at 800.
+</li> <p></p>
+
+<li> The point of Problem B is to get experience with interactions
+between threads.  In this case, that will mean having the threads
+cooperate to create the final list of line lengths.  Do not have the
+parent thread splice together the individual lists found by the child
+threads.
+</li> <p></p>
+
+<li> Hopefully the threaded version is faster than an unthreaded one,
+due to parallelism.  The GIL limits the potential for speed increase,
+but we may be able to get parallelism via the overlapping of computation
+and I/O.  For Extra Credit, do a timing experiment, probably on a very
+large file, which you will store in <b>/tmp</b>.  Make sure your steps
+are reproducible by the TA. Please your report in a file
+<b>Report.txt</b>, a plain ASCII text file.
+
+</li></ul>
+
+
+
+
+<h2>Problem C:</h2>
+
 </body></html>
