@@ -252,11 +252,12 @@ call them and then return the list that they cooperatively form.
 Calling <b>linelengths('z',2)</b> should return the list [0,1,2,3,2,1].
 </p>
 
-
 <h2>Problem C:</h2>
 
 <p>
-Here you will write a SimPy simulation program for a very simple model 
+Here you will write a 
+<a href="http://heather.cs.ucdavis.edu/~matloff/simpy.html">SimPy</a> 
+simulation program for a very simple model 
 of an online store.  Here are the details:
 </p>
 
@@ -265,11 +266,20 @@ of an online store.  Here are the details:
 <li> Customer orders arrive at random times, with times between
 successive orders having a gamma distribution.  You call this via
 <b>random.gammavariate()</b>, with arguments <b>alpha</b> and
-<b>beta</b>.
-</li> <p></p>
+<b>beta</b>.  
+<p></p>
 
-<li> The distribution of times between deliveries of new inventory is 
-also modeled as gamma, with different values of  <b>alpha</b> and 
+<p> The 
+<a href="https://en.wikipedia.org/wiki/Gamma_distribution">Wikipedia
+entry </a> for the gamma distribution family has pictures of the density
+function; their k is Python's <b>alpha</b> and their θ is Python's
+<b>beta</b>.  If you generate, say 1000, random variates using this
+Python call and draw a histogram, it will look like one of the curves in
+the picture.
+</p></li> <p></p>
+
+<li> The distribution of times between deliveries of new inventory will
+also be modeled as gamma, with different values of  <b>alpha</b> and 
 <b>beta</b> than above.
 </li> <p></p>
 
@@ -277,7 +287,7 @@ also modeled as gamma, with different values of  <b>alpha</b> and
 quantity of 1.  Each delivery of new stock is a quantity of 1.
 </li> <p></p>
 
-<li> Your "main" function has the declaration 
+<li> Your "main" function will have the declaration 
 <p></p>
 
 <pre>def storesim(maxsimtime,alphac,betac,alphai,betai):
@@ -285,9 +295,27 @@ quantity of 1.  Each delivery of new stock is a quantity of 1.
 
 </li> <p></p>
 
-<li> The function returns the mean time it takes for a customer's order
-to be filled (0 if immediae).
+<li> The function returns the following in a tuple:
+<p></p>
+
+   <ul>
+
+   <li> the mean time it takes for a customer's order to be filled (0 if
+   immediate)
+   </li> <p></p>
+
+   <li> the proportion of customer orders that are filled immediately
+   </li> <p></p>
+
+   <li> the proportion of inventory deliveries that are immediately used
+   to fill a customer order upon arrival of the delivery
+   </li> <p></p> 
+
+   </ul>
+
 </li> <p></p> 
 
-</ul>
+<li> Place your code in a file <b>ProbC.py</b>.
+
+</li></ul>
 </body></html>
