@@ -5,7 +5,7 @@
 <br>
 <strong>Problem B due February 23</strong>
 <br>
-<strong>Problem C due </strong>
+<strong>Problem C due February 27</strong>
 </h2>
 
 <h3>
@@ -202,12 +202,92 @@ and I/O.  For Extra Credit, do a timing experiment, probably on a very
 large file, which you will store in <b>/tmp</b>.  Make sure your steps
 are reproducible by the TA. Please your report in a file
 <b>Report.txt</b>, a plain ASCII text file.
+</li> <p></p>
 
-</li></ul>
+<li> 
+Put your code in a file <b>ProbB.py</b>.
+</li> <p></p> 
 
+</ul>
 
+<p>
+Test example:
+</p>
+
+<pre>% cat z
+
+1
+23
+abc
+de
+f
+% od -h z
+0000000 310a 320a 0a33 6261 0a63 6564 660a 000a
+0000017
+wc -c z
+15 z
+</pre>
+
+<p>
+There are 15 bytes in this file, including the EOL character, 0x0a. By
+the way, note that because this is a Little Endian machine, the order of
+the reported bytes here is "backwards." For instance, byte 6 has contents,
+0x61, byte 7 has contents 0x62.
+</p>
+
+<p>
+Say you have 2 threads, so thread 0 works on bytes 0-6 and thread 1
+handles 7-14.  Thread 0 will find line lengths in its chunk of the file,
+and thread 1 will work on its chunk.  
+</p>
+
+<p>
+Note carefully that the 'abc' line is split between the 2 chunks.  The
+threads will have to deal with this, reconciling any discrepancies.  Do
+not have the parent thread do this; it should only set up the threads,
+call them and then return the list that they cooperatively form.
+</p>
+
+<p>
+Calling <b>linelengths('z',2)</b> should return the list [0,1,2,3,2,1].
+</p>
 
 
 <h2>Problem C:</h2>
 
+<p>
+Here you will write a SimPy simulation program for a very simple model 
+of an online store.  Here are the details:
+</p>
+
+<ul>
+
+<li> Customer orders arrive at random times, with times between
+successive orders having a gamma distribution.  You call this via
+<b>random.gammavariate()</b>, with arguments <b>alpha</b> and
+<b>beta</b>.
+</li> <p></p>
+
+<li> The distribution of times between deliveries of new inventory is 
+also modeled as gamma, with different values of  <b>alpha</b> and 
+<b>beta</b> than above.
+</li> <p></p>
+
+<li> There is only one kind of item sold. Each customer orders a
+quantity of 1.  Each delivery of new stock is a quantity of 1.
+</li> <p></p>
+
+<li> Your "main" function has the declaration 
+<p></p>
+
+<pre>def storesim(maxsimtime,alphac,betac,alphai,betai):
+</pre>
+
+</li> <p></p>
+
+<li> The function returns the mean time it takes for a customer's order
+to be filled (0 if immediae).
+</li> <p></p> 
+
+</ul>
 </body></html>
