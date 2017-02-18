@@ -1,6 +1,5 @@
 import ProbB
-import time
-nonthread_start_time = time.time()
+
 f = open('infile.txt')
 
 resultlist = []
