@@ -1,15 +1,27 @@
 import ProbB
+import time
 
 f = open('infile.txt')
 
 resultlist = []
-
+nonthread_start_time = time.time()
 for l in f:
     resultlist.append(len(l[:-1]))
+nonthread_time = time.time() - nonthread_start_time
 
 print resultlist
 
-resultlistb = ProbB.linelengths('infile.txt',6)
+thread_start_time = time.time()
+resultlistb = ProbB.linelengths('infile.txt',90)
+thread_time = time.time() - thread_start_time
+
+if thread_time > nonthread_time:
+    print "using thread is faster!"
+if thread_time < nonthread_time:
+    print 'using thread is slower!'
+else:
+    print 'thread and nonthread use the same amount of time'
+
 print resultlistb
 
 print 'number of lines in the file is: ' + str(len(resultlistb))
