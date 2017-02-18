@@ -18,3 +18,4 @@ for i in range(len(resultlist)):
     if resultlist[i] != resultlistb[i]:
         print 'two list are not equal in line: ' + str(i)
         continue
+f.close()
