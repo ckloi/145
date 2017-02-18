@@ -1,25 +1,26 @@
 import threading
 import os
-import random
-import time
 
 class threasdClass(threading.Thread):
     resultList = []
     id = 0
     lastThread = 0
     extraLine = False
-    def __init__(self,sByte, eByte,fd):
+    #def __init__(self,sByte, eByte,fd):
+    def __init__(self,sbyte,fd,chucksize):
         threading.Thread.__init__(self)
         self.localList = []
-        self.start = sByte
-        self.end = eByte
+        self.startbyte = sbyte
+        self.chucksize = chucksize
+        #self.endbyte = eByte
         self.myid = threasdClass.id
         threasdClass.id += 1
         self.fd = fd
 
     def run(self):
-        self.fd.seek(self.start)
-        l = self.fd.read(self.end - self.start + 1)
+        #self.fd.seek(self.startbyte)
+        #l = self.fd.read(self.endbyte - self.startbyte + 1)
+        l = self.fd.read(self.chucksize)
         # check end of line
         flag = False
         if l.endswith('\n'):
@@ -45,15 +46,20 @@ class threasdClass(threading.Thread):
 def linelengths(filenm, ntrh):
     fd = open(filenm)
     fSize = os.path.getsize(filenm)
-    nextByte = 0
+    #nextByte = 0
+    if ntrh > fSize:
+        raise Exception('number of threads is greater than file size')
+    chucksize = fSize / ntrh
 
     for i in range(ntrh):
-        startByte = nextByte
-        if i is not ntrh - 1:
-            endByte = startByte + (fSize/ntrh)
-            nextByte = endByte + 1
-        else:
-            endByte = fSize - 1
-        t = threasdClass(startByte,endByte,fd)
+        #startByte = nextByte
+        # if i is not ntrh - 1:
+        #     endByte = startByte + (fSize/ntrh)
+        #     nextByte = endByte + 1
+        # else:
+        #     endByte = fSize - 1
+        startbyte = (i-1) * chucksize
+        #t = threasdClass(startByte,endByte,fd,)
+        t = threasdClass(startbyte,fd,chucksize)
         t.run()
     return threasdClass.resultList
