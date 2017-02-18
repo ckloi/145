@@ -12,17 +12,17 @@ class threasdClass(threading.Thread):
     def __init__(self,sbyte,fd,chucksize):
         threading.Thread.__init__(self)
         self.localList = []
-        self.startbyte = sbyte
-        self.chucksize = chucksize
+        self.sByte = sbyte
+        self.chuncksize = chucksize
         #self.endbyte = eByte
         self.myid = threasdClass.id
         threasdClass.id += 1
         self.fd = fd
 
     def run(self):
-        #self.fd.seek(self.startbyte)
+        #self.fd.seek(self.sByte)
         #l = self.fd.read(self.endbyte - self.startbyte + 1)
-        l = self.fd.read(self.chucksize)
+        l = self.fd.read(self.chuncksize)
         # check end of line
         flag = False
         if l.endswith('\n'):
@@ -64,7 +64,7 @@ def linelengths(filenm, ntrh):
         #print i
         startbyte = i * chucksize
         #lastchuck -= startbyte
-        if i is (ntrh - 1):
+        if i == (ntrh - 1):
             chucksize = fSize - startbyte
         t = threasdClass(startbyte,fd,chucksize)
         myThreads.append(t)
@@ -72,5 +72,5 @@ def linelengths(filenm, ntrh):
 
     for t in myThreads:
         t.join()
-        
+
     return threasdClass.resultList
