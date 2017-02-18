@@ -37,8 +37,8 @@ class threasdClass(threading.Thread):
                 if threasdClass.extraLine:
                     threasdClass.resultList[-1] += self.localList.pop(0)
                 threasdClass.resultList.extend(self.localList)
-                threasdClass.lastThread += 1
                 threasdClass.extraLineLock.acquire()
+                threasdClass.lastThread += 1
                 if flag:
                     threasdClass.extraLine = True
                 else:
