@@ -1,9 +1,10 @@
 import ProbB
+import time
 
 f = open('infile.txt')
 
 resultlist = []
-
+nonthread_start_time = time.time()
 for l in f:
     resultlist.append(len(l[:-1]))
 nonthread_time = time.time() - nonthread_start_time
