@@ -13,7 +13,7 @@ class threadClass(threading.Thread):
     extraLine = False
     # Thread lock
     extraLineLock = threading.Lock()
-    def __init__(self,sbyte,fd,chunksize):
+    def __init__(self,fd,chunksize):
         threading.Thread.__init__(self)
         # Used to store line lengths for each thread
         self.localList = []
@@ -83,7 +83,7 @@ def linelengths(filenm, ntrh):
         # If last thread, allocate from start byte to last byte in file
         if i == (ntrh - 1):
             chunksize = fSize - startbyte
-        t = threadClass(startbyte,fd,chunksize)
+        t = threadClass(fd,chunksize)
         myThreads.append(t)
         t.start()
 
