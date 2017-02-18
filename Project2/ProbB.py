@@ -58,6 +58,7 @@ def linelengths(filenm, ntrh):
         raise Exception('number of threads is greater than file size')
     chucksize = fSize / ntrh
     lastchuck = fSize
+    myThreads = []
 
     for i in range(ntrh):
         #print i
@@ -66,5 +67,10 @@ def linelengths(filenm, ntrh):
         if i is (ntrh - 1):
             chucksize = fSize - startbyte
         t = threasdClass(startbyte,fd,chucksize)
+        myThreads.append(t)
         t.start()
+
+    for t in myThreads:
+        t.join()
+        
     return threasdClass.resultList
