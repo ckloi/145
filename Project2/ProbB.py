@@ -6,31 +6,27 @@ class threasdClass(threading.Thread):
     id = 0
     lastThread = 0
     extraLine = False
-    #def __init__(self,sByte, eByte,fd):
     def __init__(self,sbyte,fd,chucksize):
         threading.Thread.__init__(self)
+        #this is for each thread's return list
         self.localList = []
         self.startbyte = sbyte
         self.chucksize = chucksize
-        #self.endbyte = eByte
         self.myid = threasdClass.id
         threasdClass.id += 1
         self.fd = fd
 
     def run(self):
-        #self.fd.seek(self.startbyte)
-        #l = self.fd.read(self.endbyte - self.startbyte + 1)
         l = self.fd.read(self.chucksize)
-        # check end of line
+        # check end of line for the last char of the chuck
         flag = False
         if l.endswith('\n'):
             l = l[:-1]
         # if data is splitted into two chunk
         else:
             flag = True
-
+        #put every number of chars of each line into the local lsit
         self.localList = map(lambda x: len(x),l.split('\n'))
-        #if threasdClass.lastThread == self.myid:
         if threasdClass.extraLine:
             threasdClass.resultList[-1] += self.localList.pop(0)
         threasdClass.resultList.extend(self.localList)
@@ -46,20 +42,18 @@ class threasdClass(threading.Thread):
 def linelengths(filenm, ntrh):
     fd = open(filenm)
     fSize = os.path.getsize(filenm)
-    #nextByte = 0
     if ntrh > fSize:
         raise Exception('number of threads is greater than file size')
     chucksize = fSize / ntrh
+    lastchuck = fSize
 
     for i in range(ntrh):
-        #startByte = nextByte
-        # if i is not ntrh - 1:
-        #     endByte = startByte + (fSize/ntrh)
-        #     nextByte = endByte + 1
-        # else:
-        #     endByte = fSize - 1
-        startbyte = (i-1) * chucksize
-        #t = threasdClass(startByte,endByte,fd,)
+        #print i
+        startbyte = i * chucksize
+        #lastchuck -= startbyte
+        if i is (ntrh - 1):
+            chucksize = fSize - startbyte
+        print chucksize
         t = threasdClass(startbyte,fd,chucksize)
-        t.run()
+        t.start()
     return threasdClass.resultList
