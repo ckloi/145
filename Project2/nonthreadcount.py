@@ -17,7 +17,7 @@ thread_time = time.time() - thread_start_time
 
 if thread_time > nonthread_time:
     print "using thread is: " + str(thread_time - nonthread_time) + " faster!"
-if thread_time < nonthread_time:
+elif thread_time < nonthread_time:
     print 'using thread is: ' + str(nonthread_time - thread_time) + ' slower!'
 else:
     print 'thread and nonthread use the same amount of time'
