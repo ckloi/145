@@ -12,13 +12,18 @@ class threadClass(threading.Thread):
     # Flag to check if thread ended in the middle of a line
     extraLine = False
     # Thread lock
-    extraLineLock = threading.Lock()
-    def __init__(self,fd,chunksize):
+    combineListLock = threading.Lock()
+
+    fdLock = threading.Lock()
+
+    def __init__(self,fd,startbyte,chunksize):
         threading.Thread.__init__(self)
         # Used to store line lengths for each thread
         self.localList = []
         # The number of bytes each thread will read
         self.chunksize = chunksize
+
+        self.startB = startbyte
         # The thread id number
         self.myid = threadClass.nextID
         # Increment global id for next thread
@@ -28,7 +33,11 @@ class threadClass(threading.Thread):
 
     def run(self):
         # Have each thread read their entire chunk
+        threadClass.fdLock.acquire()
+        self.fd.seek(self.startB)
         l = self.fd.read(self.chunksize)
+        threadClass.fdLock.release()
+        #print 'thread # ' + str(self.myid) +  "startB "  + str(self.startB) +"chunkSize " + str(self.chunksize)+ str(list(l))
         # Check if thread ended with newline or not
         flag = False
         # Remove the end of line character from chunk if it is the last character
@@ -44,6 +53,7 @@ class threadClass(threading.Thread):
         # Append list contents to end of global list
         while 1:
             if threadClass.nextThread == self.myid:
+                threadClass.combineListLock.acquire()
                 # If previous thread ended in the middle of a line, add the first
                 #   value of local list to last value of global list(they are
                 #   the same line) and remove it from local list.
@@ -53,13 +63,12 @@ class threadClass(threading.Thread):
                 threadClass.resultList.extend(self.localList)
                 # Update last thread and set flag variable to appropriate startbyte
                 #   based on if the thread stopped in the middle of a line or not
-                threadClass.extraLineLock.acquire()
                 threadClass.nextThread += 1
                 if flag:
                     threadClass.extraLine = True
                 else:
                     threadClass.extraLine = False
-                threadClass.extraLineLock.release()
+                threadClass.combineListLock.release()
                 break
             # If it is not this thread's turn to append to global list, give up turn
             else:
@@ -83,7 +92,8 @@ def linelengths(filenm, ntrh):
         # If last thread, allocate from start byte to last byte in file
         if i == (ntrh - 1):
             chunksize = fSize - startbyte
-        t = threadClass(fd,chunksize)
+        #print (chunksize)
+        t = threadClass(fd,startbyte,chunksize)
         myThreads.append(t)
         t.start()
 
