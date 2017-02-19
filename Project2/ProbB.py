@@ -58,10 +58,7 @@ class threadClass(threading.Thread):
                 #   based on if the thread stopped in the middle of a line or not
                 threadClass.extraLineLock.acquire()
                 threadClass.nextThread += 1
-                if flag:
-                    threadClass.extraLine = True
-                else:
-                    threadClass.extraLine = False
+                threadClass.extraLine = flag
                 threadClass.extraLineLock.release()
                 break
             # If it is not this thread's turn to append to global list, give up turn
