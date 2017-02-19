@@ -1,59 +1,100 @@
 import threading
 import os
-import random
 import time
 
-class threasdClass(threading.Thread):
+class threadClass(threading.Thread):
+    # Global line length list
     resultList = []
-    id = 0
-    lastThread = 0
+    # Next id that will be assigned to a thread
+    nextID = 0
+    # Next thread id that will be appended to global list
+    nextThread = 0
+    # Flag to check if thread ended in the middle of a line
     extraLine = False
-    def __init__(self,sByte, eByte,fd):
+
+    lock = threading.Lock()
+
+    def __init__(self,filenm,startbyte,chunksize):
         threading.Thread.__init__(self)
+        # Used to store line lengths for each thread
         self.localList = []
-        self.start = sByte
-        self.end = eByte
-        self.myid = threasdClass.id
-        threasdClass.id += 1
-        self.fd = fd
+        # The number of bytes each thread will read
+        self.chunksize = chunksize
+        # Byte that thread will start reading at
+        self.startB = startbyte
+        # The thread id number
+        self.myid = threadClass.nextID
+        # Increment global id for next thread
+        threadClass.nextID += 1
+        # File descriptor
+        self.fd = open(filenm, 'r')
 
     def run(self):
-        self.fd.seek(self.start)
-        l = self.fd.read(self.end - self.start + 1)
-        # check end of line
+        # Have each thread read their entire chunk
+        self.fd.seek(self.startB)
+        l = self.fd.read(self.chunksize)
+        self.fd.close()
+        # Check if thread ended with newline or not
         flag = False
-        if l.endswith('\n'):
+        # Remove the end of line character from chunk if it is the last character
+        if l[-1] == '\n':
             l = l[:-1]
-        # if data is splitted into two chunk
+        # If you get here, the thread ended in the middle of a line
         else:
             flag = True
 
-        self.localList = map(lambda x: len(x),l.split('\n'))
-        #if threasdClass.lastThread == self.myid:
-        if threasdClass.extraLine:
-            threasdClass.resultList[-1] += self.localList.pop(0)
-        threasdClass.resultList.extend(self.localList)
-        threasdClass.lastThread += 1
-        if flag:
-            threasdClass.extraLine = True
-        else:
-            threasdClass.extraLine = False
+        # Split chunk by '\n' character, and put the length of each split into
+        #   local list.
+        self.localList = map(len, l.split('\n'))
 
+        # While it is not this thread's turn to append, sleep
+        while threadClass.nextThread != self.myid:
+            time.sleep(0)
 
+        # If previous thread ended in the middle of a line, add the first
+        #   value of local list to last value of global list(they are
+        #   the same line) and remove it from local list.
+        threadClass.lock.acquire()
+        if threadClass.extraLine:
+            threadClass.resultList[-1] += self.localList.pop(0)
+        # Append local list contents to global list
+        threadClass.resultList.extend(self.localList)
+        # Update last thread and set flag variable to appropriate startbyte
+        #   based on if the thread stopped in the middle of a line or not
+        threadClass.nextThread += 1
+        threadClass.extraLine = flag
+        threadClass.lock.release()
 
 
 def linelengths(filenm, ntrh):
-    fd = open(filenm)
+    fd = open(filenm, 'r')
     fSize = os.path.getsize(filenm)
-    nextByte = 0
+    fd.close()
+    # Can't have more threads than bytes in file
+    if ntrh > fSize or ntrh == 0:
+        raise Exception('number of threads is greater than file size or is zero')
+    chunksize = fSize / ntrh
+    # Used for debugging and join() function
+    myThreads = []
 
     for i in range(ntrh):
-        startByte = nextByte
-        if i is not ntrh - 1:
-            endByte = startByte + (fSize/ntrh)
-            nextByte = endByte + 1
-        else:
-            endByte = fSize - 1
-        t = threasdClass(startByte,endByte,fd)
-        t.run()
-    return threasdClass.resultList
+        startbyte = i * chunksize
+        # If last thread, allocate from start byte to last byte in file
+        if i == (ntrh - 1):
+            chunksize = fSize - startbyte
+        t = threadClass(filenm,startbyte,chunksize)
+        myThreads.append(t)
+        t.start()
+
+    # Wait for each thread to finish running
+    for thr in myThreads:
+        thr.join()
+
+
+    result = threadClass.resultList
+    # reset class var
+    threadClass.resultList = []
+    threadClass.nextID = 0
+    threadClass.nextThread = 0
+    threadClass.extraLine = False
+    return result
