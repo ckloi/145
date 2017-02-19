@@ -26,10 +26,11 @@ class threadClass(threading.Thread):
         threadClass.nextID += 1
         # File descriptor
         self.fd = fd
-        # Have each thread read their specific chunk of fike
-        self.l = self.fd.read(chunksize)
+        self.l = None
 
     def run(self):
+        # Have each thread read their specific chunk of file
+        self.l = self.fd.read(self.chunksize)
         # Check if thread ended with newline or not
         #threadClass.flagLock.acquire()
         flag = False
