@@ -64,10 +64,7 @@ class threadClass(threading.Thread):
                 # Update last thread and set flag variable to appropriate startbyte
                 #   based on if the thread stopped in the middle of a line or not
                 threadClass.nextThread += 1
-                if flag:
-                    threadClass.extraLine = True
-                else:
-                    threadClass.extraLine = False
+                threadClass.extraLine = flag
                 threadClass.combineListLock.release()
                 break
             # If it is not this thread's turn to append to global list, give up turn
@@ -100,4 +97,9 @@ def linelengths(filenm, ntrh):
     for t in myThreads:
         t.join()
 
-    return threadClass.resultList
+    result = threadClass.resultList
+    # reset the global var for the next time
+    threadClass.resultList = []
+    threadClass.nextID = 0
+    threadClass.nextThread = 0
+    return result
