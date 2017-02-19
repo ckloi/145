@@ -26,24 +26,24 @@ class threadClass(threading.Thread):
         threadClass.nextID += 1
         # File descriptor
         self.fd = fd
+        # Have each thread read their specific chunk of fike
+        self.l = self.fd.read(chunksize)
 
     def run(self):
-        # Have each thread read their entire chunk
-        l = self.fd.read(self.chunksize)
         # Check if thread ended with newline or not
-        threadClass.flagLock.acquire()
+        #threadClass.flagLock.acquire()
         flag = False
         # Remove the end of line character from chunk if it is the last character
-        if l.endswith('\n'):
-            l = l[:-1]
+        if self.l.endswith('\n'):
+            self.l = self.l[:-1]
         # If you get here, the thread ended in the middle of a line
         else:
             flag = True
-        threadClass.flagLock.release()
+        #threadClass.flagLock.release()
 
         # Split chunk by '\n' character, and put the length of each split into
         #   local list.
-        self.localList = map(lambda x: len(x),l.split('\n'))
+        self.localList = map(lambda x: len(x),self.l.split('\n'))
         # Append list contents to end of global list
         while 1:
             if threadClass.nextThread == self.myid:
