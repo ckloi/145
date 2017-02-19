@@ -13,6 +13,7 @@ class threadClass(threading.Thread):
     extraLine = False
     # Thread lock
     extraLineLock = threading.Lock()
+    flagLock = threading.Lock()
     def __init__(self,fd,chunksize):
         threading.Thread.__init__(self)
         # Used to store line lengths for each thread
@@ -30,6 +31,7 @@ class threadClass(threading.Thread):
         # Have each thread read their entire chunk
         l = self.fd.read(self.chunksize)
         # Check if thread ended with newline or not
+        threadClass.flagLock.acquire()
         flag = False
         # Remove the end of line character from chunk if it is the last character
         if l.endswith('\n'):
@@ -37,6 +39,7 @@ class threadClass(threading.Thread):
         # If you get here, the thread ended in the middle of a line
         else:
             flag = True
+        threadClass.flagLock.release()
 
         # Split chunk by '\n' character, and put the length of each split into
         #   local list.
