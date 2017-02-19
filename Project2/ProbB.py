@@ -11,10 +11,6 @@ class threadClass(threading.Thread):
     nextThread = 0
     # Flag to check if thread ended in the middle of a line
     extraLine = False
-    # Thread lock
-    combineListLock = threading.Lock()
-
-    fdLock = threading.Lock()
 
     def __init__(self,filenm,startbyte,chunksize):
         threading.Thread.__init__(self)
@@ -22,7 +18,7 @@ class threadClass(threading.Thread):
         self.localList = []
         # The number of bytes each thread will read
         self.chunksize = chunksize
-
+        # Byte that thread will start reading at
         self.startB = startbyte
         # The thread id number
         self.myid = threadClass.nextID
@@ -36,7 +32,6 @@ class threadClass(threading.Thread):
         self.fd.seek(self.startB)
         l = self.fd.read(self.chunksize)
         self.fd.close()
-        #print 'thread # ' + str(self.myid) +  "startB "  + str(self.startB) +"chunkSize " + str(self.chunksize)+ str(list(l))
         # Check if thread ended with newline or not
         flag = False
         # Remove the end of line character from chunk if it is the last character
@@ -54,8 +49,6 @@ class threadClass(threading.Thread):
         while threadClass.nextThread != self.myid:
             time.sleep(0)
 
-        # Append list contents to end of global list
-        threadClass.combineListLock.acquire()
         # If previous thread ended in the middle of a line, add the first
         #   value of local list to last value of global list(they are
         #   the same line) and remove it from local list.
@@ -67,7 +60,6 @@ class threadClass(threading.Thread):
         #   based on if the thread stopped in the middle of a line or not
         threadClass.nextThread += 1
         threadClass.extraLine = flag
-        threadClass.combineListLock.release()
 
 
 def linelengths(filenm, ntrh):
@@ -91,7 +83,7 @@ def linelengths(filenm, ntrh):
         t.start()
 
     # Wait for each thread to finish running
-    for t in myThreads:
-        t.join()
+    for thr in myThreads:
+        thr.join()
 
     return threadClass.resultList
