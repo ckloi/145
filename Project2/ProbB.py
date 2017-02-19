@@ -12,6 +12,8 @@ class threadClass(threading.Thread):
     # Flag to check if thread ended in the middle of a line
     extraLine = False
 
+    lock = threading.Lock()
+
     def __init__(self,filenm,startbyte,chunksize):
         threading.Thread.__init__(self)
         # Used to store line lengths for each thread
@@ -35,7 +37,7 @@ class threadClass(threading.Thread):
         # Check if thread ended with newline or not
         flag = False
         # Remove the end of line character from chunk if it is the last character
-        if l.endswith('\n'):
+        if l[-1] == '\n':
             l = l[:-1]
         # If you get here, the thread ended in the middle of a line
         else:
@@ -43,7 +45,7 @@ class threadClass(threading.Thread):
 
         # Split chunk by '\n' character, and put the length of each split into
         #   local list.
-        self.localList = map(lambda x: len(x),l.split('\n'))
+        self.localList = map(len, l.split('\n'))
 
         # While it is not this thread's turn to append, sleep
         while threadClass.nextThread != self.myid:
@@ -52,6 +54,7 @@ class threadClass(threading.Thread):
         # If previous thread ended in the middle of a line, add the first
         #   value of local list to last value of global list(they are
         #   the same line) and remove it from local list.
+        threadClass.lock.acquire()
         if threadClass.extraLine:
             threadClass.resultList[-1] += self.localList.pop(0)
         # Append local list contents to global list
@@ -60,6 +63,7 @@ class threadClass(threading.Thread):
         #   based on if the thread stopped in the middle of a line or not
         threadClass.nextThread += 1
         threadClass.extraLine = flag
+        threadClass.lock.release()
 
 
 def linelengths(filenm, ntrh):
@@ -86,4 +90,11 @@ def linelengths(filenm, ntrh):
     for thr in myThreads:
         thr.join()
 
-    return threadClass.resultList
+
+    result = threadClass.resultList
+    # reset class var
+    threadClass.resultList = []
+    threadClass.nextID = 0
+    threadClass.nextThread = 0
+    threadClass.extraLine = False
+    return result
