@@ -81,8 +81,8 @@ def linelengths(filenm, ntrh):
     fd = open(filenm)
     fSize = os.path.getsize(filenm)
     # Can't have more threads than bytes in file
-    if ntrh > fSize:
-        raise Exception('number of threads is greater than file size')
+    if ntrh > fSize or ntrh == 0:
+        raise Exception('number of threads is greater than file size or is zero')
     chunksize = fSize / ntrh
     # Used for debugging and join() function
     myThreads = []
@@ -92,7 +92,6 @@ def linelengths(filenm, ntrh):
         # If last thread, allocate from start byte to last byte in file
         if i == (ntrh - 1):
             chunksize = fSize - startbyte
-        #print (chunksize)
         t = threadClass(fd,startbyte,chunksize)
         myThreads.append(t)
         t.start()

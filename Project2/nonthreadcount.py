@@ -12,7 +12,7 @@ nonthread_time = time.time() - nonthread_start_time
 print resultlist
 
 thread_start_time = time.time()
-resultlistb = ProbB.linelengths('infile.txt',108)
+resultlistb = ProbB.linelengths('infile.txt', 0)
 thread_time = time.time() - thread_start_time
 
 if thread_time > nonthread_time:
