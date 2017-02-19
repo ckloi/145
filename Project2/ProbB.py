@@ -16,7 +16,7 @@ class threadClass(threading.Thread):
 
     fdLock = threading.Lock()
 
-    def __init__(self,fd,startbyte,chunksize):
+    def __init__(self,filenm,startbyte,chunksize):
         threading.Thread.__init__(self)
         # Used to store line lengths for each thread
         self.localList = []
@@ -29,14 +29,12 @@ class threadClass(threading.Thread):
         # Increment global id for next thread
         threadClass.nextID += 1
         # File descriptor
-        self.fd = fd
+        self.fd = open(filenm)
 
     def run(self):
         # Have each thread read their entire chunk
-        threadClass.fdLock.acquire()
         self.fd.seek(self.startB)
         l = self.fd.read(self.chunksize)
-        threadClass.fdLock.release()
         #print 'thread # ' + str(self.myid) +  "startB "  + str(self.startB) +"chunkSize " + str(self.chunksize)+ str(list(l))
         # Check if thread ended with newline or not
         flag = False
@@ -70,8 +68,7 @@ class threadClass(threading.Thread):
             # If it is not this thread's turn to append to global list, give up turn
             else:
                 time.sleep(0)
-
-
+        self.fd.close()
 
 
 def linelengths(filenm, ntrh):
@@ -89,7 +86,7 @@ def linelengths(filenm, ntrh):
         # If last thread, allocate from start byte to last byte in file
         if i == (ntrh - 1):
             chunksize = fSize - startbyte
-        t = threadClass(fd,startbyte,chunksize)
+        t = threadClass(filenm,startbyte,chunksize)
         myThreads.append(t)
         t.start()
 
