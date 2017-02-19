@@ -29,12 +29,13 @@ class threadClass(threading.Thread):
         # Increment global id for next thread
         threadClass.nextID += 1
         # File descriptor
-        self.fd = open(filenm)
+        self.fd = open(filenm, 'r')
 
     def run(self):
         # Have each thread read their entire chunk
         self.fd.seek(self.startB)
         l = self.fd.read(self.chunksize)
+        self.fd.close()
         #print 'thread # ' + str(self.myid) +  "startB "  + str(self.startB) +"chunkSize " + str(self.chunksize)+ str(list(l))
         # Check if thread ended with newline or not
         flag = False
@@ -48,32 +49,31 @@ class threadClass(threading.Thread):
         # Split chunk by '\n' character, and put the length of each split into
         #   local list.
         self.localList = map(lambda x: len(x),l.split('\n'))
+
+        # While it is not this thread's turn to append, sleep
+        while threadClass.nextThread != self.myid:
+            time.sleep(0)
+
         # Append list contents to end of global list
-        while 1:
-            if threadClass.nextThread == self.myid:
-                threadClass.combineListLock.acquire()
-                # If previous thread ended in the middle of a line, add the first
-                #   value of local list to last value of global list(they are
-                #   the same line) and remove it from local list.
-                if threadClass.extraLine:
-                    threadClass.resultList[-1] += self.localList.pop(0)
-                # Append local list contents to global list
-                threadClass.resultList.extend(self.localList)
-                # Update last thread and set flag variable to appropriate startbyte
-                #   based on if the thread stopped in the middle of a line or not
-                threadClass.nextThread += 1
-                threadClass.extraLine = flag
-                threadClass.combineListLock.release()
-                break
-            # If it is not this thread's turn to append to global list, give up turn
-            else:
-                time.sleep(0)
-        self.fd.close()
+        threadClass.combineListLock.acquire()
+        # If previous thread ended in the middle of a line, add the first
+        #   value of local list to last value of global list(they are
+        #   the same line) and remove it from local list.
+        if threadClass.extraLine:
+            threadClass.resultList[-1] += self.localList.pop(0)
+        # Append local list contents to global list
+        threadClass.resultList.extend(self.localList)
+        # Update last thread and set flag variable to appropriate startbyte
+        #   based on if the thread stopped in the middle of a line or not
+        threadClass.nextThread += 1
+        threadClass.extraLine = flag
+        threadClass.combineListLock.release()
 
 
 def linelengths(filenm, ntrh):
-    fd = open(filenm)
+    fd = open(filenm, 'r')
     fSize = os.path.getsize(filenm)
+    fd.close()
     # Can't have more threads than bytes in file
     if ntrh > fSize or ntrh == 0:
         raise Exception('number of threads is greater than file size or is zero')
@@ -94,9 +94,4 @@ def linelengths(filenm, ntrh):
     for t in myThreads:
         t.join()
 
-    result = threadClass.resultList
-    # reset the global var for the next time
-    threadClass.resultList = []
-    threadClass.nextID = 0
-    threadClass.nextThread = 0
-    return result
+    return threadClass.resultList
