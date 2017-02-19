@@ -19,9 +19,10 @@ thread_start_time = time.time()
 resultlistb = ProbB.linelengths(filePath, numThreads)
 thread_time = time.time() - thread_start_time
 
-print "Number of lines read: " + str(len(resultlistb))
-print "Total time with no threads: " + str(nonthread_time)
-print "Total time with " + str(numThreads) + " threads: " + str(thread_time)
+width = 2 - len(str(numThreads))
+print "Number of lines read: %d" % (len(resultlistb),)
+print "Total time with no threads: % *f seconds" % (10 - width, nonthread_time,)
+print "Total time with %d threads: % *f seconds" % (numThreads, 10, thread_time)
 
 # if thread_time > nonthread_time:
 #     print "using thread is: " + str(thread_time - nonthread_time) + " faster!"
