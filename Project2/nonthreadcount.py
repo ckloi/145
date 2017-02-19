@@ -2,10 +2,10 @@ import ProbB
 import sys
 import time
 
-nonthread_start_time = time.time()
 fileName = sys.argv[1]
 numThreads = int(sys.argv[2])
 filePath = '/tmp/' + fileName
+nonthread_start_time = time.time()
 f = open(filePath, 'r')
 
 resultlist = []
