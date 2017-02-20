@@ -1,16 +1,22 @@
 import ProbB
 import sys
+import os
 import time
 
 fileName = sys.argv[1]
 numThreads = int(sys.argv[2])
 filePath = '/tmp/' + fileName
 nonthread_start_time = time.time()
-f = open(filePath, 'r')
 
+f = open(filePath, 'r')
 resultlist = []
-for l in f:
-    resultlist.append(len(l[:-1]))
+fSize = os.path.getsize(filePath)
+f.seek(0)
+contents = f.read(fSize)
+f.close()
+if contents.endswith('\n'):
+    contents = contents[:-1]
+resultlist = map(len, contents.split('\n'))
 nonthread_time = time.time() - nonthread_start_time
 
 #print resultlist
@@ -39,4 +45,3 @@ print "Total time with %d threads: % *f seconds" % (numThreads, 10, thread_time)
 #     if resultlist[i] != resultlistb[i]:
 #         print 'two list are not equal in line: ' + str(i)
 #         continue
-f.close()
