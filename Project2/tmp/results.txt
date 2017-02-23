@@ -1,0 +1,9 @@
+Extra Credit Timing Experiment
+
+Included in directory tmp, you will find the file that this test was performed on.
+
+When reading through the file both with threads and without, we found that the threaded version was faster. The results are as follows:
+
+*Insert results here*
+
+Initially, we performed the same test on smaller files and found that the nonthreaded version was faster. After performing the test multiple times with varying thread counts, we realized that the threaded version got slower as we increased thread count. This lead us to believe that the reason for the threaded version being slower is due to the time it takes to initialize all the threads at the beginning (lines 80-87 in ProbB.py), and not due to the time it takes each thread to read its part of the file.
