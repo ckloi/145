@@ -1,3 +1,9 @@
+# ECS 145
+# Andrew Faust
+# Chi Kei Loi
+# Mano Wared
+# Tingting Zhu
+
 import threading
 import os
 import time
