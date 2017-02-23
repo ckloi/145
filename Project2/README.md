@@ -252,6 +252,7 @@ call them and then return the list that they cooperatively form.
 Calling <b>linelengths('z',2)</b> should return the list [0,1,2,3,2,1].
 </p>
 
+
 <h2>Problem C:</h2>
 
 <p>
@@ -278,9 +279,10 @@ Python call and draw a histogram, it will look like one of the curves in
 the picture.
 </p></li> <p></p>
 
-<li> The distribution of times between deliveries of new inventory will
-also be modeled as gamma, with different values of  <b>alpha</b> and 
-<b>beta</b> than above.
+<li> New inventory arrives at random times, independent of whether there
+are pending customer orders.  The distribution of times between 
+deliveries of new inventory will also be modeled as gamma, with 
+different values of  <b>alpha</b> and <b>beta</b> than above.
 </li> <p></p>
 
 <li> There is only one kind of item sold. Each customer orders a
@@ -318,4 +320,23 @@ quantity of 1.  Each delivery of new stock is a quantity of 1.
 <li> Place your code in a file <b>ProbC.py</b>.
 
 </li></ul>
+
+<h3>Testing:</h3>
+
+<p>
+The call <b>storesim(10000,2,2.2,2,2)</b> should return values of
+approximately 2.47 and 0.81 for the mean wait and proportion of orders
+served immediately, respectively.
+</p>
+
+<p>
+
+Note that the mean of a gamma distribution is α β.  If the
+mean time between item deliveries is greater than the mean time between
+customer order arrivals, the situation is unstable, in that the number
+of waiting order will go to infinity as time goes to infinity.  (This
+will occur even if the two means are equal.) This may make it difficult
+to test/debug your code, so I'd advise avoiding this situation.
+
+</p>
 </body></html>
