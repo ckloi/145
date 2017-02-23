@@ -13,4 +13,5 @@ varying thread counts, we realized that the threaded version got slower as we
 increased thread count. This lead us to believe that the reason for the threaded
 version being slower is due to the time it takes to initialize all the threads
 at the beginning (lines 80-87 in ProbB.py), and not due to the time it takes
-each thread to read its part of the file.
+each thread to read its part of the file. Therefore, a larger file is needed in
+order to properly observe that threaded operations are faster.
