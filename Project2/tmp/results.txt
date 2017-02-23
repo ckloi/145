@@ -1,14 +1,22 @@
 Extra Credit Timing Experiment
 
-Included in directory tmp, you will find the file that this test was performed on.
+Included in directory tmp, you will find test.txt (1.3MB), which is the file
+that this test was performed on.
+
+The procedure the code follows is to open the file and call read() on each
+appropriate byte chunk (the whole file for nonthreaded version). That string
+would then be split by '\n' and the length of each string would be recorded
+and placed in the array.
 
 When reading through the file both with threads and without, we found that the
 threaded version was faster. The results are as follows:
 
-*Insert results here*
+Number of lines read: 6572
+Total time with no threads:  0.011004 seconds
+Total time with 5 threads:   0.009794 seconds
 
-Initially, we performed the same test on smaller files and found that the
-nonthreaded version was faster. After performing the test multiple times with
+Initially, we performed the same test on smaller files (< 1 MB) and found that
+the nonthreaded version was faster. After performing the test multiple times with
 varying thread counts, we realized that the threaded version got slower as we
 increased thread count. This lead us to believe that the reason for the threaded
 version being slower is due to the time it takes to initialize all the threads
