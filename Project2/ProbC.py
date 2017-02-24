@@ -31,12 +31,12 @@ class Inventory(Process):
 
 
 class Store(Process):
+    stock = 0
+    numCust = 0
+    custWait = 0
     def __init__(self,typ,time):
         Process.__init__(self)
         self.Type = typ
-        self.stock = 0
-        self.numCustomers = 0
-        self.custWaitTime = 0
     def Run(self):
         if self.Type = 'C':
             # Serve Customer
