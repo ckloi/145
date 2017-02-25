@@ -76,3 +76,14 @@ class Store(Process):
                 custWait += self.time
                 deliveryToCust += 1
             invDeliveries += 1
+
+def storesim(maxsimtime, alphac, betac, alphai, betai):
+    initialize()
+    C = Customer(alphac,betac)
+    I = Inventory(alphai,betai)
+    activate(C,C.Run())
+    activate(I,I.Run())
+    meanWaitTime = float(Store.custWait)/float(Store.numCust)
+    orderFilledImmediately = float(Store.servedImmediately)/float(Store.numCust)
+    deliveryToOrder = float(Store.deliveryToCust)/float(Store.invDeliveries)
+    return meanWaitTime, orderFilledImmediately, deliveryToOrder
