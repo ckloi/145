@@ -52,7 +52,7 @@ class Store(Process):
         self.time = time
     def Run(self):
         # Serve Customer
-        if self.Type = 'C':
+        if self.Type == 'C':
             # If there is stock, serve customer immediately
             if stock:
                 servedImmediately += 1
@@ -65,7 +65,7 @@ class Store(Process):
             numCust += 1
 
         # Update inventory
-        elif self.Type = 'I':
+        elif self.Type == 'I':
             # If ther is no one in the waiting list, increment stock
             if not waiting:
                 stock += 1
