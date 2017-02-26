@@ -13,7 +13,6 @@ class Customer(Process):
         self.Type = 'C'
         self.Alpha = ac
         self.Beta = bc
-        self.startTime = 0
     def Run(self):
         while 1:
             # Wait until next customer order arrives
@@ -41,10 +40,8 @@ class Inventory(Process):
         self.Type = 'I'
         self.Alpha = ai
         self.Beta = bi
-        self.startTime = 0
     def Run(self):
         while 1:
-            self.startTime = now()
             # Wait for next delivery to occur
             yield hold, self, G.Rnd.gammavariate(self.Alpha, self.Beta)
             # Request Store Resource
