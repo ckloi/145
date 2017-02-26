@@ -10,20 +10,16 @@ class Customer(Process):
     def __init__(self, ac, bc):
         Process.__init__(self)
         self.Type = 'C'
-        self.alpha = ac
-        self.beta = bc
+        self.Alpha = ac
+        self.Beta = bc
+        self.startTime = 0
     def Run(self):
         while 1:
-            nextCust = random.gammavariate(self.alpha, self.beta)
             # Wait until next customer order arrives
-            yield hold, self, nextCust
+            yield hold, self, random.gammavariate(self.Alpha, self.Beta)
             # Request Store Resource
             yield request, self, G.S
 
-            # If customers are waiting, make sure you update their wait time by
-            #   the amount of time it took for current customer order to arrive
-            if len(G.S.waiting) > 0:
-                G.S.custWait += nextCust
             # If there is stock available, increase number of customers served,
             #   update amount of customers served immediately, and decrease the
             #   stock
@@ -32,8 +28,9 @@ class Customer(Process):
                 G.S.servedImmediately += 1
                 G.S.stock -= 1
             else:
-                # Add customer to waiting list (1 is just a placeholder)
-                G.S.waiting.append(1)
+                # Add customer to waiting list (value in list is time when
+                #   order arrived)
+                G.S.waiting.append(now())
 
             yield release, self, G.S
 
@@ -41,13 +38,14 @@ class Inventory(Process):
     def __init__(self, ai, bi):
         Process.__init__(self)
         self.Type = 'I'
-        self.alpha = ai
-        self.beta = bi
+        self.Alpha = ai
+        self.Beta = bi
+        self.startTime = 0
     def Run(self):
         while 1:
-            nextInv = random.gammavariate(self.alpha, self.beta)
+            self.startTime = now()
             # Wait for next delivery to occur
-            yield hold, self, nextInv
+            yield hold, self, random.gammavariate(self.Alpha, self.Beta)
             # Request Store Resource
             yield request, self, G.S
 
@@ -57,11 +55,13 @@ class Inventory(Process):
             if len(G.S.waiting) is 0:
                 G.S.stock += 1
             # If customers are waiting, serve (delete) the first customer in the
-            #   list, increase number of customers served, and increase number
-            #   of deliveries immediately served to a customer.
+            #   list, update total time to include amount of time the customer
+            #   waited for their order to be filled, increase number of customers
+            #   served, and increase number of deliveries immediately served to
+            #   a customer.
             else:
-                del G.S.waiting[0]
-                G.S.custWait += nextInv
+                t = G.S.waiting.pop(0)
+                G.S.custWait += now() - t
                 G.S.numCust += 1
                 G.S.deliveryToCust += 1
 
@@ -82,8 +82,6 @@ class Store(Resource):
     deliveryToCust = 0
     # List to represent customers waiting
     waiting = []
-    # Thread ID
-    nextID = 0
     def __init__(self):
         Resource.__init__(self)
 
