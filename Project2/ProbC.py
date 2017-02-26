@@ -3,35 +3,56 @@ import random
 
 
 # class Stats:
-
+class G:
+    S = None
 
 class Customer(Process):
-    def __init(self, a, b):
+    def __init__(self, ac, bc):
         Process.__init__(self)
         self.Type = 'C'
-        self.aplha = a
-        self.beta = b
+        self.alpha = ac
+        self.beta = bc
     def Run(self):
         while 1:
             nextCust = random.gammavariate(self.alpha, self.beta)
             yield hold, self, nextCust
-            S = Store(self.type)
-            activate(S,S.Run())
+            yield request, self, G.S
+
+            if len(G.S.waiting) > 0:
+                G.S.custWait += nextCust
+            if G.S.stock:
+                G.S.numCust += 1
+                G.S.servedImmediately += 1
+                G.S.stock -= 1
+            else:
+                G.S.waiting.append(1)
+
+            yield release, self, G.S
 
 class Inventory(Process):
-    def __init__(self, a, b):
+    def __init__(self, ai, bi):
         Process.__init__(self)
         self.Type = 'I'
-        self.alpha = a
-        self.beta = b
+        self.alpha = ai
+        self.beta = bi
     def Run(self):
         while 1:
             nextInv = random.gammavariate(self.alpha, self.beta)
             yield hold, self, nextInv
-            S = Store(self.type, nextInv)
-            activate(S,S.Run())
+            yield request, self, G.S
 
-class Store(Process):
+            G.S.invDeliveries += 1
+            if len(G.S.waiting) is 0:
+                G.S.stock += 1
+            else:
+                del G.S.waiting[0]
+                G.S.custWait += nextInv
+                G.S.numCust += 1
+                G.S.deliveryToCust += 1
+
+            yield release, self, G.S
+
+class Store(Resource):
     # Current stock
     stock = 0
     # Total number of customers
@@ -46,44 +67,29 @@ class Store(Process):
     deliveryToCust = 0
     # List to represent customers waiting
     waiting = []
-    def __init__(self, typ, time):
-        Process.__init__(self)
-        self.Type = typ
-        self.time = time
-    def Run(self):
-        # Serve Customer
-        if self.Type == 'C':
-            # If there is stock, serve customer immediately
-            if stock:
-                servedImmediately += 1
-                stock -= 1
-            # If there is no stock, add customer to waiting list
-            else:
-                # 1 is just a placeholder to show there is a customer waiting
-                waiting.append(1)
-            # Increment number of customers
-            numCust += 1
+    # Thread ID
+    nextID = 0
+    def __init__(self):
+        Resource.__init__(self)
 
-        # Update inventory
-        elif self.Type == 'I':
-            # If ther is no one in the waiting list, increment stock
-            if not waiting:
-                stock += 1
-            # If there are people in the waiting list, make the waiting list one
-            # shorter and add waiting time
-            else:
-                waiting = [1:]
-                custWait += self.time
-                deliveryToCust += 1
-            invDeliveries += 1
+def main():
+    def storesim(maxsimtime, alphac, betac, alphai, betai):
+        initialize()
+        Cust = Customer(alphac,betac)
+        activate(Cust,Cust.Run())
+        Inv = Inventory(alphai,betai)
+        activate(Inv,Inv.Run())
+        G.S = Store()
+        simulate(until=maxsimtime)
+        meanWaitTime = float(G.S.custWait)/float(G.S.numCust)
+        orderFilledImmediately = float(G.S.servedImmediately)/float(G.S.numCust)
+        deliveryToOrder = float(G.S.deliveryToCust)/float(G.S.invDeliveries)
+        return [meanWaitTime, orderFilledImmediately, deliveryToOrder]
 
-def storesim(maxsimtime, alphac, betac, alphai, betai):
-    initialize()
-    C = Customer(alphac,betac)
-    I = Inventory(alphai,betai)
-    activate(C,C.Run())
-    activate(I,I.Run())
-    meanWaitTime = float(Store.custWait)/float(Store.numCust)
-    orderFilledImmediately = float(Store.servedImmediately)/float(Store.numCust)
-    deliveryToOrder = float(Store.deliveryToCust)/float(Store.invDeliveries)
-    return meanWaitTime, orderFilledImmediately, deliveryToOrder
+    results = storesim(10000,2,2.2,2,2)
+    print "Mean customer wait time: %f" % (results[0],)
+    print "Proportion of customer orders filled instantly: %f" % (results[1],)
+    print "Proportion of inventory deliveries immediately dispersed: %f" % (results[2],)
+
+if __name__ == '__main__':
+    main()
