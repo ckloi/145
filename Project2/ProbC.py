@@ -2,7 +2,7 @@ from SimPy.Simulation import *
 import random
 
 
-# class Stats:
+# Global class
 class G:
     S = None
 
@@ -15,16 +15,24 @@ class Customer(Process):
     def Run(self):
         while 1:
             nextCust = random.gammavariate(self.alpha, self.beta)
+            # Wait until next customer order arrives
             yield hold, self, nextCust
+            # Request Store Resource
             yield request, self, G.S
 
+            # If customers are waiting, make sure you update their wait time by
+            #   the amount of time it took for current customer order to arrive
             if len(G.S.waiting) > 0:
                 G.S.custWait += nextCust
+            # If there is stock available, increase number of customers served,
+            #   update amount of customers served immediately, and decrease the
+            #   stock
             if G.S.stock:
                 G.S.numCust += 1
                 G.S.servedImmediately += 1
                 G.S.stock -= 1
             else:
+                # Add customer to waiting list (1 is just a placeholder)
                 G.S.waiting.append(1)
 
             yield release, self, G.S
@@ -38,12 +46,19 @@ class Inventory(Process):
     def Run(self):
         while 1:
             nextInv = random.gammavariate(self.alpha, self.beta)
+            # Wait for next delivery to occur
             yield hold, self, nextInv
+            # Request Store Resource
             yield request, self, G.S
 
+            # Increase the number of deliveries
             G.S.invDeliveries += 1
+            # If nobody is waiting, increase the stock
             if len(G.S.waiting) is 0:
                 G.S.stock += 1
+            # If customers are waiting, serve (delete) the first customer in the
+            #   list, increase number of customers served, and increase number
+            #   of deliveries immediately served to a customer.
             else:
                 del G.S.waiting[0]
                 G.S.custWait += nextInv
