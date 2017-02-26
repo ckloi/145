@@ -1,10 +1,11 @@
 from SimPy.Simulation import *
-import random
+from random import Random, gammavariate
 
 
 # Global class
 class G:
     S = None
+    Rnd = Random(12345)
 
 class Customer(Process):
     def __init__(self, ac, bc):
@@ -16,7 +17,7 @@ class Customer(Process):
     def Run(self):
         while 1:
             # Wait until next customer order arrives
-            yield hold, self, random.gammavariate(self.Alpha, self.Beta)
+            yield hold, self, G.Rnd.gammavariate(self.Alpha, self.Beta)
             # Request Store Resource
             yield request, self, G.S
 
@@ -45,7 +46,7 @@ class Inventory(Process):
         while 1:
             self.startTime = now()
             # Wait for next delivery to occur
-            yield hold, self, random.gammavariate(self.Alpha, self.Beta)
+            yield hold, self, G.Rnd.gammavariate(self.Alpha, self.Beta)
             # Request Store Resource
             yield request, self, G.S
 
