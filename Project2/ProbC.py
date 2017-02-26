@@ -59,7 +59,7 @@ class Inventory(Process):
             #   a customer.
             else:
                 t = G.S.waiting.pop(0)
-                G.S.custWait += now() - t
+                G.S.waitTime += now() - t
                 G.S.numCust += 1
                 G.S.deliveryToCust += 1
 
@@ -73,7 +73,7 @@ class Store(Resource):
     # Total amount of inventory deliveries
     invDeliveries = 0
     # Total time customers have waited
-    custWait = 0
+    waitTime = 0
     # Number of orders filled immediately
     servedImmediately = 0
     # Number of inventory deliveries served to customers immediately
@@ -92,7 +92,7 @@ def main():
         activate(Inv,Inv.Run())
         G.S = Store()
         simulate(until=maxsimtime)
-        meanWaitTime = float(G.S.custWait)/float(G.S.numCust)
+        meanWaitTime = float(G.S.waitTime)/float(G.S.numCust)
         orderFilledImmediately = float(G.S.servedImmediately)/float(G.S.numCust)
         deliveryToOrder = float(G.S.deliveryToCust)/float(G.S.invDeliveries)
         return [meanWaitTime, orderFilledImmediately, deliveryToOrder]
