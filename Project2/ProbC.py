@@ -7,10 +7,10 @@ class G:
     S = None
     Rnd = Random(12345)
 
+# Customer orders
 class Customer(Process):
     def __init__(self, ac, bc):
         Process.__init__(self)
-        self.Type = 'C'
         self.Alpha = ac
         self.Beta = bc
     def Run(self):
@@ -34,10 +34,11 @@ class Customer(Process):
 
             yield release, self, G.S
 
+# Inventory deliveries, not the inventory itself. Feel free to change this to
+#   Delivery or something if it's too confusing
 class Inventory(Process):
     def __init__(self, ai, bi):
         Process.__init__(self)
-        self.Type = 'I'
         self.Alpha = ai
         self.Beta = bi
     def Run(self):
@@ -53,8 +54,7 @@ class Inventory(Process):
             if len(G.S.waiting) is 0:
                 G.S.stock += 1
             # If customers are waiting, serve (delete) the first customer in the
-            #   list, update total time to include amount of time the customer
-            #   waited for their order to be filled, increase number of customers
+            #   list, update total wait time, increase number of customers
             #   served, and increase number of deliveries immediately served to
             #   a customer.
             else:
@@ -97,10 +97,10 @@ def main():
         deliveryToOrder = float(G.S.deliveryToCust)/float(G.S.invDeliveries)
         return [meanWaitTime, orderFilledImmediately, deliveryToOrder]
 
-    results = storesim(10000,2,2.2,2,2)
-    print "Mean customer wait time: %f" % (results[0],)
-    print "Proportion of customer orders filled instantly: %f" % (results[1],)
-    print "Proportion of inventory deliveries immediately dispersed: %f" % (results[2],)
+    # results = storesim(100000,2,2.2,2,2)
+    # print "Mean customer wait time: %f" % (results[0],)
+    # print "Proportion of customer orders filled instantly: %f" % (results[1],)
+    # print "Proportion of inventory deliveries immediately dispersed: %f" % (results[2],)
 
 if __name__ == '__main__':
     main()
