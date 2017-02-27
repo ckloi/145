@@ -34,8 +34,7 @@ class Customer(Process):
 
             yield release, self, G.S
 
-# Inventory deliveries, not the inventory itself. Feel free to change this to
-#   Delivery or something if it's too confusing
+# Deliveries
 class Inventory(Process):
     def __init__(self, ai, bi):
         Process.__init__(self)
@@ -83,24 +82,16 @@ class Store(Resource):
     def __init__(self):
         Resource.__init__(self)
 
-def main():
-    def storesim(maxsimtime, alphac, betac, alphai, betai):
-        initialize()
-        Cust = Customer(alphac,betac)
-        activate(Cust,Cust.Run())
-        Inv = Inventory(alphai,betai)
-        activate(Inv,Inv.Run())
-        G.S = Store()
-        simulate(until=maxsimtime)
-        meanWaitTime = float(G.S.waitTime)/float(G.S.numCust)
-        orderFilledImmediately = float(G.S.servedImmediately)/float(G.S.numCust)
-        deliveryToOrder = float(G.S.deliveryToCust)/float(G.S.invDeliveries)
-        return [meanWaitTime, orderFilledImmediately, deliveryToOrder]
 
-    # results = storesim(100000,2,2.2,2,2)
-    # print "Mean customer wait time: %f" % (results[0],)
-    # print "Proportion of customer orders filled instantly: %f" % (results[1],)
-    # print "Proportion of inventory deliveries immediately dispersed: %f" % (results[2],)
-
-if __name__ == '__main__':
-    main()
+def storesim(maxsimtime, alphac, betac, alphai, betai):
+    initialize()
+    Cust = Customer(alphac,betac)
+    activate(Cust,Cust.Run())
+    Inv = Inventory(alphai,betai)
+    activate(Inv,Inv.Run())
+    G.S = Store()
+    simulate(until=maxsimtime)
+    meanWaitTime = float(G.S.waitTime)/float(G.S.numCust)
+    orderFilledImmediately = float(G.S.servedImmediately)/float(G.S.numCust)
+    deliveryToOrder = float(G.S.deliveryToCust)/float(G.S.invDeliveries)
+    return [meanWaitTime, orderFilledImmediately, deliveryToOrder]
