@@ -10,7 +10,9 @@ nbyte <- function(drname,filelist,arg){
       file.list <- scan(file, what = "character", quiet = TRUE, sep = '\n')
       for(line in file.list){
         line.list <- strsplit(line, "")[[1]]
-        arg <- arg + length(line.list)
+        #total.bytes <- total.bytes + length(line.list)
+        #not sure about this!
+        arg + length(line.list)
       }
 
     }
