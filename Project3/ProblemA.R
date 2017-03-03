@@ -32,12 +32,12 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   pa.row <- 1
   for(a in str.char.list){
     if(columnpix > ncol(pa)){
-      pa.row <- pa.row + 1
+      columnpix <- columnpix + 1
     }
     #change the char to the destination pixel
     #print(a)
     pa[pa.row,columnpix] <- utf8ToInt(a) / 128
-    columnpix <- columnpix + stride + 1
+    pa.row <- pa.row + stride + 1
   }
   
 }
