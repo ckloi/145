@@ -1,5 +1,7 @@
 #Project 3
 #Problem A
+library(pixmap)
+
 secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   #if file does nto exist, stop
   if(!file.exists(imgfilename)){
@@ -11,7 +13,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   }
   #read the file, if not read probably, stop
   #imgfile <- read.pnm(imgfilename) stop("can not load the file")
-  imgfile <- read.pnm('LLL.pgm') #stop("can not load the file")
+  imgfile <- read.pnm(imgfilename) #stop("can not load the file")
   #extract the pixel array
   pa <- imgfile@grey
   nrow(pa)
@@ -46,4 +48,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     columnpix <- columnpix + stride + 1
   }
 
+  result <- imgfile
+  result@grey <- pa
+  return(result)
 }
