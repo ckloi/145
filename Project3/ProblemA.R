@@ -41,6 +41,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   for(a in str.char.list){
     if(pa.row > nrow(pa)){
       columnpix <- columnpix + 1
+      pa.row <- pa.row - nrow(pa)
     }
     #change the char to the destination pixel
     #print(a)
