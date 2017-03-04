@@ -5,7 +5,7 @@ import time
 
 fileName = sys.argv[1]
 numThreads = int(sys.argv[2])
-filePath = '/tmp/' + fileName
+filePath = 'tmp/' + fileName
 nonthread_start_time = time.time()
 
 f = open(filePath, 'r')
