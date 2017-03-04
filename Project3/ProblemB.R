@@ -1,22 +1,22 @@
 #Problem B
 walk <- function(currdir, f, arg, firstcall = TRUE) {
   # Keep track of the starting directory
-  startdir <- getwd()
+  #startdir <- getwd()
   # Switch to the directory specified in the function
   
   setwd(currdir)
   
   result <- arg
   
-  b <- list.files()
+  files <- list.files()
   
   # Get list of all files
   filelist <- character()
   
   # For each file in the list...
-  for (file in filelist) {
-    if (dir.exists(i)) {
-      result <- result + walk(i, f, arg, FALSE)
+  for (file in files) {
+    if (dir.exists(file)) {
+      result <- result + walk(file, f, arg, FALSE)
     } else{
       # Otherwise, file is a file, so add it to the file list
       filelist <- c(filelist, file)
@@ -28,7 +28,7 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   
   
   # Switch back to starting directory
-  setwd(startdir)
+  #setwd(startdir)
   
   return (result)
 }
