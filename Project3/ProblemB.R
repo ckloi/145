@@ -21,5 +21,20 @@ nbyte <- function(drname,filelist,arg){
 
 #remove all the empty directories.
 rmemptydirs <- function(drname,filelist,arg){
-  
+  for(cur.file in filelist){
+    if(dir.exists(cur.file)){
+      #change to the directory
+      setwd(cur.file)
+      #and check if there is anything inside the directory
+      file.list <- list.files()
+      if(length(file.list) == 0){
+        #go back to the current directory
+        setwd(drname)
+        #delect the directory
+        file.remove(cur.file)
+      }
+      #go back to the directory that call the function
+      setwd(drname)
+    }
+  }
 }
