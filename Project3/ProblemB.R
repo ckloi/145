@@ -8,29 +8,27 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   
   result <- arg
   
-  files <- list.files()
-  
   # Get list of all files
   filelist <- character()
   
   # For each file in the list...
-  for (file in files) {
-    if (dir.exists(file)) {
-      result <- result + walk(file, f, arg, FALSE)
+  for (fi in dir()) {
+    if (file.info(fi)$isdir) {
+      result <- result + walk(fi, f, arg, FALSE)
     } else{
       # Otherwise, file is a file, so add it to the file list
-      filelist <- c(filelist, file)
+      filelist <- c(filelist, fi)
     }
   }
   
-  #call the f function 
+  #call the f function
   result <- result + f(currdir, filelist, arg)
   
   
   # Switch back to starting directory
   setwd(startdir)
   
-  return (result)
+  arg + result
 }
 
 nfiles <- function(drname, filelist, arg) {
@@ -43,16 +41,15 @@ nfiles <- function(drname, filelist, arg) {
 nbyte <- function(drname, filelist, arg) {
   total.bytes <- 0
   
-  for (f in filelist){
+  for (f in filelist) {
     total.bytes <- total.bytes  + file.info(f)$size
   }
-    return (total.bytes)
+  arg + total.bytes
   
 }
 
 #remove all the empty directories.
 rmemptydirs <- function(drname, filelist, arg) {
-
   for (cur.file in filelist) {
     if (dir.exists(cur.file)) {
       #change to the directory
@@ -72,4 +69,3 @@ rmemptydirs <- function(drname, filelist, arg) {
 }
 
 print(walk("a", nbyte, 0))
-
