@@ -21,7 +21,7 @@ walk <- function(currdir,f,arg,firstcall = TRUE){
   }
   # Add size of all files in file list to running sum (not sure sum is needed,
   #   still don't quite know what arg is)
-  sum <- sum + nbytes(currdir,filelist,arg)
+  numbytes <- numbytes + nbytes(currdir,filelist,arg)
 
   # Switch back to starting directory
   setwd(startdir)
