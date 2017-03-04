@@ -1,7 +1,7 @@
 #Problem B
 walk <- function(currdir, f, arg, firstcall = TRUE) {
   # Keep track of the starting directory
-  #startdir <- getwd()
+  startdir <- getwd()
   # Switch to the directory specified in the function
   
   setwd(currdir)
@@ -28,7 +28,7 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   
   
   # Switch back to starting directory
-  #setwd(startdir)
+  setwd(startdir)
   
   return (result)
 }
@@ -41,23 +41,13 @@ nfiles <- function(drname, filelist, arg) {
 #find the total number of bytes in all the files.
 #this will include the empty space character.
 nbyte <- function(drname, filelist, arg) {
-  #total.bytes <- 0
-  for (file in filelist) {
-    if (!dir.exists(file)) {
-      file.list <-
-        scan(file,
-             what = "character",
-             quiet = TRUE,
-             sep = '\n')
-      for (line in file.list) {
-        line.list <- strsplit(line, "")[[1]]
-        #total.bytes <- total.bytes + length(line.list)
-        #not sure about this!
-        arg + length(line.list)
-      }
-      
-    }
+  total.bytes <- 0
+  
+  for (f in filelist){
+    total.bytes <- total.bytes  + file.info(f)$size
   }
+    return (total.bytes)
+  
 }
 
 #remove all the empty directories.
@@ -81,5 +71,5 @@ rmemptydirs <- function(drname, filelist, arg) {
   }
 }
 
-print(walk("a", nfiles, 0))
+print(walk("a", nbyte, 0))
 
