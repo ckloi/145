@@ -1,5 +1,12 @@
 #Problem B
-walk <- function(currdir,f,arg,firstcall = TRUE){}
+walk <- function(currdir,f,arg,firstcall = TRUE){
+  # Keep track of the starting directory
+  startdir <- getwd()
+  # Switch to the directory specified in the function
+  setwd(currdirectory)
+  
+
+}
 
 #find the total number of bytes in all the files.
 #this will include the empty space character.
