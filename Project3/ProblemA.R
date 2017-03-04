@@ -42,7 +42,10 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
 
   if((ncol(pa) - startpix +1) * nrow(pa) < total.pixs.need){
     stop("Not enough space for the message!")
-  }
+  })
+
+  # We only need to check for consectutive bits if consec is NULL
+  # Otherwise, we check for consec number of consecutive bits
 
   #now we start to embed the message.
   columnpix <- startpix
@@ -68,4 +71,3 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
 }
 
 secretencoder("LLL.pgm","hello",2,400)
-
