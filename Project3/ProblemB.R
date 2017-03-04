@@ -23,6 +23,8 @@ walk <- function(currdir,f,arg,firstcall = TRUE){
   #   still don't quite know what arg is)
   sum <- sum + nbytes(currdir,filelist,arg)
 
+  # Switch back to starting directory
+  setwd(startdir)
 }
 
 #find the total number of bytes in all the files.
