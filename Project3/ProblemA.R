@@ -44,7 +44,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     stop("Not enough space for the message!")
   })
 
-  # We only need to check for consectutive bits if consec is NULL
+  # We only need to check for consectutive bits if consec is not NULL
   # Otherwise, we check for consec number of consecutive bits
 
   #now we start to embed the message.
