@@ -3,8 +3,25 @@ walk <- function(currdir,f,arg,firstcall = TRUE){
   # Keep track of the starting directory
   startdir <- getwd()
   # Switch to the directory specified in the function
-  setwd(currdirectory)
-  
+  setwd(currdir)
+  numbytes <- 0
+  # Get list of all files
+  files <- file.list(path=".")
+
+  # For each file in the list...
+  for(file in files){
+    # If file is a directory, recursively call walk (not sure this is implemented correctly)
+    if(dir.exists(file)){
+      walk(file,f,arg,FALSE)
+    }
+    # Otherwise, file is a file, so add it to the file list
+    else{
+      filelist <- c(filelist, file)
+    }
+  }
+  # Add size of all files in file list to running sum (not sure sum is needed,
+  #   still don't quite know what arg is)
+  sum <- sum + nbytes(currdir,filelist,arg)
 
 }
 
