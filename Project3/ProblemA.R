@@ -66,8 +66,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         #   Takes all adjacent pixels of current pixel and compares to original
         #   image. If a pixel is written to, it will put FALSE in the corresponding
         #   element of the check matrix.
-        check <- pa[c(pa.row+1,pa.row-1),c(columnpix+1,columnpix-1)] ==
-          imgfile[c(pa.row+1,pa.row-1),c(columnpix+1,columnpix-1)]
+        check <- pa[c(pa.row+1,pa.row-1),columnpix] == imgfile[pa.row,c(columnpix+1,columnpix-1)]
 
         # Check if current pixel is written to already (TRUE if it is)
         overwrite <- pa[pa.row,columnpix] != imgfile[pa.row,columnpix]
