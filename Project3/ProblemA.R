@@ -53,7 +53,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     #change the char to the destination pixel
     #print(a)
     printf("index is [%d,%d]",pa.row,columnpix)
-    
+
     # Check for adjacent pixels by comparing changed picture with original
     #   (only if consec is not NULL)
 
@@ -75,8 +75,9 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         if(pa[pa.row,columnpix+1] != imgfile[pa.row,columnpix+1]){
           adjacent <- adjacent + 1
         }
-        # If there are not consec number of adjacent pixels, break
-        if(adjacent < consec){
+        # If there are not consec number of adjacent pixels, and the pixel being
+        # written to is not already written to, then break
+        if(adjacent < consec && pa[pa.row,columnpix] == img[pa.row,columnpix]){
           break
         }
         # Otherwise, move stride pixels further
