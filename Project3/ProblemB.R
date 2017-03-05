@@ -1,4 +1,9 @@
 #Problem B
+
+# This function will work similarly to python's os.path.walk(). It will take in a
+#   directory to read, a user defined function, and the function's argument as
+#   parameters. The result will be the total size of the directory.
+
 walk <- function(currdir, f, arg, firstcall = TRUE) {
   # Keep track of the starting directory
   startdir <- getwd()

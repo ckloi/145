@@ -1,6 +1,9 @@
 #Project 3
 #Problem A
 
+# This program will embed a secret message into a picture, allowing for no more
+# than 'consec' adjacent pixels to be changed 
+
 
 library(pixmap)
 
