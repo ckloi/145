@@ -6,7 +6,7 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
 
   setwd(currdir)
 
-  result <- arg
+  result <- 0
 
   # Get list of all files
   filelist <- character()
@@ -15,7 +15,9 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   for (fi in dir()) {
     if (file.info(fi)$isdir) {
       result <- result + walk(fi, f, arg, FALSE)
-    } else{
+    }
+
+    else{
       # Otherwise, file is a file, so add it to the file list
       filelist <- c(filelist, fi)
     }
@@ -28,7 +30,7 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   # Switch back to starting directory
   setwd(startdir)
 
-  arg + result
+  return(result)
 }
 
 nfiles <- function(drname, filelist, arg) {
@@ -44,7 +46,7 @@ nbyte <- function(drname, filelist, arg) {
   for (f in filelist) {
     total.bytes <- total.bytes  + file.info(f)$size
   }
-  arg + total.bytes
+  return(total.bytes)
 
 }
 
