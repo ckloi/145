@@ -6,13 +6,15 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
 
   setwd(currdir)
 
+  result <- arg
+
   # Get list of all files
   filelist <- character()
 
   # For each file in the list...
   for (fi in dir()) {
     if (file.info(fi)$isdir) {
-      arg + walk(fi, f, arg, FALSE)
+      result <- result + walk(fi, f, arg, FALSE)
     } else{
       # Otherwise, file is a file, so add it to the file list
       filelist <- c(filelist, fi)
@@ -20,7 +22,7 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   }
 
   #call the f function
-  arg + f(currdir, filelist, arg)
+  result <- result + f(currdir, filelist, arg)
 
 
   # Switch back to starting directory
