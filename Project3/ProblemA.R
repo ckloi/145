@@ -18,8 +18,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   }
   #read the file, if not read probably, stop
 
-  imgfile <- read.pnm(imgfilename) #stop("can not load the file")
-  #imgfile <- read.pnm('LLL.pgm') #stop("can not load the file")
+  imgfile <- read.pnm(imgfilename)
 
   #extract the pixel array
   pa <- imgfile@grey
@@ -27,16 +26,12 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   ncol(pa)
 
   #split the character into a vector
-  #those are for testing
-  #startpix <- 60
-  #stride <- 5
-  #msg <- "this is a test message"
   str.char.list <- strsplit(msg, "")[[1]]
 
   #need to check if the pixel array have enough space for the message
   #the total number pixels that we need is
   char.num <- length(str.char.list)
-  total.pixs.need <- (char.num - 1) * (stride + 1) + 1
+  total.pixs.need <- (char.num - 1) * stride + 1
 
   # Stop if the number of pixels in the picture is larger than the message
 
@@ -58,6 +53,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     #change the char to the destination pixel
     #print(a)
     printf("index is [%d,%d]",pa.row,columnpix)
+    
     # Check for adjacent pixels by comparing changed picture with original
     #   (only if consec is not NULL)
 
