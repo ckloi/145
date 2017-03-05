@@ -2,8 +2,7 @@
 #Problem A
 
 # This program will embed a secret message into a picture, allowing for no more
-# than 'consec' adjacent pixels to be changed 
-
+# than 'consec' adjacent pixels to be changed
 
 library(pixmap)
 
@@ -49,7 +48,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   columnpix <- startpix
   pa.row <- 1
   for(a in str.char.list){
-    if(pa.row > nrow(pa)){
+    while(pa.row > nrow(pa)){
       columnpix <- columnpix + 1
       pa.row <- pa.row - nrow(pa)
     }
