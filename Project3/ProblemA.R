@@ -69,9 +69,12 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         check <- pa[c(pa.row+1,pa.row-1),c(columnpix+1,columnpix-1)] ==
           imgfile[c(pa.row+1,pa.row-1),c(columnpix+1,columnpix-1)]
 
+        # Check if current pixel is written to already (TRUE if it is)
+        overwrite <- pa[pa.row,columnpix] != imgfile[pa.row,columnpix]
+
         # Check how many FALSE elements are in the check matrix. This will tell
         #   us how many consecutive pixels surround the current one.
-        if (length(check[check == FALSE]) < consec){
+        if (length(check[check == FALSE]) < consec && !overwrite){
           break
         }
         # Otherwise, move stride pixels further
