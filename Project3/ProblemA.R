@@ -41,59 +41,44 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     stop("Not enough space for the message!")
   }
 
-  # We only need to check for consectutive bits if consec is not NULL
-  # Otherwise, we check for consec number of consecutive bits
+  # Check for adjacent pixels by comparing changed picture with original
+  #   (only if consec is not NULL)
 
-  #now we start to embed the message.
-  columnpix <- startpix
-  pa.row <- 1
-  for(a in str.char.list){
-    while(pa.row > nrow(pa)){
-      columnpix <- columnpix + 1
-      pa.row <- pa.row - nrow(pa)
-    }
-    #change the char to the destination pixel
-    #print(a)
-    printf("index is [%d,%d]",pa.row,columnpix)
+  if(!is.null(consec)){
+    # As long as adjacent >= consec, you must keep moving until you find a
+    #   spot that has < consec adjacent pixels.
+    while(1){
+      # Check each pixel directly adjacent to current one (diagonals don't count).
+      #   Takes all adjacent pixels of current pixel and compares to original
+      #   image. If a pixel is written to, it will put FALSE in the corresponding
+      #   element of the check matrix.
+      checkrow <- pa[c(pa.row+1,pa.row-1),columnpix] == imgfile[c(pa.row+1,pa.row-1),columnpix]
+      checkcol <- pa[pa.row, c(columnpix+1,columnpix-1)] == imgfile[pa.row, c(columnpix+1,columnpix-1)]
+      adjacent <- length(checkrow[checkrow == FALSE]) + length(checkcol[checkcol == FALSE])
 
-    # Check for adjacent pixels by comparing changed picture with original
-    #   (only if consec is not NULL)
+      # Check if current pixel is written to already (TRUE if it is)
+      overwrite <- pa[pa.row,columnpix] != imgfile[pa.row,columnpix]
 
-    if(!is.null(consec)){
-      # As long as adjacent >= consec, you must keep moving until you find a
-      #   spot that has < consec adjacent pixels.
-      while(1){
-        adjacent <- 0
-        # Check each pixel directly adjacent to current one (diagonals don't count).
-        #   Takes all adjacent pixels of current pixel and compares to original
-        #   image. If a pixel is written to, it will put FALSE in the corresponding
-        #   element of the check matrix.
-        checkrow <- pa[c(pa.row+1,pa.row-1),columnpix] == imgfile[c(pa.row+1,pa.row-1),columnpix]
-        checkcol <- pa[pa.row, c(columnpix+1,columnpix-1)] == imgfile[pa.row, c(columnpix+1,columnpix-1)]
-        adjacent <- length(checkrow[checkrow == FALSE]) + length(checkcol[checkcol == FALSE])
-
-        # Check if current pixel is written to already (TRUE if it is)
-        overwrite <- pa[pa.row,columnpix] != imgfile[pa.row,columnpix]
-
-        # Check how many FALSE elements are in the check matrix. This will tell
-        #   us how many consecutive pixels surround the current one.
-        if (adjacent < consec && !overwrite){
-          break
-        }
-        # Otherwise, move stride pixels further
-        pa.row <- pa.row + stride
-        if(pa.row > nrow(pa)){
-          columnpix <- columnpix + 1
-          pa.row <- pa.row - nrow(pa)
-        }
+      # Check how many FALSE elements are in the check matrix. This will tell
+      #   us how many consecutive pixels surround the current one.
+      if (adjacent < consec && !overwrite){
+        pa[pa.row,columnpix] <- utf8ToInt(a) / 128
+      }
+      # Otherwise, move stride pixels further
+      pa.row <- pa.row + stride
+      if(pa.row > nrow(pa)){
+        columnpix <- columnpix + 1
+        pa.row <- pa.row - nrow(pa)
       }
     }
-
-    pa[pa.row,columnpix] <- utf8ToInt(a) / 128
-
-    print(pa[pa.row,columnpix])
-    pa.row <- pa.row + stride
   }
+
+  # This acts like a for loop, starting at startpix and ending at length of message.
+  #   Character will be written to every stride number of pixels.
+  pa[seq(startpix,length(msg),stride)] <- utf8ToInt(a) / 128
+
+  # print(pa[pa.row,columnpix])
+
   View(pa)
   result <- imgfile
   result@grey <- pa
