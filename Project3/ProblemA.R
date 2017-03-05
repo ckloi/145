@@ -72,10 +72,11 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
       }
     }
   }
-
-  # This acts like a for loop, starting at startpix and ending at length of message.
-  #   Character will be written to every stride number of pixels.
-  pa[seq(startpix,length(msg),stride)] <- utf8ToInt(a) / 128
+  else{
+    # This acts like a for loop, starting at startpix and ending at length of message.
+    #   Character will be written to every stride number of pixels.
+    pa[seq(startpix,length(msg),stride)] <- utf8ToInt(a) / 128
+  }
 
   # print(pa[pa.row,columnpix])
 
