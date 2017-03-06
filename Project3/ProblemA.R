@@ -90,16 +90,26 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
       pa[pa.row <- pa.row+stride] <- utf8ToInt(a) / 128
     }
 
-    # Add null character (0) at end of message
-    pa[pa.row] <- 0.0
-
     print(pa[pa.row])
   }
   View(pa)
+  # Add null character (0) at end of message
+  pa[pa.row+stride] <- 0.0
   result <- imgfile
   result@grey <- pa
   return(result)
 
 }
 
-secretencoder("LLL.pgm","hello",2,400,3)
+test <- secretencoder("LLL.pgm","hello",2,400)@grey
+pixel <- 2
+stride1 <- 400
+char <- test[pixel]*128
+print(char)
+string <- intToUtf8(char)
+char <- test[pixel<-pixel+stride1]*128
+while(char != 0){
+  string <- c(string, intToUtf8(char))
+  char <- test[pixel<-pixel+stride1]*128
+}
+print(string)
