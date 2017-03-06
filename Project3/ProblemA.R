@@ -45,13 +45,12 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   # Otherwise, we check for consec number of consecutive bits
 
   #now we start to embed the message.
-  columnpix <- startpix
-  pa.row <- 1
-  for(a in str.char.list){
-    while(pa.row > nrow(pa)){
-      columnpix <- columnpix + 1
-      pa.row <- pa.row - nrow(pa)
-    }
+
+  # Place the first pixel in and set row equal to startpix
+  pa[startpix] <- utf8ToInt(str.char.list[1]) / 128
+  pa.row <- startpix
+
+  for(a in str.char.list[2:length(str.char.list)]){
     #change the char to the destination pixel
     #print(a)
     printf("index is [%d,%d]",pa.row,columnpix)
@@ -63,36 +62,29 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
       # As long as adjacent >= consec, you must keep moving until you find a
       #   spot that has < consec adjacent pixels.
       while(1){
-        adjacent <- 0
         # Check each pixel directly adjacent to current one (diagonals don't count).
         #   Takes all adjacent pixels of current pixel and compares to original
         #   image. If a pixel is written to, it will put FALSE in the corresponding
         #   element of the check matrix.
-        checkrow <- pa[c(pa.row+1,pa.row-1),columnpix] == imgfile[c(pa.row+1,pa.row-1),columnpix]
-        checkcol <- pa[pa.row, c(columnpix+1,columnpix-1)] == imgfile[pa.row, c(columnpix+1,columnpix-1)]
+        checkrow <- pa[c(pa.row+1,pa.row-1)] == imgfile[c(pa.row+1,pa.row-1)]
+        checkcol <- pa[pa.row + nrow(pa)] == imgfile[pa.row - nrow(pa_)]
         adjacent <- length(checkrow[checkrow == FALSE]) + length(checkcol[checkcol == FALSE])
 
         # Check if current pixel is written to already (TRUE if it is)
-        overwrite <- pa[pa.row,columnpix] != imgfile[pa.row,columnpix]
+        overwrite <- pa[pa.row] != imgfile[pa.row]
 
         # Check how many FALSE elements are in the check matrix. This will tell
         #   us how many consecutive pixels surround the current one.
         if (adjacent < consec && !overwrite){
           break
         }
-        # Otherwise, move stride pixels further
         pa.row <- pa.row + stride
-        if(pa.row > nrow(pa)){
-          columnpix <- columnpix + 1
-          pa.row <- pa.row - nrow(pa)
-        }
       }
     }
 
-    pa[pa.row,columnpix] <- utf8ToInt(a) / 128
+    pa[pa.row <- pa.row+stride] <- utf8ToInt(a) / 128
 
-    print(pa[pa.row,columnpix])
-    pa.row <- pa.row + stride
+    print(pa[pa.row])
   }
   View(pa)
   result <- imgfile
