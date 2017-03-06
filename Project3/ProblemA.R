@@ -59,6 +59,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     #   (only if consec is not NULL)
 
     if(!is.null(consec)){
+      pa.row <- pa.row + stride
       # As long as adjacent >= consec, you must keep moving until you find a
       #   spot that has < consec adjacent pixels.
       while(1){
@@ -76,13 +77,16 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         # Check how many FALSE elements are in the check matrix. This will tell
         #   us how many consecutive pixels surround the current one.
         if (adjacent < consec && !overwrite){
+          pa[pa.row] <- utf8ToInt(a) / 128
           break
         }
         pa.row <- pa.row + stride
       }
     }
 
-    pa[pa.row <- pa.row+stride] <- utf8ToInt(a) / 128
+    else{
+      pa[pa.row <- pa.row+stride] <- utf8ToInt(a) / 128
+    }
 
     print(pa[pa.row])
   }
