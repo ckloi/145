@@ -24,6 +24,8 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
 
   #extract the pixel array
   pa <- imgfile@grey
+  # Duplicate to check for consecutive pixels and overwrite
+  original <- imgfile@grey
   nrow(pa)
   ncol(pa)
 
@@ -53,7 +55,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   for(a in str.char.list[2:length(str.char.list)]){
     #change the char to the destination pixel
     #print(a)
-    printf("index is [%d,%d]",pa.row,columnpix)
+    printf("index is [%d]",pa.row)
 
     # Check for adjacent pixels by comparing changed picture with original
     #   (only if consec is not NULL)
@@ -67,12 +69,12 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         #   Takes all adjacent pixels of current pixel and compares to original
         #   image. If a pixel is written to, it will put FALSE in the corresponding
         #   element of the check matrix.
-        checkrow <- pa[c(pa.row+1,pa.row-1)] == imgfile[c(pa.row+1,pa.row-1)]
-        checkcol <- pa[pa.row + nrow(pa)] == imgfile[pa.row - nrow(pa_)]
+        checkrow <- pa[c(pa.row+1,pa.row-1)] == original[c(pa.row+1,pa.row-1)]
+        checkcol <- pa[pa.row + nrow(pa)] == original[pa.row - nrow(pa)]
         adjacent <- length(checkrow[checkrow == FALSE]) + length(checkcol[checkcol == FALSE])
 
         # Check if current pixel is written to already (TRUE if it is)
-        overwrite <- pa[pa.row] != imgfile[pa.row]
+        overwrite <- pa[pa.row] != original[pa.row]
 
         # Check how many FALSE elements are in the check matrix. This will tell
         #   us how many consecutive pixels surround the current one.
@@ -100,4 +102,4 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
 
 }
 
-secretencoder("LLL.pgm","hello",2,400)
+secretencoder("LLL.pgm","hello",2,400,3)
