@@ -117,11 +117,11 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   original <- pa
 
   pixel <- startpix
-  message <- intToUtf8(pa[pixel]*128)
+  message <- intToUtf8(pa[pixel]*128+1)
   char <- pa[pixel <- pixel + stride]
   if(is.null(consec)){
     while(char != 0){
-      message <- c(message, intToUtf8(char*128))
+      message <- c(message, intToUtf8(char*128+1))
       char <- pa[pixel <- pixel + stride]
     }
   }
@@ -131,5 +131,6 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 
 startpixel <- 2
 stride <- 400
-write.pnm(secretencoder("LLL.pgm","hello",startpixel,stride),'LLL1.pgm')
+consec <- NULL
+write.pnm(secretencoder("LLL.pgm","Andrew",startpixel,stride),'LLL1.pgm')
 print(secretdecoder("LLL1.pgm",startpixel,stride))
