@@ -26,8 +26,6 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   pa <- imgfile@grey
   # Duplicate to check for consecutive pixels and overwrite
   original <- imgfile@grey
-  nrow(pa)
-  ncol(pa)
 
   #split the character into a vector
   str.char.list <- strsplit(msg, "")[[1]]
@@ -43,9 +41,6 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     stop("Not enough space for the message!")
   }
 
-  # We only need to check for consectutive bits if consec is not NULL
-  # Otherwise, we check for consec number of consecutive bits
-
   #now we start to embed the message.
 
   # Place the first pixel in and set row equal to startpix
@@ -53,9 +48,6 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   pa.row <- startpix
 
   for(a in str.char.list[2:length(str.char.list)]){
-    #change the char to the destination pixel
-    #print(a)
-    printf("index is [%d]",pa.row)
 
     # Check for adjacent pixels by comparing changed picture with original
     #   (only if consec is not NULL)
@@ -92,7 +84,6 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
 
     print(pa[pa.row])
   }
-  View(pa)
   # Add null character (0) at end of message
   pa[pa.row+stride] <- 0.0
   result <- imgfile
@@ -132,5 +123,5 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 startpixel <- 2
 stride <- 400
 consec <- NULL
-write.pnm(secretencoder("LLL.pgm","Andrew",startpixel,stride),'LLL1.pgm')
+write.pnm(secretencoder("LLL.pgm","ABCDEFGHIJKLMNOPQRSTUVWXYZ",startpixel,stride),'LLL1.pgm')
 print(secretdecoder("LLL1.pgm",startpixel,stride))
