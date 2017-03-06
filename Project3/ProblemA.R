@@ -101,15 +101,35 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
 
 }
 
-test <- secretencoder("LLL.pgm","hello",2,400)@grey
-pixel <- 2
-stride1 <- 400
-char <- test[pixel]*128
-print(char)
-string <- intToUtf8(char)
-char <- test[pixel<-pixel+stride1]*128
-while(char != 0){
-  string <- c(string, intToUtf8(char))
-  char <- test[pixel<-pixel+stride1]*128
+secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
+  #if file does nto exist, stop
+  if(!file.exists(imgfilename)){
+    stop("File does not exist")
+    }
+
+  if(stride > file.size(imgfilename)){
+    warning("Stride is larger than the size of the file")
+  }
+  #read the file, if not read probably, stop
+
+  imgfile <- read.pnm(imgfilename)
+  pa <- imgfile@grey
+  original <- pa
+
+  pixel <- startpix
+  message <- intToUtf8(pa[pixel]*128)
+  char <- pa[pixel <- pixel + stride]
+  if(is.null(consec)){
+    while(char != 0){
+      message <- c(message, intToUtf8(char*128))
+      char <- pa[pixel <- pixel + stride]
+    }
+  }
+  message <- paste(message,collapse='')
+  return(message)
 }
-print(string)
+
+startpixel <- 2
+stride <- 400
+write.pnm(secretencoder("LLL.pgm","hello",startpixel,stride),'LLL1.pgm')
+print(secretdecoder("LLL1.pgm",startpixel,stride))
