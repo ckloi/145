@@ -11,7 +11,7 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
 
   setwd(currdir)
 
-  result <- 0
+  result <- arg
 
   # Get list of all files
   filelist <- character()
@@ -51,7 +51,7 @@ nbyte <- function(drname, filelist, arg) {
   for (f in filelist) {
     total.bytes <- total.bytes  + file.info(f)$size
   }
-  return(total.bytes)
+  arg + total.bytes
 
 }
 
@@ -66,4 +66,4 @@ rmemptydirs <- function(drname, filelist, arg) {
   
 }
 
-print(walk("a", rmemptydirs, 0))
+print(walk("a", nbyte, 0))
