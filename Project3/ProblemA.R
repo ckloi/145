@@ -81,8 +81,6 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     else{
       pa[pa.row <- pa.row+stride] <- utf8ToInt(a) / 128
     }
-
-    print(pa[pa.row])
   }
   # Add null character (0) at end of message
   pa[pa.row+stride] <- 0.0
