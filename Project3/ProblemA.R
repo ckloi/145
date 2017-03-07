@@ -50,11 +50,15 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   #   (only if consec is not NULL)
 
   if(!is.null(consec)){
+    # Vector that contains all positions that have been written to
     check <- startpix
+    # PLace the first value at startpix
     pa[startpix] <- values[1]
+    # Current pixel
     pixel <- startpix
     for(value in values){
       pixel <- pixel + stride
+      # Check if current pixel is going to be overwritten
       if (original[pixel] != pa[pixel]){
         stop("Overwriting ocurred")
       }
@@ -100,26 +104,43 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 
   imgfile <- read.pnm(imgfilename)
   pa <- imgfile@grey
-
+  # Current pixel
   pixel <- startpix
+  # Vector to hold all read characters
   message <- intToUtf8(round(pa[startpix]*128))
   if(is.null(consec)){
+    # Read every 'stride'th pixel, and add it's corresponding utf value to message
+    #   (rounding is needed as division is not always exact)
     while(pa[(pixel+stride) %% length(pa)] != 0){
       message <- c(message, intToUtf8(round(pa[pixel <- pixel+stride %% length(pa)]*128)))
     }
   }
   else{
+    # Vector containing all positions that have been read
     check <- startpix
-    while(pa[pixel + stride %% lenth(pa)] != 0){
-
+    pixel <- pixel + stride
+    # Loop until null character is encountered
+    while(pa[pixel %% length(pa)] != 0){
+      # Get position of pixels adjacent to the current pixel
+      adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa)) %% length(pa)
+      # Create a T/F vector based on if positions are in check vector or not
+      isadjacent <- adjacent %in% check
+      # If the amount of Ts in check vector is less than consec, then no conflicts
+      #   (TRUE represents an adjacent pixel that has been written to)
+      if(length(isadjacent[isadjacent==TRUE]) < consec){
+        # Read current pixel and add it's corresponding utf value to message
+        message <- c(message, intToUtf8(round(pa[pixel %% length(pa)]*128)))
+      }
+      pixel <- pixel + stride
     }
   }
+  # Combine all read characters into one string
   message <- paste(message,collapse='')
   return(message)
 }
 
-startpixel <- 2
-stride1 <- 400
+startpixel <- 456
+stride1 <- 4000
 consec <- NULL
-write.pnm(secretencoder("LLL.pgm","ABCDEFGHIJKLMNOPQRSTUVWXYZ",startpixel,stride1),'LLL1.pgm')
-print(secretdecoder("LLL1.pgm",startpixel,stride1))
+write.pnm(secretencoder("LLL.pgm","ABCDEFGHIJKLMNOPQRSTUVWXYZ",startpixel,stride1),'LLL1.pgm',4)
+print(secretdecoder("LLL1.pgm",startpixel,stride1,4))
