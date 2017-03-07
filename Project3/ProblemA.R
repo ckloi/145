@@ -160,7 +160,7 @@ modifyindex <- function(index,mat){
 }
 
 startpixel <- 60000
-stride1 <- 512
+stride1 <- 513
 consec <- 3
 teststring <- "This is going to be a realy long sentence to test for any overwriting.
   If any overwriting occurs, the program should stop and you will not see this sentence.
@@ -187,6 +187,5 @@ teststring <- "This is going to be a realy long sentence to test for any overwri
   ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.
   FINALLY!"
-print(length(strsplit(teststring,split="")[[1]]))
 write.pnm(secretencoder("small_test.pgm",teststring,startpixel,stride1,consec),'small_result.pgm')
 print(secretdecoder("small_result.pgm",startpixel,stride1,consec))
