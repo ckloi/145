@@ -62,9 +62,9 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
       # Loop until position with no conflicts is found
       while(1){
         # Get position of pixels adjacent to the current pixel
-        adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa)) %% length(pa)
+        adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa))
         # Avoids an index of 0 (mod is applied across all values in index)
-        adjacent <- ifelse(adjacent%%length(pa),adjacent%%length(pa),length(pa))
+        adjacent <- modifyindex(adjacent,pa)
         # Create a T/F vector based on if positions are in check vector or not
         isadjacent <- adjacent %in% check
         # If the amount of Ts in check vector is less than consec, then no conflicts
@@ -136,7 +136,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
       # Get position of pixels adjacent to the current pixel
       adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa))
       # Avoids index being 0
-      adjacent <- ifelse(adjacent%%length(pa),adjacent%%length(pa),length(pa))
+      adjacent <- modifyindex(adjacent,pa)
       # Create a T/F vector based on if positions are in check vector or not
       isadjacent <- adjacent %in% check
       # If the amount of Ts in check vector is less than consec, then no conflicts
