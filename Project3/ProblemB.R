@@ -1,8 +1,7 @@
 #Problem B
 
-# This function will work similarly to python's os.path.walk(). It will take in a
-#   directory to read, a user defined function, and the function's argument as
-#   parameters. The result will be the total size of the directory.
+# This function will work similarly to python's os.path.walk(). It will apply
+#   function f to all files within directory currdir.
 
 walk <- function(currdir, f, arg, firstcall = TRUE) {
   # Keep track of the starting directory
@@ -19,7 +18,7 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   # For each file in the list...
   for (fi in dir()) {
     if (file.info(fi)$isdir) {
-      result <- result + walk(fi, f, arg, FALSE)
+      walk(fi, f, arg, FALSE)
     }
 
     else{
@@ -29,13 +28,11 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   }
 
   #call the f function
-  result <- result + f(currdir, filelist, arg)
+  f(currdir, filelist, arg)
 
 
   # Switch back to starting directory
   setwd(startdir)
-
-  return(result)
 }
 
 nfiles <- function(drname, filelist, arg) {
@@ -57,13 +54,20 @@ nbyte <- function(drname, filelist, arg) {
 
 #remove all the empty directories.
 rmemptydirs <- function(drname, filelist, arg) {
-  
+  for(file in filelist){
+    if (file.info(file)$isdir){
+      setwd(file)
+      rmemptydirs(file,dir(),arg)
+    }
+  }
   if (length(filelist) == 0) {
       setwd("..")
       file.remove(drname)
   }
-  
-  
+
 }
 
+getwd()
 print(walk("a", nfiles, 0))
+getwd()
+print(walk('a',rmemptydirs,0))
