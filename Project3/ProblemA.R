@@ -91,7 +91,6 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   }
   result <- imgfile
   result@grey <- pa
-  print(length(pa))
   return(result)
 
 }
@@ -154,8 +153,8 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   return(message)
 }
 
-startpixel <- 2
-stride1 <- 23
+startpixel <- 632
+stride1 <- 67326
 consec <- NULL
 write.pnm(secretencoder("LLL.pgm","This sentence should be correct",startpixel,stride1),'LLL1.pgm')
 print(secretdecoder("LLL1.pgm",startpixel,stride1))
