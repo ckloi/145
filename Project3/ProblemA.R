@@ -35,6 +35,8 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   char.num <- length(str.char.list)
   total.pixs.need <- (char.num - 1) * stride + 1
 
+  # Appropriate numeric values that will be added to the picture, with 0 at the
+  #   end to represent the end of the message
   values <- utf8ToInt(msg)/128
   values <- c(values,0.0)
 
@@ -63,6 +65,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         # Create a T/F vector based on if positions are in check vector or not
         isadjacent <- adjacent %in% check
         # If the amount of Ts in check vector is less than consec, then no conflicts
+        #   (TRUE represents an adjacent pixel that has been written to)
         if(length(isadjacent[isadjacent==TRUE]) < consec){
           break
         }
