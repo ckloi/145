@@ -139,8 +139,6 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
       # If the amount of Ts in check vector is less than consec, then no conflicts
       #   (TRUE represents an adjacent pixel that has been written to)
       if(length(isadjacent[isadjacent==TRUE]) < consec){
-        # Avoids index being 0
-        pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
         # Read current pixel and add it's corresponding utf value to message
         message <- c(message, intToUtf8(round(pa[pixel]*128)))
       }
