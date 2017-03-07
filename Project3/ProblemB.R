@@ -18,7 +18,7 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   # For each file in the list...
   for (fi in dir()) {
     if (file.info(fi)$isdir) {
-      walk(fi, f, arg, FALSE)
+      result <- result + walk(fi, f, arg, FALSE)
     }
 
     else{
@@ -28,11 +28,13 @@ walk <- function(currdir, f, arg, firstcall = TRUE) {
   }
 
   #call the f function
-  f(currdir, filelist, arg)
+  result <- result + f(currdir, filelist, arg)
 
 
   # Switch back to starting directory
   setwd(startdir)
+
+  return(result)
 }
 
 nfiles <- function(drname, filelist, arg) {
