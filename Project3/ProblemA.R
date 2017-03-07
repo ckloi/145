@@ -35,59 +35,49 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   char.num <- length(str.char.list)
   total.pixs.need <- (char.num - 1) * stride + 1
 
+  values <- utf8ToInt(msg)/128
+  values <- c(values,0.0)
+
   # if((ncol(pa) - startpix +1) * nrow(pa) < total.pixs.need){
   #   stop("Not enough space for the message!")
   # }
 
   #now we start to embed the message.
 
-  # Place the first pixel in and set row equal to startpix
-  pa[startpix] <- utf8ToInt(str.char.list[1]) / 128
-  pa.row <- startpix
+  # Check for adjacent pixels by comparing changed picture with original
+  #   (only if consec is not NULL)
 
-  for(a in str.char.list[2:length(str.char.list)]){
-
-    # Check for adjacent pixels by comparing changed picture with original
-    #   (only if consec is not NULL)
-
-    if(!is.null(consec)){
-      pa.row <- pa.row + stride
-      # As long as adjacent >= consec, you must keep moving until you find a
-      #   spot that has < consec adjacent pixels.
+  if(!is.null(consec)){
+    check <- startpix
+    pa[startpix] <- values[1]
+    pixel <- startpix
+    for(value in values){
+      pixel <- pixel + stride
+      if (original[pixel] != pa[pixel]){
+        stop("Overwriting ocurred")
+      }
+      # Loop until position with no conflicts is found
       while(1){
-        # Check each pixel directly adjacent to current one (diagonals don't count).
-        #   Takes all adjacent pixels of current pixel and compares to original
-        #   image. If a pixel is written to, it will put FALSE in the corresponding
-        #   element of the check matrix.
-        checkrow <- pa[c(pa.row+1,pa.row-1)] == original[c(pa.row+1,pa.row-1)]
-        checkcol <- pa[pa.row - nrow(pa)] == original[pa.row - nrow(pa)]
-        adjacent <- length(checkrow[checkrow == FALSE]) + length(checkcol[checkcol == FALSE])
-
-        # Check if current pixel is written to already (TRUE if it is)
-        overwrite <- pa[pa.row] != original[pa.row]
-
-        # Check how many FALSE elements are in the check matrix. This will tell
-        #   us how many consecutive pixels surround the current one.
-        if (adjacent < consec && !overwrite){
-          pa[pa.row] <- utf8ToInt(a) / 128
+        # Get position of pixels adjacent to the current pixel
+        adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa)) %% length(pa)
+        # Create a T/F vector based on if positions are in check vector or not
+        isadjacent <- adjacent %in% check
+        # If the amount of Ts in check vector is less than consec, then no conflicts
+        if(length(isadjacent[isadjacent==TRUE]) < consec){
           break
         }
-        pa.row <- pa.row + stride
-        if(pa.row > length(pa)){
-          stop("Not enough space for the message")
-        }
+        pixel <- pixel + stride
       }
-    }
-
-    else{
-      if(pa.row + stride> length(pa)){
-        stop("Not enough space for the message")
-      }
-      pa[pa.row <- pa.row+stride] <- utf8ToInt(a) / 128
+      # Place value at current pixel, taking wrap around into account
+      pa[pixel %% length(pa)] <- value
+      # Add current pixel position to check vector
+      check <- c(check, pixel)
     }
   }
-  # Add null character (0) at end of message
-  pa[pa.row+stride] <- 0.0
+
+  else{
+    pa[seq(startpix, length(values)*stride, stride) %% length(pa)] <- values
+  }
   result <- imgfile
   result@grey <- pa
   return(result)
@@ -107,15 +97,18 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 
   imgfile <- read.pnm(imgfilename)
   pa <- imgfile@grey
-  original <- pa
 
   pixel <- startpix
-  message <- intToUtf8(pa[pixel]*128+1)
-  char <- pa[pixel <- pixel + stride]
+  message <- intToUtf8(round(pa[startpix]*128))
   if(is.null(consec)){
-    while(char != 0){
-      message <- c(message, intToUtf8(char*128+1))
-      char <- pa[pixel <- pixel + stride]
+    while(pa[(pixel+stride) %% length(pa)] != 0){
+      message <- c(message, intToUtf8(round(pa[pixel <- pixel+stride %% length(pa)]*128)))
+    }
+  }
+  else{
+    check <- startpix
+    while(pa[pixel + stride %% lenth(pa)] != 0){
+
     }
   }
   message <- paste(message,collapse='')
@@ -123,7 +116,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 }
 
 startpixel <- 2
-stride <- 400
+stride1 <- 400
 consec <- NULL
-write.pnm(secretencoder("LLL.pgm","ABCDEFGHIJKLMNOPQRSTUVWXYZ",startpixel,stride),'LLL1.pgm')
-print(secretdecoder("LLL1.pgm",startpixel,stride))
+write.pnm(secretencoder("LLL.pgm","ABCDEFGHIJKLMNOPQRSTUVWXYZ",startpixel,stride1),'LLL1.pgm')
+print(secretdecoder("LLL1.pgm",startpixel,stride1))
