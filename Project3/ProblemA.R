@@ -16,16 +16,15 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   }
 
   imgfile <- read.pnm(imgfilename)
-
+  if(is.null(imgfile)){
+    stop("File did not open correctly")
+  }
   #extract the pixel array
   pa <- imgfile@grey
-  # Duplicate to check for consecutive pixels and overwrite
-  original <- imgfile@grey
 
-  if(stride%%length(pa) != any(c(stride,0))){
-    warning("Stride is not relatively prime to image size")
+  if(stride%%length(pa) == 0){
+    warning("Stride is not relatively prime to image size. Overwriting may occur.")
   }
-  #read the file, if not read probably, stop
 
   #split the character into a vector
   str.char.list <- strsplit(msg, "")[[1]]
@@ -59,7 +58,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     for(value in values){
       pixel <- pixel + stride
       # Check if current pixel is going to be overwritten
-      if (original[pixel] != pa[pixel]){
+      if (pixel %in% check){
         stop("Overwriting ocurred")
       }
       # Loop until position with no conflicts is found
@@ -77,6 +76,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         }
         pixel <- pixel + stride
       }
+      # Avoids index being 0
       index <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
       # Place value at current pixel, taking wrap around into account
       pa[index] <- value
@@ -155,7 +155,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 }
 
 startpixel <- 2
-stride1 <- 2
+stride1 <- 23
 consec <- NULL
 write.pnm(secretencoder("LLL.pgm","This sentence should be correct",startpixel,stride1),'LLL1.pgm',3)
 print(secretdecoder("LLL1.pgm",startpixel,stride1,3))
