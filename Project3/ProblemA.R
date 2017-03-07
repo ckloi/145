@@ -52,6 +52,9 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
       # Avoids index being 0
       pixel <- modifyindex(pixel+stride,pa)
 
+      # First pixel to start checking conflicts at
+      firstcheck <- pixel
+
       # Loop until position with no conflicts is found
       while(1){
         # Get position of pixels adjacent to the current pixel
@@ -70,6 +73,12 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         }
         # Avoids index being 0
         pixel <- modifyindex(pixel+stride,pa)
+
+        if(pixel == firstcheck){
+          # If you are here, you have gone through the entire image without writing
+          #   anything, and will continue to do so endlessly, so stop.
+          stop("Endless conflicts")
+        }
       }
 
       # Place value at current pixel, taking wrap around into account
@@ -151,7 +160,7 @@ modifyindex <- function(index,mat){
 }
 
 startpixel <- 60000
-stride1 <- 510
+stride1 <- 512
 consec <- 3
 teststring <- "This is going to be a realy long sentence to test for any overwriting.
   If any overwriting occurs, the program should stop and you will not see this sentence.
