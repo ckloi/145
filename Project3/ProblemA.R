@@ -45,15 +45,11 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     pa[startpix] <- values[1]
     # Current pixel
     pixel <- startpix
-    for(value in values){
-      pixel <- pixel + stride
-      count <- 0
+    # Place rest of values in appropriate positions
+    for(value in values[2:length(values)]){
       # Avoids index being 0
-      pixel <- modifyindex(pixel,pa)
-      # Check if current pixel is going to be overwritten
-      if (pixel %in% check){
-        stop("Overwriting ocurred")
-      }
+      pixel <- modifyindex(pixel+stride,pa)
+
       # Loop until position with no conflicts is found
       while(1){
         # Get position of pixels adjacent to the current pixel
@@ -67,9 +63,12 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         if(length(isadjacent[isadjacent==TRUE]) <= consec){
           break
         }
-        pixel <- pixel + stride
         # Avoids index being 0
-        pixel <- modifyindex(pixel,pa)
+        pixel <- modifyindex(pixel+stride,pa)
+      }
+      # Check if current pixel is going to be overwritten
+      if (pixel %in% check){
+        stop("Overwriting ocurred")
       }
       # Place value at current pixel, taking wrap around into account
       pa[pixel] <- value
@@ -112,7 +111,6 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   pixel <- modifyindex(pixel+stride,pa)
 
   if(is.null(consec)){
-    count <- 0
     # Read every 'stride'th pixel, and add it's corresponding utf value to message
     #   until null character is reached (rounding is needed as division is not
     #   always exact)
@@ -130,7 +128,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
     # Loop until null character is encountered
     while(pa[pixel] != 0){
       # Get position of pixels adjacent to the current pixel
-      adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa))
+      adjacent <- c(pixel+1, pixel-1, pixel+nrow(pa), pixel-nrow(pa))
       # Avoids index being 0
       adjacent <- modifyindex(adjacent,pa)
       # Create a T/F vector based on if positions are in check vector or not
