@@ -26,14 +26,6 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     warning("Stride is not relatively prime to image size. Overwriting may occur.")
   }
 
-  #split the character into a vector
-  str.char.list <- strsplit(msg, "")[[1]]
-
-  #need to check if the pixel array have enough space for the message
-  #the total number pixels that we need is
-  char.num <- length(str.char.list)
-  total.pixs.need <- (char.num - 1) * stride + 1
-
   # Appropriate numeric values that will be added to the picture, with 0 at the
   #   end to represent the end of the message
   values <- utf8ToInt(msg)/128
@@ -57,6 +49,8 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     pixel <- startpix
     for(value in values){
       pixel <- pixel + stride
+      # Avoids index being 0
+      pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
       # Check if current pixel is going to be overwritten
       if (pixel %in% check){
         stop("Overwriting ocurred")
@@ -75,11 +69,11 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
           break
         }
         pixel <- pixel + stride
+        # Avoids index being 0
+        pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
       }
-      # Avoids index being 0
-      index <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
       # Place value at current pixel, taking wrap around into account
-      pa[index] <- value
+      pa[pixel] <- value
       # Add current pixel position to check vector
       check <- c(check, pixel)
     }
@@ -117,21 +111,25 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   # Vector to hold all read characters
   message <- intToUtf8(round(pa[startpix]*128))
   if(is.null(consec)){
+    pixel <- pixel + stride
+    # Avoids index being 0
+    pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
     # Read every 'stride'th pixel, and add it's corresponding utf value to message
     #   (rounding is needed as division is not always exact)
-    while(pa[(pixel+stride) %% length(pa)] != 0){
+    while(pa[pixel] != 0){
+      message <- c(message, intToUtf8(round(pa[pixel]*128)))
       pixel <- pixel + stride
       # Avoids index being 0
-      index <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
-      message <- c(message, intToUtf8(round(pa[index]*128)))
+      pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
     }
   }
   else{
     # Vector containing all positions that have been read
     check <- startpix
     pixel <- pixel + stride
+    pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
     # Loop until null character is encountered
-    while(pa[pixel %% length(pa)] != 0){
+    while(pa[pixel] != 0){
       # Get position of pixels adjacent to the current pixel
       adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa))
       # Avoids index being 0
@@ -142,11 +140,12 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
       #   (TRUE represents an adjacent pixel that has been written to)
       if(length(isadjacent[isadjacent==TRUE]) < consec){
         # Avoids index being 0
-        index <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
+        pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
         # Read current pixel and add it's corresponding utf value to message
-        message <- c(message, intToUtf8(round(pa[index]*128)))
+        message <- c(message, intToUtf8(round(pa[pixel]*128)))
       }
       pixel <- pixel + stride
+      pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
     }
   }
   # Combine all read characters into one string
@@ -157,5 +156,5 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 startpixel <- 2
 stride1 <- 23
 consec <- NULL
-write.pnm(secretencoder("LLL.pgm","This sentence should be correct",startpixel,stride1),'LLL1.pgm',3)
-print(secretdecoder("LLL1.pgm",startpixel,stride1,3))
+write.pnm(secretencoder("LLL.pgm","This sentence should be correct",startpixel,stride1),'LLL1.pgm',2)
+print(secretdecoder("LLL1.pgm",startpixel,stride1,2))
