@@ -157,7 +157,8 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 # This function allows for wrap-around of matrix 'mat' and stops index from being 0
 #   (since result of mod could be 0, and R starts at 1 for indices)
 modifyindex <- function(index,mat){
-  return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
+  # index %% langth(mat) will always get index, i don't know if this what you want?
+  return(ifelse(length(mat)%%index,index%%length(mat),length(mat)))
 }
 
 startpixel <- 60000
