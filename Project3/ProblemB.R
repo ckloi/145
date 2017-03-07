@@ -48,9 +48,8 @@ nbyte <- function(drname, filelist, arg) {
   total.bytes <- 0
 
   for (f in filelist) {
-    total.bytes <- total.bytes  + file.info(f)$size
+    arg + file.info(f)$size
   }
-  arg + total.bytes
 
 }
 
