@@ -13,12 +13,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   #if file does nto exist, stop
   if(!file.exists(imgfilename)){
     stop("File does not exist")
-    }
-
-  if(stride > file.size(imgfilename)){
-    warning("Stride is larger than the size of the file")
   }
-  #read the file, if not read probably, stop
 
   imgfile <- read.pnm(imgfilename)
 
@@ -26,6 +21,11 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   pa <- imgfile@grey
   # Duplicate to check for consecutive pixels and overwrite
   original <- imgfile@grey
+
+  if(stride%%length(pa) != any(c(stride,0))){
+    warning("Stride is not relatively prime to image size")
+  }
+  #read the file, if not read probably, stop
 
   #split the character into a vector
   str.char.list <- strsplit(msg, "")[[1]]
