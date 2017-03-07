@@ -35,11 +35,9 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   char.num <- length(str.char.list)
   total.pixs.need <- (char.num - 1) * stride + 1
 
-  # Stop if the number of pixels in the picture is larger than the message
-
-  if((ncol(pa) - startpix +1) * nrow(pa) < total.pixs.need){
-    stop("Not enough space for the message!")
-  }
+  # if((ncol(pa) - startpix +1) * nrow(pa) < total.pixs.need){
+  #   stop("Not enough space for the message!")
+  # }
 
   #now we start to embed the message.
 
@@ -75,10 +73,16 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
           break
         }
         pa.row <- pa.row + stride
+        if(pa.row > length(pa)){
+          stop("Not enough space for the message")
+        }
       }
     }
 
     else{
+      if(pa.row + stride> length(pa)){
+        stop("Not enough space for the message")
+      }
       pa[pa.row <- pa.row+stride] <- utf8ToInt(a) / 128
     }
   }
@@ -119,7 +123,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 }
 
 startpixel <- 2
-stride <- 400
+stride <- 400000
 consec <- NULL
 write.pnm(secretencoder("LLL.pgm","ABCDEFGHIJKLMNOPQRSTUVWXYZ",startpixel,stride),'LLL1.pgm')
 print(secretdecoder("LLL1.pgm",startpixel,stride))
