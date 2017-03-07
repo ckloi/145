@@ -6,7 +6,10 @@
 
 library(pixmap)
 
-printf <- function(...)print(sprintf(...))
+# This function allows for wrap-around of matrix 'mat' and stops index from being 0
+modifyindex <- function(index,mat){
+  return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
+}
 
 
 secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
@@ -50,7 +53,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     for(value in values){
       pixel <- pixel + stride
       # Avoids index being 0
-      pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
+      pixel <- modifyindex(pixel,pa)
       # Check if current pixel is going to be overwritten
       if (pixel %in% check){
         stop("Overwriting ocurred")
@@ -70,7 +73,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         }
         pixel <- pixel + stride
         # Avoids index being 0
-        pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
+        pixel <- modifyindex(pixel,pa)
       }
       # Place value at current pixel, taking wrap around into account
       pa[pixel] <- value
@@ -83,7 +86,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     # Get indices to write to
     indices <- seq(startpix, length(values)*stride, stride)
     # Avoids indices being 0
-    indices <- ifelse(indices%%length(pa),indices%%length(pa),length(pa))
+    indices <- modifyindex(indices,pa)
     pa[indices] <- values
   }
   result <- imgfile
@@ -113,21 +116,21 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   if(is.null(consec)){
     pixel <- pixel + stride
     # Avoids index being 0
-    pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
+    pixel <- modifyindex(pixel,pa)
     # Read every 'stride'th pixel, and add it's corresponding utf value to message
     #   (rounding is needed as division is not always exact)
     while(pa[pixel] != 0){
       message <- c(message, intToUtf8(round(pa[pixel]*128)))
       pixel <- pixel + stride
       # Avoids index being 0
-      pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
+      pixel <- modifyindex(pixel,pa)
     }
   }
   else{
     # Vector containing all positions that have been read
     check <- startpix
     pixel <- pixel + stride
-    pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
+    pixel <- modifyindex(pixel,pa)
     # Loop until null character is encountered
     while(pa[pixel] != 0){
       # Get position of pixels adjacent to the current pixel
@@ -143,7 +146,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
         message <- c(message, intToUtf8(round(pa[pixel]*128)))
       }
       pixel <- pixel + stride
-      pixel <- ifelse(pixel%%length(pa),pixel%%length(pa),length(pa))
+      pixel <- modifyindex(pixel,pa)
     }
   }
   # Combine all read characters into one string
@@ -154,5 +157,5 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 startpixel <- 2
 stride1 <- 23
 consec <- NULL
-write.pnm(secretencoder("LLL.pgm","This sentence should be correct",startpixel,stride1),'LLL1.pgm',2)
-print(secretdecoder("LLL1.pgm",startpixel,stride1,2))
+write.pnm(secretencoder("LLL.pgm","This sentence should be correct",startpixel,stride1),'LLL1.pgm')
+print(secretdecoder("LLL1.pgm",startpixel,stride1))
