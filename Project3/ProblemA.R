@@ -26,7 +26,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   #extract the pixel array
   pa <- imgfile@grey
 
-  if(stride%%length(pa) == 0){
+  if(stride%%nrow(pa) == 0){
     warning("Stride is not relatively prime to image size. Overwriting may occur.")
   }
   if(length(msg) > length(pa)){
@@ -149,12 +149,34 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   return(message)
 }
 
-startpixel <- 6273
-stride1 <- 7163
+startpixel <- 60000
+stride1 <- 511
 consec <- 3
 teststring <- "This is going to be a realy long sentence to test for any overwriting.
   If any overwriting occurs, the program should stop and you will not see this sentence.
   The file should be very small, so as to maximize the probability of overwriting occurring.
-  If you see this paragraph, then the program works."
+  If you see this paragraph, then the program works. Making this longer in hopes of overwrite.
+  Like Reaaaaaaaaallllllllllllyyyyyyyyyyyyyy llllllloooooooooonnnnnnnnngggggggggg. So Long.
+  This will probably be the longest test string you've ever read. This is going to be longer
+  than a 152A lecture with Mukherjee. Yes, it's that long. That class is so boring. There
+  still isn't an overwrite yet. Wtf. Consec isn't null either. Crazy. I'll have to change the
+  values around. Still nothing. How long does this have to be to get an error? Like,for real.
+  I don't even know what to type anymore. I didn't thing the string would have to be this long
+  just to get a conflict. I might just have to resort to printing out a bunch of the same
+  character. Didn't think i'd have to write a novel for this. Still going. The picture is 256x256,
+  so rip this test string. Has to be like 60,000 characters in order to do anything. This is maybe
+  like a few hundred. Ok screw it. Here goes. aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.
+  FINALLY!"
+print(length(strsplit(teststring,split="")[[1]]))
 write.pnm(secretencoder("small_test.pgm",teststring,startpixel,stride1,consec),'small_result.pgm')
 print(secretdecoder("small_result.pgm",startpixel,stride1,consec))
