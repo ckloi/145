@@ -32,13 +32,17 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   values <- utf8ToInt(msg)/128
   values <- c(values,0.0)
 
-  if(!is.null(consec)){
+  if(is.null(consec)){
+    # Get indices to write to
+    indices <- seq(startpix, length(values)*stride, stride)
+    # Avoids indices being 0
+    indices <- modifyindex(indices,pa)
+    pa[indices] <- values
+  }
+
+  else {
     # Vector that contains all positions that have been written to
     check <- startpix
-    # overwrite flag
-    overwrite <- FALSE
-    # First overwrite position
-    firstoverwrite <- 0
     # PLace the first value at startpix
     pa[startpix] <- values[1]
     # Current pixel
@@ -63,41 +67,18 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
           if (!(pixel %in% check)){
             break
           }
-          # If no overwrites have ocurred yet, note the first position the
-          #   overwrite took place. If you get back to this position without
-          #   writing anything, stop.
-          if(!overwrite){
-            firstoverwrite <- pixel
-            overwrite <- TRUE
-          }
-          # If overwrite has ocurred previously, check if you're back where
-          #   the first overwrite took place. If so, stop since endless overwrites
-          #   will occur.
-          else{
-            if(firstoverwrite == pixel){
-              stop("Endless overwrites.")
-            }
-          }
         }
         # Avoids index being 0
         pixel <- modifyindex(pixel+stride,pa)
       }
+
       # Place value at current pixel, taking wrap around into account
       pa[pixel] <- value
       # Add current pixel position to check vector
       check <- c(check, pixel)
-      # Reset overwrite flag
-      overwrite <- FALSE
     }
   }
 
-  else{
-    # Get indices to write to
-    indices <- seq(startpix, length(values)*stride, stride)
-    # Avoids indices being 0
-    indices <- modifyindex(indices,pa)
-    pa[indices] <- values
-  }
   result <- imgfile
   result@grey <- pa
   return(result)
