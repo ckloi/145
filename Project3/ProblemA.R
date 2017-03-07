@@ -158,7 +158,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 #   (since result of mod could be 0, and R starts at 1 for indices)
 modifyindex <- function(index,mat){
   # index %% langth(mat) will always get index, i don't know if this what you want?
-  return(ifelse(length(mat)%%index,index%%length(mat),length(mat)))
+  return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
 }
 
 startpixel <- 60000
