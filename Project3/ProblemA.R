@@ -60,7 +60,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         #   image. If a pixel is written to, it will put FALSE in the corresponding
         #   element of the check matrix.
         checkrow <- pa[c(pa.row+1,pa.row-1)] == original[c(pa.row+1,pa.row-1)]
-        checkcol <- pa[pa.row + nrow(pa)] == original[pa.row - nrow(pa)]
+        checkcol <- pa[pa.row - nrow(pa)] == original[pa.row - nrow(pa)]
         adjacent <- length(checkrow[checkrow == FALSE]) + length(checkcol[checkcol == FALSE])
 
         # Check if current pixel is written to already (TRUE if it is)
@@ -98,7 +98,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   #if file does nto exist, stop
   if(!file.exists(imgfilename)){
     stop("File does not exist")
-    }
+  }
 
   if(stride > file.size(imgfilename)){
     warning("Stride is larger than the size of the file")
@@ -123,7 +123,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 }
 
 startpixel <- 2
-stride <- 400000
+stride <- 400
 consec <- NULL
 write.pnm(secretencoder("LLL.pgm","ABCDEFGHIJKLMNOPQRSTUVWXYZ",startpixel,stride),'LLL1.pgm')
 print(secretdecoder("LLL1.pgm",startpixel,stride))
