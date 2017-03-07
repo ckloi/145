@@ -6,12 +6,6 @@
 
 library(pixmap)
 
-# This function allows for wrap-around of matrix 'mat' and stops index from being 0
-#   (since result of mod could be 0, and R starts at 1 for indices)
-modifyindex <- function(index,mat){
-  return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
-}
-
 
 secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   #if file does nto exist, stop
@@ -41,6 +35,10 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   if(!is.null(consec)){
     # Vector that contains all positions that have been written to
     check <- startpix
+    # overwrite flag
+    overwrite <- FALSE
+    # First overwrite position
+    firstoverwrite <- 0
     # PLace the first value at startpix
     pa[startpix] <- values[1]
     # Current pixel
@@ -61,19 +59,35 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
         # If the amount of Ts in check vector is less than consec, then no conflicts
         #   (TRUE represents an adjacent pixel that has been written to)
         if(length(isadjacent[isadjacent==TRUE]) <= consec){
-          break
+          # If pixel will not be overwritten, break
+          if (!(pixel %in% check)){
+            break
+          }
+          # If no overwrites have ocurred yet, note the first position the
+          #   overwrite took place. If you get back to this position without
+          #   writing anything, stop.
+          if(!overwrite){
+            firstoverwrite <- pixel
+            overwrite <- TRUE
+          }
+          # If overwrite has ocurred previously, check if you're back where
+          #   the first overwrite took place. If so, stop since endless overwrites
+          #   will occur.
+          else{
+            if(firstoverwrite == pixel){
+              stop("Endless overwrites.")
+            }
+          }
         }
         # Avoids index being 0
         pixel <- modifyindex(pixel+stride,pa)
-      }
-      # Check if current pixel is going to be overwritten
-      if (pixel %in% check){
-        stop("Overwriting ocurred")
       }
       # Place value at current pixel, taking wrap around into account
       pa[pixel] <- value
       # Add current pixel position to check vector
       check <- c(check, pixel)
+      # Reset overwrite flag
+      overwrite <- FALSE
     }
   }
 
@@ -149,8 +163,14 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   return(message)
 }
 
+# This function allows for wrap-around of matrix 'mat' and stops index from being 0
+#   (since result of mod could be 0, and R starts at 1 for indices)
+modifyindex <- function(index,mat){
+  return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
+}
+
 startpixel <- 60000
-stride1 <- 511
+stride1 <- 510
 consec <- 3
 teststring <- "This is going to be a realy long sentence to test for any overwriting.
   If any overwriting occurs, the program should stop and you will not see this sentence.
