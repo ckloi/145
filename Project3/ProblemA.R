@@ -31,40 +31,36 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   #   end to represent the end of the message, convert msg into a vector of number
   values <- utf8ToInt(msg)/128
   values <- c(values,0.0)
+  index <- startpix
 
   if(is.null(consec)){
     # Get indices to write to
     indices <- seq(startpix, length(values)*stride, stride)
     # Avoids indices being 0
-    indices <- modifyindex(indices,pa)
+    indices <- wrapAround(indices,pa)
     pa[indices] <- values
   }
 
   else {
-    # Vector that contains all positions that have been written to
-    check <- startpix
-    # PLace the first value at startpix
-    pa[startpix] <- values[1]
-    # Current pixel
-    pixel <- startpix
-
-    for (i in message_split){
+    pixAddress <- vector(length=0)
+    for (i in values){
 
       # check surrounding with # of space in col and row
       neigbors <- getNeighbors(index,pa,consec)
 
-      counter <- 0
+      # counter <- 0
+      endIndex <- wrapAround(index,pa)
 
-      while (length(intersect(neigbors,pixAddress)) > 0  || index %in% pixAddress ){
+      while (length(intersect(neigbors,pixAddress)) > consec  || index %in% pixAddress){
 
         #wrap around
         index <- wrapAround(index+stride,pa)
-        
+
         neighbors <- getNeighbors(index,pa,consec)
 
-        counter <- counter + 1
+        # counter <- counter + 1
 
-        if (counter >= length(pa)){
+        if (index == endIndex){
           # If you are here, you have gone through the entire image without writing
           #   anything, and will continue to do so endlessly, so stop.
           stop("cannot find place")
@@ -73,14 +69,14 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
       #wrap around
       # index <- wrapAround(index,xdim,ydim)
 
-      x[index] <- utf8ToInt(i) / 128
+      pa[index] <- i
       pixAddress <- c(pixAddress,index)
       index <- index + stride + 1
-  }
+    }
     # Place rest of values in appropriate positions
     # for(value in values[2:length(values)]){
     #   # Avoids index being 0
-    #   pixel <- modifyindex(pixel+stride,pa)
+    #   pixel <- wrapAround(pixel+stride,pa)
     #
     #   # First pixel to start checking conflicts at
     #   firstcheck <- pixel
@@ -90,7 +86,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     #     # Get position of pixels adjacent to the current pixel
     #     adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa))
     #     # Avoids an index of 0 (mod is applied across all values in index)
-    #     adjacent <- modifyindex(adjacent,pa)
+    #     adjacent <- wrapAround(adjacent,pa)
     #     # Create a T/F vector based on if positions are in check vector or not
     #     isadjacent <- adjacent %in% check
     #     # If the amount of Ts in check vector is less than consec, then no conflicts
@@ -102,7 +98,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     #       }
     #     }
     #     # Avoids index being 0
-    #     pixel <- modifyindex(pixel+stride,pa)
+    #     pixel <- wrapAround(pixel+stride,pa)
     #
     #     if(pixel == firstcheck){
     #       # If you are here, you have gone through the entire image without writing
@@ -111,12 +107,11 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     #     }
     #   }
 
-      # Place value at current pixel, taking wrap around into account
-      pa[pixel] <- value
-      # Add current pixel position to check vector
-      check <- c(check, pixel)
+      # # Place value at current pixel, taking wrap around into account
+      # pa[pixel] <- value
+      # # Add current pixel position to check vector
+      # check <- c(check, pixel)
     }
-  }
 
   result <- imgfile
   result@grey <- pa
@@ -142,14 +137,14 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   # Vector to hold all read characters
   message <- intToUtf8(round(pa[startpix]*128))
   # Avoids index being 0
-  pixel <- modifyindex(pixel+stride,pa)
+  pixel <- wrapAround(pixel+stride,pa)
 
   if(is.null(consec)){
     # Get the appropriate indices to be read from. Start from startpix and
     #   increment by stride until pa is 0 (null character)
     indices <- seq(startpix,pa[pa==0],stride)
     # Modify the indices to allow for wrap around
-    indices <- modifyindex(indices,pa)
+    indices <- wrapAround(indices,pa)
     # Read and convert the values at the indices into letters
     message <- intToUtf8(round(pa[indices]*128))
   }
@@ -163,7 +158,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
       # Get position of pixels adjacent to the current pixel
       adjacent <- c(pixel+1, pixel-1, pixel+nrow(pa), pixel-nrow(pa))
       # Avoids index being 0
-      adjacent <- modifyindex(adjacent,pa)
+      adjacent <- wrapAround(adjacent,pa)
       # Create a T/F vector based on if positions are in check vector or not
       isadjacent <- adjacent %in% check
       # If the amount of Ts in check vector is less than consec, then no conflicts
@@ -173,7 +168,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
         message <- c(message, intToUtf8(round(pa[pixel]*128)))
         check <- c(check,pixel)
       }
-      pixel <- modifyindex(pixel+stride,pa)
+      pixel <- wrapAround(pixel+stride,pa)
     }
   }
 
@@ -184,7 +179,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 
 # This function allows for wrap-around of matrix 'mat' and stops index from being 0
 #   (since result of mod could be 0, and R starts at 1 for indices)
-# modifyindex <- function(index,mat){
+# wrapAround <- function(index,mat){
 #   return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
 # }
 
@@ -194,15 +189,14 @@ getNeighbors <- function(index,mat,consec){
 
   maxIndex <- length(mat)
 
-  for (i in 1:consec){
-      # Left and right pixels
-      neigbors <- c(neigbors, (index + nrow(mat) ) %% maxIndex)
-      neigbors <- c(neigbors, (index - nrow(mat) ) %% maxIndex)
+  # Left and right pixels
+  neigbors <- c(neigbors, (index + nrow(mat) ) %% maxIndex)
+  neigbors <- c(neigbors, (index - nrow(mat) ) %% maxIndex)
 
-      # Top and bottom pixels
-      neigbors <- c(neigbors, (index +  i ) %% maxIndex)
-      neigbors <- c(neigbors, (index -  i ) %% maxIndex)
-  }
+  # Top and bottom pixels
+  neigbors <- c(neigbors, (index +  1 ) %% maxIndex)
+  neigbors <- c(neigbors, (index -  1 ) %% maxIndex)
+
   # if the index is 0 , set that to max Index aka last index
   neigbors[neigbors==0] <- maxIndex
   return(neigbors)
