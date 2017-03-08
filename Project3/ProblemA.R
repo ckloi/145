@@ -14,20 +14,27 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   }
 
   imgfile <- read.pnm(imgfilename)
+
+  # Check if file opened correctly
   if(is.null(imgfile)){
     stop("File did not open correctly")
   }
+
   #extract the pixel array
   pa <- imgfile@grey
   original <- imgfile@grey
 
+  #Check if stride is 0
   if(stride == 0){
     stop('Stride cannot be 0')
   }
 
+  # Check if stride is relatively prime to image size
   if(length(pa)%%stride == 0){
     warning("Stride is not relatively prime to image size. Overwriting may occur.")
   }
+
+  # Check if the length of the message is larger than the size of the image
   if(nchar(msg) > length(pa)){
     stop("Not enough space for the message.")
   }
@@ -48,26 +55,35 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   else {
     pixAddress <- vector(length=0)
     index <- startpix
+    # Go through all elements of values and try to write them to the image
     for (i in values){
       while(1){
+        # If current pixel will not be overwritten, check column for conflict
         if(!(index %in% pixAddress)){
           sumUp <- checkUp(index,pixAddress,pa)
           sumCol <- checkDown(index,pixAddress,pa,sumUp)
+          # If column has no conflict, check row
           if(sumCol <= consec-1){
             sumLeft <- checkLeft(index,pixAddress,pa)
             sumRow <- checkRight(index,pixAddress,pa,sumLeft)
+            # If row has no conflict, current pixel is ok to write to, so break
             if(sumRow <= consec-1){
               break
             }
           }
         }
+        # If any of the above checks raise a conflicts, move on to the next index
         index <- wrapAround(index+stride,pa)
+        # If the next index is the starting pixel, overwrite or previous conflicts
+        #   will endlessly occur, so stop
         if(index == startpix){
           stop("Cannot find place")
         }
       }
 
+      # Write value to current index
       pa[index] <- i
+      # Record that current index has been written to
       pixAddress <- c(pixAddress,index)
       index <- wrapAround(index+stride,pa)
     }
@@ -103,27 +119,34 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   }
 
   else{
-    # Vector to hold positions
+    # Vector to hold positions(initialized with starting pixel)
     pixAddress <- startpix
-    # Vector to hold all read characters
+    # Vector to hold all read characters(initialized with first character read)
     message <- intToUtf8(round(pa[startpix]*128))
     index <- wrapAround(startpix+stride,pa)
+    # Loop until you reach the null character
     while(pa[index] != 0){
       while(1){
+        # If pixel will not be overwritten, check columns for consecutive pixels
         if(!(index %in% pixAddress)){
           sumUp <- checkUp(index,pixAddress,pa)
           sumCol <- checkDown(index,pixAddress,pa,sumUp)
+          # If no conflicts in column, check row
           if(sumCol <= consec-1){
             sumLeft <- checkLeft(index,pixAddress,pa)
             sumRow <- checkRight(index,pixAddress,pa,sumLeft)
+            # If no conflict in row, pixel is ok to write to, so break
             if(sumRow <= consec-1){
               break
             }
           }
         }
+        # If any of the above checks raise a conflict, move to the next index
         index <- wrapAround(index+stride,pa)
       }
+      # Convert the current pixel and add it to the message vector
       message <- c(message, intToUtf8(round(pa[index]*128)))
+      # Record that current index has been read
       pixAddress <- c(pixAddress, index)
       index <- wrapAround(index+stride,pa)
     }
@@ -134,6 +157,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   return(message)
 }
 
+# Returns number of consecutive pixels above index
 checkUp <- function(index,array,pa,counter=0,i=1){
   if(i > consec-1){
     return(counter)
@@ -146,6 +170,7 @@ checkUp <- function(index,array,pa,counter=0,i=1){
   return(counter)
 }
 
+# Returns number of consecutive pixels below index
 checkDown <- function(index,array,pa,counter,i=1){
   if(i > consec-1){
     return(counter)
@@ -157,6 +182,7 @@ checkDown <- function(index,array,pa,counter,i=1){
   return(counter)
 }
 
+# Returns number of consecutive pixels to the left of index
 checkLeft <- function(index,array,pa,counter=0,i=1){
   if(i > consec-1){
     return(counter)
@@ -169,6 +195,7 @@ checkLeft <- function(index,array,pa,counter=0,i=1){
   return(counter)
 }
 
+# Returns number of consecutive pixels to the right of index
 checkRight <- function(index,array,pa,counter=0,i=1){
   if(i > consec-1){
     return(counter)
@@ -180,25 +207,6 @@ checkRight <- function(index,array,pa,counter=0,i=1){
   }
   return(counter)
 }
-# # Returns the positon of all neighboring pixels of index
-# getNeighbors <- function(index,mat,consec){
-#   neigbors <- vector(length=0)
-#
-#   maxIndex <- length(mat)
-#
-#   for (i in 1:consec){
-#       # Left and right pixels
-#       neigbors <- c(neigbors, (index + i*nrow(mat) ) %% maxIndex)
-#       neigbors <- c(neigbors, (index - i*nrow(mat) ) %% maxIndex)
-#
-#       # Top and bottom pixels
-#       neigbors <- c(neigbors, (index +  i ) %% maxIndex)
-#       neigbors <- c(neigbors, (index -  i ) %% maxIndex)
-#   }
-#   # if the index is 0 , set that to max Index aka last index
-#   neigbors[neigbors==0] <- maxIndex
-#   return(neigbors)
-# }
 
 # Modifies index to wrap around if needed
 wrapAround  <- function(index,mat){
