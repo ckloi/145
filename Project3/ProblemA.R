@@ -23,7 +23,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   if(length(pa)%%stride == 0){
     warning("Stride is not relatively prime to image size. Overwriting may occur.")
   }
-  if(nchar(msg) > length(pa))
+  if(nchar(msg) > length(pa)){
     stop("Not enough space for the message.")
   }
 
