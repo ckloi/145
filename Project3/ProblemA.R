@@ -47,39 +47,69 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     pa[startpix] <- values[1]
     # Current pixel
     pixel <- startpix
-    # Place rest of values in appropriate positions
-    for(value in values[2:length(values)]){
-      # Avoids index being 0
-      pixel <- modifyindex(pixel+stride,pa)
 
-      # First pixel to start checking conflicts at
-      firstcheck <- pixel
+    for (i in message_split){
 
-      # Loop until position with no conflicts is found
-      while(1){
-        # Get position of pixels adjacent to the current pixel
-        adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa))
-        # Avoids an index of 0 (mod is applied across all values in index)
-        adjacent <- modifyindex(adjacent,pa)
-        # Create a T/F vector based on if positions are in check vector or not
-        isadjacent <- adjacent %in% check
-        # If the amount of Ts in check vector is less than consec, then no conflicts
-        #   (TRUE represents an adjacent pixel that has been written to)
-        if(length(isadjacent[isadjacent==TRUE]) <= consec){
-          # If pixel will not be overwritten, break
-          if (!(pixel %in% check)){
-            break
-          }
-        }
-        # Avoids index being 0
-        pixel <- modifyindex(pixel+stride,pa)
+      # check surrounding with # of space in col and row
+      neigbors <- getNeighbors(index,pa,consec)
 
-        if(pixel == firstcheck){
+      counter <- 0
+
+      while (length(intersect(neigbors,pixAddress)) > 0  || index %in% pixAddress ){
+
+        #wrap around
+        index <- wrapAround(index+stride,pa)
+        
+        neighbors <- getNeighbors(index,pa,consec)
+
+        counter <- counter + 1
+
+        if (counter >= length(pa)){
           # If you are here, you have gone through the entire image without writing
           #   anything, and will continue to do so endlessly, so stop.
-          stop("Endless conflicts")
+          stop("cannot find place")
         }
       }
+      #wrap around
+      # index <- wrapAround(index,xdim,ydim)
+
+      x[index] <- utf8ToInt(i) / 128
+      pixAddress <- c(pixAddress,index)
+      index <- index + stride + 1
+  }
+    # Place rest of values in appropriate positions
+    # for(value in values[2:length(values)]){
+    #   # Avoids index being 0
+    #   pixel <- modifyindex(pixel+stride,pa)
+    #
+    #   # First pixel to start checking conflicts at
+    #   firstcheck <- pixel
+    #
+    #   # Loop until position with no conflicts is found
+    #   while(1){
+    #     # Get position of pixels adjacent to the current pixel
+    #     adjacent <- c(pixel+1,pixel-1,pixel+nrow(pa),pixel-nrow(pa))
+    #     # Avoids an index of 0 (mod is applied across all values in index)
+    #     adjacent <- modifyindex(adjacent,pa)
+    #     # Create a T/F vector based on if positions are in check vector or not
+    #     isadjacent <- adjacent %in% check
+    #     # If the amount of Ts in check vector is less than consec, then no conflicts
+    #     #   (TRUE represents an adjacent pixel that has been written to)
+    #     if(length(isadjacent[isadjacent==TRUE]) <= consec){
+    #       # If pixel will not be overwritten, break
+    #       if (!(pixel %in% check)){
+    #         break
+    #       }
+    #     }
+    #     # Avoids index being 0
+    #     pixel <- modifyindex(pixel+stride,pa)
+    #
+    #     if(pixel == firstcheck){
+    #       # If you are here, you have gone through the entire image without writing
+    #       #   anything, and will continue to do so endlessly, so stop.
+    #       stop("Endless conflicts")
+    #     }
+    #   }
 
       # Place value at current pixel, taking wrap around into account
       pa[pixel] <- value
