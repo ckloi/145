@@ -31,7 +31,6 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   #   end to represent the end of the message, convert msg into a vector of number
   values <- utf8ToInt(msg)/128
   values <- c(values,0.0)
-  index <- startpix
 
   if(is.null(consec)){
     # Get indices to write to
@@ -43,20 +42,21 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
 
   else {
     pixAddress <- vector(length=0)
+    index <- startpix
     for (i in values){
 
       # check surrounding with # of space in col and row
-      neigbors <- getNeighbors(index,pa,consec)
+      neighbors <- getNeighbors(index,pa)
 
       # counter <- 0
       endIndex <- wrapAround(index,pa)
 
-      while (length(intersect(neigbors,pixAddress)) > consec  || index %in% pixAddress){
+      while (length(intersect(neighbors,pixAddress)) > consec  || index %in% pixAddress){
 
         #wrap around
         index <- wrapAround(index+stride,pa)
 
-        neighbors <- getNeighbors(index,pa,consec)
+        neighbors <- getNeighbors(index,pa)
 
         # counter <- counter + 1
 
@@ -71,7 +71,7 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
 
       pa[index] <- i
       pixAddress <- c(pixAddress,index)
-      index <- index + stride + 1
+      index <- wrapAround(index+stride,pa)
     }
     # Place rest of values in appropriate positions
     # for(value in values[2:length(values)]){
@@ -155,15 +155,12 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
     count <- 0
     # Loop until null character is encountered
     while(pa[pixel] != 0){
-      # Get position of pixels adjacent to the current pixel
-      adjacent <- c(pixel+1, pixel-1, pixel+nrow(pa), pixel-nrow(pa))
-      # Avoids index being 0
-      adjacent <- wrapAround(adjacent,pa)
+      neighbors <- getNeighbors(pixel,pa)
       # Create a T/F vector based on if positions are in check vector or not
-      isadjacent <- adjacent %in% check
+      neighborsInCheck <- neighbors %in% check
       # If the amount of Ts in check vector is less than consec, then no conflicts
       #   (TRUE represents an adjacent pixel that has been written to)
-      if(length(isadjacent[isadjacent==TRUE]) <= consec){
+      if(length(neighborsInCheck[neighborsInCheck==TRUE]) <= consec){
         # Read current pixel and add it's corresponding utf value to message
         message <- c(message, intToUtf8(round(pa[pixel]*128)))
         check <- c(check,pixel)
@@ -184,22 +181,15 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 # }
 
 # Returns the positon of all neighboring pixels of index
-getNeighbors <- function(index,mat,consec){
-  neigbors <- vector(length=0)
-
+getNeighbors <- function(index,mat){
   maxIndex <- length(mat)
 
-  # Left and right pixels
-  neigbors <- c(neigbors, (index + nrow(mat) ) %% maxIndex)
-  neigbors <- c(neigbors, (index - nrow(mat) ) %% maxIndex)
-
-  # Top and bottom pixels
-  neigbors <- c(neigbors, (index +  1 ) %% maxIndex)
-  neigbors <- c(neigbors, (index -  1 ) %% maxIndex)
+  # Get bottom, top, right, and left neighbor positions, respectively
+  neighbors <- c(index + 1, index - 1, index + nrow(mat), index - nrow(mat)) %% maxIndex
 
   # if the index is 0 , set that to max Index aka last index
-  neigbors[neigbors==0] <- maxIndex
-  return(neigbors)
+  neighbors[neighbors==0] <- maxIndex
+  return(neighbors)
 }
 
 # Modifies index to wrap around if needed
@@ -211,7 +201,7 @@ wrapAround  <- function(index,mat){
 }
 
 startpixel <- 60000
-stride1 <- 513
+stride1 <- 512
 consec <- 3
 teststring <- "This is going to be a realy long sentence to test for any overwriting.
   If any overwriting occurs, the program should stop and you will not see this sentence.
