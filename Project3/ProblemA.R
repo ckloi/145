@@ -45,41 +45,23 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
     pixAddress <- vector(length=0)
     index <- startpix
     for (i in values){
-
-      # counter <- 0
-      endIndex <- index
       while(1){
-        sumUp <- checkUp(index,pixAddress)
-        sumCol <- checkDown(index,pixAddress,sumUp)
-        if(sumCol <= consec-1){
-          sumLeft <- checkLeft(index,pixAddress,nrow(pa))
-          sumRow <- checkRight(index,pixAddress,nrow(pa),sumLeft)
-          if(sumRow <= consec-1){
-            break
+        if(!(index %in% pixAddress)){
+          sumUp <- checkUp(index,pixAddress,pa)
+          sumCol <- checkDown(index,pixAddress,pa,sumUp)
+          if(sumCol <= consec-1){
+            sumLeft <- checkLeft(index,pixAddress,pa)
+            sumRow <- checkRight(index,pixAddress,pa,sumLeft)
+            if(sumRow <= consec-1){
+              break
+            }
           }
         }
         index <- wrapAround(index+stride,pa)
-        if(endIndex == index){
+        if(index == startpix){
           stop("Cannot find place")
         }
       }
-      # while (length(intersect(neighbors,pixAddress)) > 0 || index %in% pixAddress){
-      #
-      #   #wrap around
-      #   index <- wrapAround(index+stride,pa)
-      #
-      #   neighbors <- getNeighbors(index,pa,consec)
-      #
-      #   # counter <- counter + 1
-      #
-      #   if (index == endIndex){
-      #     # If you are here, you have gone through the entire image without writing
-      #     #   anything, and will continue to do so endlessly, so stop.
-      #     stop("cannot find place")
-      #   }
-      # }
-      #wrap around
-      # index <- wrapAround(index,xdim,ydim)
 
       pa[index] <- i
       pixAddress <- c(pixAddress,index)
@@ -117,20 +99,22 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   }
 
   else{
-    # Vector to hold all read characters
-    message <- vector(length=0)
     # Vector to hold positions
-    pixAddress <- vector(length=0)
-    index <- startpix
+    pixAddress <- startpix
+    # Vector to hold all read characters
+    message <- intToUtf8(round(pa[startpix]*128))
+    index <- wrapAround(startpix+stride,pa)
     while(pa[index] != 0){
       while(1){
-        sumUp <- checkUp(index,pixAddress)
-        sumCol <- checkDown(index,pixAddress,sumUp)
-        if(sumCol <= consec-1){
-          sumLeft <- checkLeft(index,pixAddress,nrow(pa))
-          sumRow <- checkRight(index,pixAddress,nrow(pa),sumLeft)
-          if(sumRow <= consec-1){
-            break
+        if(!(index %in% pixAddress)){
+          sumUp <- checkUp(index,pixAddress,pa)
+          sumCol <- checkDown(index,pixAddress,pa,sumUp)
+          if(sumCol <= consec-1){
+            sumLeft <- checkLeft(index,pixAddress,pa)
+            sumRow <- checkRight(index,pixAddress,pa,sumLeft)
+            if(sumRow <= consec-1){
+              break
+            }
           }
         }
         index <- wrapAround(index+stride,pa)
@@ -146,46 +130,49 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   return(message)
 }
 
-checkUp <- function(index,array,counter=0,i=1){
+checkUp <- function(index,array,pa,counter=0,i=1){
   if(i > consec-1){
     return(counter)
   }
 
-  if(index-i %in% array){
-    return(checkUp(index,array,counter+1,i+1))
+  check <- wrapAround(index-i,pa)
+  if(check %in% array){
+    return(checkDown(check,array,pa,counter+1,i+1))
   }
   return(counter)
 }
 
-checkDown <- function(index,array,counter,i=1){
+checkDown <- function(index,array,pa,counter,i=1){
   if(i > consec-1){
     return(counter)
   }
-
-  if(index+i %in% array){
-    return(checkDown(index,array,counter+1,i+1))
+  check <- wrapAround(index+i,pa)
+  if(check %in% array){
+    return(checkDown(check,array,pa,counter+1,i+1))
   }
   return(counter)
 }
 
-checkLeft <- function(index,array,nrow,counter=0,i=1){
+checkLeft <- function(index,array,pa,counter=0,i=1){
   if(i > consec-1){
     return(counter)
   }
 
-  if(index-i*nrow %in% array){
-    return(checkLeft(index,array,nrow,counter+1,i+1))
+  check <- wrapAround(index-i*nrow(pa),pa)
+  if(check %in% array){
+    return(checkRight(check,array,pa,counter+1,i+1))
   }
   return(counter)
 }
 
-checkRight <- function(index,array,nrow,counter=0,i=1){
+checkRight <- function(index,array,pa,counter=0,i=1){
   if(i > consec-1){
     return(counter)
   }
 
-  if(index+i*nrow %in% array){
-    return(checkRight(index,array,nrow,counter+1,i+1))
+  check <- wrapAround(index+i*nrow(pa),pa)
+  if(check %in% array){
+    return(checkRight(check,array,pa,counter+1,i+1))
   }
   return(counter)
 }
@@ -217,9 +204,17 @@ wrapAround  <- function(index,mat){
   return(index)
 }
 
-startpixel <- 45
-stride1 <- 63
-consec <- 4
-teststring <- "This is going to be a realy long sentence to test for any overwriting."
+startpixel <- 78
+stride1 <- 511
+consec <- 2
+teststring <- "This is going to be a realy long sentence to test for any overwriting.
+              This is going to be a realy long sentence to test for any overwriting.
+              This is going to be a realy long sentence to test for any overwriting.
+              This is going to be a realy long sentence to test for any overwriting.
+              This is going to be a realy long sentence to test for any overwriting.
+              This is going to be a realy long sentence to test for any overwriting.
+              This is going to be a realy long sentence to test for any overwriting.
+              This is going to be a realy long sentence to test for any overwriting."
+
 write.pnm(secretencoder("small_test.pgm",teststring,startpixel,stride1,consec),'small_result.pgm')
 print(secretdecoder("small_result.pgm",startpixel,stride1,consec))
