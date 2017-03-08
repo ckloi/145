@@ -115,14 +115,18 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   pixel <- modifyindex(pixel+stride,pa)
 
   if(is.null(consec)){
-    # Read every 'stride'th pixel, and add it's corresponding utf value to message
-    #   until null character is reached (rounding is needed as division is not
-    #   always exact)
-    while(pa[pixel] != 0){
-      message <- c(message, intToUtf8(round(pa[pixel]*128)))
-      # Avoids index being 0
-      pixel <- modifyindex(pixel+stride,pa)
-    }
+    # Get the appropriate indices to be read from. Start from startpix and
+    #   increment by stride until pa is 0 (null character)
+    indices <- seq(startpix,pa[pa==0],stride)
+    # Modify the indices to allow for wrap around
+    indices <- modifyindex(indices,pa)
+    # Read and convert the values at the indices into letters
+    message <- intToUtf8(round(pa[indices]*128))
+    # while(pa[pixel] != 0){
+    #   message <- c(message, intToUtf8(round(pa[pixel]*128)))
+    #   # Avoids index being 0
+    #   pixel <- modifyindex(pixel+stride,pa)
+    # }
   }
 
   else{
