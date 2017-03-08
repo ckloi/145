@@ -20,16 +20,15 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   #extract the pixel array
   pa <- imgfile@grey
 
-  if(length(pa)%%stride == 0){
+  if(stride%%nrow(pa) == 0){
     warning("Stride is not relatively prime to image size. Overwriting may occur.")
   }
-  #this length of a string will be 1, length(msg) will not work! 
-  if(nchar(msg) > length(pa)){
+  if(length(msg) > length(pa)){
     stop("Not enough space for the message.")
   }
 
   # Appropriate numeric values that will be added to the picture, with 0 at the
-  #   end to represent the end of the message, convert msg to a vector of number.
+  #   end to represent the end of the message
   values <- utf8ToInt(msg)/128
   values <- c(values,0.0)
 
@@ -123,11 +122,6 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
     indices <- modifyindex(indices,pa)
     # Read and convert the values at the indices into letters
     message <- intToUtf8(round(pa[indices]*128))
-    # while(pa[pixel] != 0){
-    #   message <- c(message, intToUtf8(round(pa[pixel]*128)))
-    #   # Avoids index being 0
-    #   pixel <- modifyindex(pixel+stride,pa)
-    # }
   }
 
   else{
@@ -161,7 +155,6 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 # This function allows for wrap-around of matrix 'mat' and stops index from being 0
 #   (since result of mod could be 0, and R starts at 1 for indices)
 modifyindex <- function(index,mat){
-  # index %% langth(mat) will always get index, i don't know if this what you want?
   return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
 }
 
