@@ -48,20 +48,15 @@ nbyte <- function(drname, filelist, arg) {
   total.bytes <- 0
 
   for (f in filelist) {
-    arg + file.info(f)$size
+    total.bytes <- total.bytes + file.info(f)$size
   }
+
+  arg <- total.bytes
 
 }
 
 #remove all the empty directories.
 rmemptydirs <- function(drname, filelist, arg) {
-#this is not neccessary since we make filelist only contain file in walk
-#   for(file in filelist){
-#     if (file.info(file)$isdir){
-#       setwd(file)
-#       rmemptydirs(file,dir(),arg)
-#     }
-#   }
   if (length(filelist) == 0) {
       setwd("..")
       file.remove(drname)
@@ -70,6 +65,6 @@ rmemptydirs <- function(drname, filelist, arg) {
 }
 
 getwd()
-print(walk("a", nfiles, 0))
+print(walk("a", nbyte, 0))
 getwd()
 print(walk('a',rmemptydirs,0))
