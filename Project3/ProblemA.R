@@ -21,6 +21,10 @@ secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
   pa <- imgfile@grey
   original <- imgfile@grey
 
+  if(stride == 0){
+    stop('Stride cannot be 0')
+  }
+
   if(length(pa)%%stride == 0){
     warning("Stride is not relatively prime to image size. Overwriting may occur.")
   }
@@ -205,7 +209,7 @@ wrapAround  <- function(index,mat){
 }
 
 startpixel <- 78
-stride1 <- 511
+stride1 <- 0
 consec <- 2
 teststring <- "This is going to be a realy long sentence to test for any overwriting.
               This is going to be a realy long sentence to test for any overwriting.
