@@ -154,8 +154,36 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
 
 # This function allows for wrap-around of matrix 'mat' and stops index from being 0
 #   (since result of mod could be 0, and R starts at 1 for indices)
-modifyindex <- function(index,mat){
-  return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
+# modifyindex <- function(index,mat){
+#   return(ifelse(index%%length(mat),index%%length(mat),length(mat)))
+# }
+
+# Returns the positon of all neighboring pixels of index
+getNeighbors <- function(index,mat,consec){
+  neigbors <- vector(length=0)
+
+  maxIndex <- length(mat)
+
+  for (i in 1:consec){
+      # Left and right pixels
+      neigbors <- c(neigbors, (index + nrow(mat) ) %% maxIndex)
+      neigbors <- c(neigbors, (index - nrow(mat) ) %% maxIndex)
+
+      # Top and bottom pixels
+      neigbors <- c(neigbors, (index +  i ) %% maxIndex)
+      neigbors <- c(neigbors, (index -  i ) %% maxIndex)
+  }
+  # if the index is 0 , set that to max Index aka last index
+  neigbors[neigbors==0] <- maxIndex
+  return(neigbors)
+}
+
+# Modifies index to wrap around if needed
+wrapAround  <- function(index,mat){
+  if (index > length(mat)){
+    index <- index - length(mat)
+  }
+  return(index)
 }
 
 startpixel <- 60000
