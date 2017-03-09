@@ -6,100 +6,243 @@
 
 library(pixmap)
 
-printf <- function(...)print(sprintf(...))
-
 
 secretencoder <- function(imgfilename,msg,startpix,stride,consec = NULL){
+  #if file does not exist, stop
+  if(!file.exists(imgfilename)){
+    stop("File does not exist")
+  }
+  
+  imgfile <- read.pnm(imgfilename)
+  
+  # Check if file opened correctly
+  if(is.null(imgfile)){
+    stop("File did not open correctly")
+  }
+  
+  #extract the pixel array
+  pa <- imgfile@grey
+  original <- imgfile@grey
+  
+  #Check if stride is 0
+  if(stride == 0){
+    stop('Stride cannot be 0')
+  }
+  
+  # Check if stride is relatively prime to image size
+  if(length(pa)%%stride == 0){
+    warning("Stride is not relatively prime to image size. Overwriting may occur.")
+  }
+  
+  # Check if the length of the message is larger than the size of the image
+  if(nchar(msg) > length(pa)){
+    stop("Not enough space for the message.")
+  }
+  
+  # Appropriate numeric values that will be added to the picture, with 0 at the
+  #   end to represent the end of the message, convert msg into a vector of number
+  values <- utf8ToInt(msg)/128
+  values <- c(values,0.0)
+  
+  if(is.null(consec)){
+    # Get indices to write to
+    indices <- seq(startpix, length(values)*stride, stride)
+    # Avoids indices being 0
+    indices <- wrapAround(indices,pa)
+    pa[indices] <- values
+  }
+  
+  else {
+    pixAddress <- vector(length=0)
+    index <- startpix
+    # Go through all elements of values and try to write them to the image
+    for (i in values){
+      while(1){
+        # If current pixel will not be overwritten, check column for conflict
+        if(!(index %in% pixAddress)){
+          sumUpDown <- checkUp(index,pixAddress,pa, consec) +  checkDown(index,pixAddress,pa, consec)
+          # If column has no conflict, check row
+          if(sumUpDown <= consec-1){
+            sumLeftRight <- checkLeft(index,pixAddress,pa, consec) + checkRight(index,pixAddress,pa,consec)
+            # If row has no conflict, current pixel is ok to write to, so break
+            if(sumLeftRight <= consec-1){
+              break
+            }
+          }
+        }
+        # If any of the above checks raise a conflicts, move on to the next index
+        index <- wrapAround(index+stride,pa)
+        # If the next index is the starting pixel, overwrite or previous conflicts
+        #   will endlessly occur, so stop
+        if(index == startpix){
+          stop("Cannot find place")
+        }
+      }
+      
+      # Write value to current index
+      pa[index] <- i
+      # Record that current index has been written to
+      pixAddress <- c(pixAddress,index)
+      index <- wrapAround(index+stride,pa)
+    }
+  }
+  result <- imgfile
+  result@grey <- pa
+  return(result)
+  
+}
+
+secretdecoder <- function(imgfilename,startpix,stride,consec=NULL){
   #if file does nto exist, stop
   if(!file.exists(imgfilename)){
     stop("File does not exist")
-    }
-
+  }
+  
   if(stride > file.size(imgfilename)){
     warning("Stride is larger than the size of the file")
   }
   #read the file, if not read probably, stop
-
+  
   imgfile <- read.pnm(imgfilename)
-
-  #extract the pixel array
   pa <- imgfile@grey
-  # Duplicate to check for consecutive pixels and overwrite
-  original <- imgfile@grey
-  nrow(pa)
-  ncol(pa)
-
-  #split the character into a vector
-  str.char.list <- strsplit(msg, "")[[1]]
-
-  #need to check if the pixel array have enough space for the message
-  #the total number pixels that we need is
-  char.num <- length(str.char.list)
-  total.pixs.need <- (char.num - 1) * stride + 1
-
-  # Stop if the number of pixels in the picture is larger than the message
-
-  if((ncol(pa) - startpix +1) * nrow(pa) < total.pixs.need){
-    stop("Not enough space for the message!")
+  
+  if(is.null(consec)){
+    # Get the appropriate indices to be read from. Start from startpix and
+    #   increment by stride until pa is 0 (null character)
+    indices <- seq(startpix,pa[pa==0],stride)
+    # Modify the indices to allow for wrap around
+    indices <- wrapAround(indices,pa)
+    # Read and convert the values at the indices into letters
+    message <- intToUtf8(round(pa[indices]*128))
   }
-
-  # We only need to check for consectutive bits if consec is not NULL
-  # Otherwise, we check for consec number of consecutive bits
-
-  #now we start to embed the message.
-
-  # Place the first pixel in and set row equal to startpix
-  pa[startpix] <- utf8ToInt(str.char.list[1]) / 128
-  pa.row <- startpix
-
-  for(a in str.char.list[2:length(str.char.list)]){
-    #change the char to the destination pixel
-    #print(a)
-    printf("index is [%d]",pa.row)
-
-    # Check for adjacent pixels by comparing changed picture with original
-    #   (only if consec is not NULL)
-
-    if(!is.null(consec)){
-      pa.row <- pa.row + stride
-      # As long as adjacent >= consec, you must keep moving until you find a
-      #   spot that has < consec adjacent pixels.
+  
+  else{
+    # Vector to hold positions(initialized with starting pixel)
+    pixAddress <- startpix
+    # Vector to hold all read characters(initialized with first character read)
+    message <- intToUtf8(round(pa[startpix]*128))
+    index <- wrapAround(startpix+stride,pa)
+    # Loop until you reach the null character
+    while(pa[index] != 0){
       while(1){
-        # Check each pixel directly adjacent to current one (diagonals don't count).
-        #   Takes all adjacent pixels of current pixel and compares to original
-        #   image. If a pixel is written to, it will put FALSE in the corresponding
-        #   element of the check matrix.
-        checkrow <- pa[c(pa.row+1,pa.row-1)] == original[c(pa.row+1,pa.row-1)]
-        checkcol <- pa[pa.row + nrow(pa)] == original[pa.row - nrow(pa)]
-        adjacent <- length(checkrow[checkrow == FALSE]) + length(checkcol[checkcol == FALSE])
-
-        # Check if current pixel is written to already (TRUE if it is)
-        overwrite <- pa[pa.row] != original[pa.row]
-
-        # Check how many FALSE elements are in the check matrix. This will tell
-        #   us how many consecutive pixels surround the current one.
-        if (adjacent < consec && !overwrite){
-          pa[pa.row] <- utf8ToInt(a) / 128
-          break
+        # If pixel will not be overwritten, check columns for consecutive pixels
+        if(!(index %in% pixAddress)){
+          sumUpDown <- checkUp(index,pixAddress,pa, consec) +  checkDown(index,pixAddress,pa, consec)
+          # If no conflicts in column, check row
+          if(sumUpDown <= consec-1){
+            sumLeftRight <- checkLeft(index,pixAddress,pa, consec) + checkRight(index,pixAddress,pa,consec)
+            # If no conflict in row, pixel is ok to write to, so break
+            if(sumLeftRight <= consec-1){
+              break
+            }
+          }
         }
-        pa.row <- pa.row + stride
+        # If any of the above checks raise a conflict, move to the next index
+        index <- wrapAround(index+stride,pa)
       }
+      # Convert the current pixel and add it to the message vector
+      message <- c(message, intToUtf8(round(pa[index]*128)))
+      # Record that current index has been read
+      pixAddress <- c(pixAddress, index)
+      index <- wrapAround(index+stride,pa)
     }
-
-    else{
-      pa[pa.row <- pa.row+stride] <- utf8ToInt(a) / 128
-    }
-
-    # Add null character (0) at end of message
-    pa[pa.row] <- 0.0
-
-    print(pa[pa.row])
   }
-  View(pa)
-  result <- imgfile
-  result@grey <- pa
-  return(result)
-
+  # Combine all read characters into one string
+  message <- paste(message,collapse='')
+  return(message)
 }
 
-secretencoder("LLL.pgm","hello",2,400,3)
+checkUp <- function(index,array,pa,times){
+  
+  counter <- 0
+  
+  for ( i in 1:times ){
+    
+    check <- wrapAround(index-i,pa)
+    
+    if (check %in% array){
+      counter <- counter + 1
+    }else{
+      break
+    }
+    
+  }
+  
+  return(counter)
+}
+
+checkDown <- function(index,array,pa,times){
+  
+  counter <- 0
+  
+  for ( i in 1:times ){
+    
+    check <- wrapAround(index+i,pa)
+    
+    if (check %in% array){
+      counter <- counter + 1
+    }else{
+      break
+    }
+    
+  }
+  
+  return(counter)
+}
+checkLeft <- function(index,array,pa,times){
+  
+  counter <- 0
+  
+  for ( i in 1:times ){
+    
+    check <- wrapAround( index - i*nrow(pa),pa)
+    
+    if (check %in% array){
+      counter <- counter + 1
+    }else{
+      break
+    }
+    
+  }
+  
+  return(counter)
+}
+checkRight <- function(index,array,pa,times){
+  
+  counter <- 0
+  
+  for ( i in 1:times ){
+    
+    check <- wrapAround(index + i*nrow(pa),pa)
+    
+    if (check %in% array){
+      counter <- counter + 1
+    }else{
+      break
+    }
+    
+  }
+  
+  return(counter)
+}
+
+wrapAround  <- function(index,mat){
+  
+  index <- index %% length(mat)
+  
+  if (index == 0 ){
+    index <- length(mat)
+  }
+  
+  return(index)
+}
+
+
+startpixel <- 5000
+stride1 <- 10000
+consec <- 1
+teststring <- "This is going to be a realy long sentence to test for any overwriting.
+This is going to be a realy long sentence to test for"
+
+write.pnm(secretencoder("LLL.pgm",teststring,startpixel,stride1,consec),'empty_result.pgm')
+print(secretdecoder("empty_result.pgm",startpixel,stride1,consec))
