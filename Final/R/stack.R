@@ -3,49 +3,41 @@
 
 Stack <- function()
 {
-  
-  args <- list(
-    arr <- vector(length=0),
-    size <- 0
-  )
-  
-  ## Set the name for the class
-  
-  
-  class(args) <- append(class(args),"Stack")
-  
-  return(args)
+    
+    args <- list(
+    arr <- vector(length=0)
+    )
+    
+    ## Set the name for the class
+    
+    
+    class(args) <- append(class(args),"Stack")
+    
+    return(args)
 }
 
 
 push <- function(obj, newValue)
 {
-  print("Calling the base push function")
-  UseMethod("push",obj)
+    UseMethod("push",obj)
 }
 
-pop <- function(obj, newValue)
+pop <- function(obj)
 {
-  print("Calling the base pop function")
-  UseMethod("pop",obj)
+    UseMethod("pop",obj)
 }
 
 
 push.Stack <- function(obj, newValue)
 {
-  print("In push.Stack and setting the value")
-  obj$arr <- c(obj$arr, newValue)
-  x <- c(obj$size) + 1
-  print(x)
-  return(obj)
+    obj$arr <- c(obj$arr, newValue)
+    return(obj)
 }
 
-pop.Stack <- function(obj, newValue)
+pop.Stack <- function(obj)
 {
-  print("In push.Stack and setting the value")
-  obj$arr <- obj$arr[-obj$size]
-  obj$size <- obj$size - 1
-  return(obj)
+    obj$arr <- obj$arr[-length(obj$arr)]
+    return(obj)
 }
 
 
@@ -54,5 +46,10 @@ pop.Stack <- function(obj, newValue)
 v <- Stack()
 
 v <- push(v,1)
-#v <- push(v,2)
-
+v <- push(v,2)
+v <- push(v,3)
+v <- push(v,4)
+v <- push(v,5)
+v <- push(v,6)
+v <- push(v,7)
+v <- pop(v)
