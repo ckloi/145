@@ -27,6 +27,10 @@ pop <- function(obj)
     UseMethod("pop",obj)
 }
 
+print <- function(obj){
+  UseMethod("print",obj)
+}
+
 
 push.Stack <- function(obj, newValue)
 {
@@ -40,7 +44,9 @@ pop.Stack <- function(obj)
     return(obj)
 }
 
-
+print.Stack <- function(obj){
+  print(obj$arr)
+}
 
 
 v <- Stack()
@@ -53,3 +59,4 @@ v <- push(v,5)
 v <- push(v,6)
 v <- push(v,7)
 v <- pop(v)
+print(v)

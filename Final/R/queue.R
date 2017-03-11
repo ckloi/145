@@ -27,6 +27,9 @@ pop <- function(obj)
     UseMethod("pop",obj)
 }
 
+print <- function(obj){
+  UseMethod("print",obj)
+}
 
 push.Queue <- function(obj, newValue)
 {
@@ -40,7 +43,9 @@ pop.Queue <- function(obj)
     return (obj)
 }
 
-
+print.Queue <- function(obj){
+  print(obj$arr)
+}
 
 
 v <- Queue()
@@ -54,4 +59,4 @@ v <- push(v,6)
 v <- push(v,7)
 
 v <- pop(v)
-v
+print(v)
