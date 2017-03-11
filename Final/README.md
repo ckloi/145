@@ -58,7 +58,7 @@ on.
 <li> Form an R package from all this, named <b>tsq</b>, with directories
 <b>R</b>, <b>man</b> and file <b>DESCRIPTION</b> and <b>NAMESPACE</b>.
 There are tutorials on the Web for this, but most go into far much
-advanced detail.  I suggest you just use my <a href="">partools</a> as
+advanced detail.  I suggest you just use my <a href="https://github.com/matloff/partools">partools</a> as
 an example.
 <p></p>
 
