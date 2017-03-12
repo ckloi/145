@@ -50,6 +50,35 @@ push.bintree <- function(obj, value, row = 1) {
     
 }
 
+pop <- function(obj,row = 1,crow = 1) {
+  UseMethod("pop", obj)
+}
+
+pop.bintree <- function(obj,row = 1,crow = 1){
+  #if the head is now na
+  if(is.na(obj$tree[row,1])){
+    
+  }
+  #there is no more left child
+  if(is.na(obj$tree[row,2])){
+      obj$tree[row,1]  <- NA
+    if(!is.na(obj$tree[row,3])){
+      obj$tree[crow,2] <- obj$tree[row,3]
+      obj$tree[row, 3] <- NA
+      #obj$tree[row,1]  <- NA
+    }else{
+      #obj$tree[row,1] <- NA
+      obj$tree[crow,2] <- NA
+    }
+    #obj$tree <- rbind(obj$tree,c(NA,NA,NA))
+  }else{
+    #there is left chile
+    #current row of the node that have left child
+    crow <- row
+    obj <- pop(obj,obj$tree[row,2],crow)
+  }
+  return(obj)
+}
 
 
 
@@ -58,9 +87,22 @@ t <- push(t, 5)
 t <- push(t, 3)
 t <- push(t, 6)
 t <- push(t, 2)
+t <- push(t, 4)
 t <- push(t, 10)
+t <- push(t, 7)
+t <- push(t, 1)
 t <- push(t, 11)
 t <- push(t, 100)
+print(t$tree)
 
-
+t <- pop(t)
+t <- pop(t)
+t <- pop(t)
+t <- pop(t)
+t <- pop(t)
+t <- pop(t)
+t <- pop(t)
+t <- pop(t)
+t <- pop(t)
+t <- pop(t)
 print(t$tree)
