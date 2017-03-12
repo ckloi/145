@@ -13,6 +13,7 @@ push.bintree <- function(obj, value, col=1){
     obj$tree[1,1] <- value
     return(obj$tree)
   }
+
   nextCol <- ncol(obj$tree) + 1
   # Go left
   if(value <= obj$tree[1,col]){
@@ -48,9 +49,16 @@ push.bintree <- function(obj, value, col=1){
 }
 
 pop.bintree(obj,value,col=1){
+  # If value to pop is head, replace head's contents with it's right index's
+  #   contents
+  if(value == obj$tree[1,1]){
+    rightIndex <- obj$tree[3,1]
+    obj$tree[1:3,1] <- obj$tree[1:3,rightIndex]
+  }
+
   # Look at your left index's value
   leftIndex <- obj$tree[2,col]
-  # If value to pop is equal to left inex's value, your left index becomes your
+  # If value to pop is equal to left index's value, your left index becomes your
   #   left index's right index
   if(value == obj$tree[1,leftIndex]){
     obj$tree[2,col] <- obj$tree[3,leftIndex]
