@@ -18,7 +18,9 @@ push.bintree <- function(obj, value, row = 1) {
     modifyMatrix <-  function (obj, row, col, value) {
         newIndex <- nrow(obj$tree) + 1
         obj$tree[row, col] <- newIndex
-        obj$tree <- rbind(obj$tree, c(NA, NA, NA))
+        if (newIndex > nrow(obj$tree)){
+          obj$tree <- rbind(obj$tree, c(NA, NA, NA))
+        }
         obj$tree[newIndex, 1] <- value
         return(obj)
     }
@@ -61,6 +63,8 @@ t <- push(t, 2)
 t <- push(t, 10)
 t <- push(t, 11)
 t <- push(t, 100)
+t <- push(t, -22)
+
 
 
 print(t$tree)
