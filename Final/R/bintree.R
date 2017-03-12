@@ -48,7 +48,7 @@ push.bintree <- function(obj, value, col=1){
   }
 }
 
-pop.bintree(obj,value,col=1){
+pop.bintree <- function(obj,value,col=1){
   # If value to pop is head, replace head's contents with it's right index's
   #   contents
   if(value == obj$tree[1,1]){
