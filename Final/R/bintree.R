@@ -26,12 +26,14 @@ push.bintree <- function(obj, value, row = 1) {
     }
     
     
-    # check whether first index is NA
-    if (is.na(obj$tree[row, 1])) {
-        obj$tree[row, 1] <- value
-        # check if first index is not NA, then check the value is less than to or greater than
-        # if first index is less than or equal to
-    } else if (value <= obj$tree[row, 1]) {
+    # check whether head is NA
+    if (is.na(obj$tree[1, 1])) {
+        obj$tree[1, 1] <- value
+        return(obj)
+    } 
+    
+    # if first index is less than or equal to
+    if (value <= obj$tree[row, 1]) {
         # if left child is na , set it
         if (is.na(obj$tree[row, 2])) {
             obj <- modifyMatrix(obj, row, 2, value)
