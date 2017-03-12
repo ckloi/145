@@ -84,6 +84,13 @@ pop.bintree <- function(obj,row = 1,crow = 1){
   return(obj)
 }
 
+print <- function(obj){
+  UseMethod("print", obj)
+}
+print.bintree <- function(obj){
+  print(obj$tree)
+}
+
 
 
 t <- bintree()
