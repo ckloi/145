@@ -69,9 +69,9 @@ pop.bintree <- function(obj,row = 1,crow = 1){
     if(!is.na(obj$tree[row,3])){
       obj$tree[crow,2] <- obj$tree[row,3]
       obj$tree[row, 3] <- NA
-      #obj$tree[row,1]  <- NA
+
     }else{
-      #obj$tree[row,1] <- NA
+
       obj$tree[crow,2] <- NA
     }
     #obj$tree <- rbind(obj$tree,c(NA,NA,NA))
@@ -97,7 +97,7 @@ t <- push(t, 7)
 t <- push(t, 1)
 t <- push(t, 11)
 t <- push(t, 100)
-
+print(t$tree)
 t <- pop(t)
 t <- pop(t)
 t <- pop(t)
