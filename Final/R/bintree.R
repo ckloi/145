@@ -119,33 +119,7 @@ pop.bintree <- function(obj,row = 1,crow = 1){
 
 }
 
-pop <- function(obj,row = 1) {
-  UseMethod("pop", obj)
-}
 
-pop.bintree <- function(obj,row = 1){
-
-  left <- obj$tree[row,2]
-
-  # This will only trigger if the head node has no left node
-  if(is.na(left) && row == 1){
-    # Move value and pointers of right node to head node
-    right <- obj$tree[row,3]
-    obj$tree[row,1:3] <- obj$tree[right,1:3]
-    return(obj)
-  }
-
-  # If left node has no left node, then delete left node. We are looking at the
-  #   left node pointer of the current node's left node here (e.g. if 5 has 2 as
-  #   it's left node, we would be looking at 2's left node)
-  if(is.na(obj$tree[left,2])){
-    # Current node's left pointer becomes deleted nodes right pointer
-    obj$tree[row,2] <- obj$tree[left,3]
-    return(obj)
-  }
-
-  return(obj <- pop.bintree(obj,left))
-}
 
 print <- function(obj){
     UseMethod("print", obj)
@@ -207,7 +181,7 @@ t <- pop(t)
 print(t)
 print("Popping (11 should be gone, 100 should be head)")
 t <- pop(t)
-print(t)
+print(t$tree)
 print("Popping (100 should be gone)")
 t <- pop(t)
 print(t)
