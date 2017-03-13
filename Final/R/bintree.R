@@ -51,6 +51,12 @@ push.bintree <- function(obj, value, row = 1) {
 
   # check whether head is NA
   if (is.na(obj$tree[1])) {
+    # first case : new tree -> one row with NA NA NA
+    # second case : empty tree with all unused rows
+    # if everything and head is delete, then we have a empty matrix with n rows,
+    # so we have to reset it to one row before turning vector to matrix
+    obj$tree <- c(NA,NA,NA)
+    # turn vector to 1 x 3 matrix
     dim(obj$tree) <- c(1,3)
     obj$tree[1,1] <- value
     return(obj)
@@ -184,5 +190,8 @@ t <- pop(t)
 print(t$tree)
 print("Popping (100 should be gone)")
 t <- pop(t)
+print(t$tree)
+print("Pushing 2")
+t <- push(t,2)
 print(t$tree)
 
