@@ -3,7 +3,7 @@
 
 bintree <- function() {
 
-    arg <- list(tree = matrix(, ncol = 3))
+    arg <- list(tree = c(NA,NA,NA))
     
     attr(arg, "class") <- "bintree"
     arg
@@ -50,8 +50,9 @@ push.bintree <- function(obj, value, row = 1) {
 
 
   # check whether head is NA
-  if (is.na(obj$tree[1, 1])) {
-    obj$tree[1, 1] <- value
+  if (is.na(obj$tree[1])) {
+    dim(obj$tree) <- c(1,3)
+    obj$tree[1,1] <- value
     return(obj)
   }
 
