@@ -2,12 +2,12 @@
 
 
 bintree <- function() {
-
+    
     arg <- list(tree = c(NA,NA,NA))
     
     attr(arg, "class") <- "bintree"
     arg
-
+    
 }
 
 
@@ -22,8 +22,8 @@ push.bintree <- function(obj, value, row = 1) {
         newIndex <- NA
         # if lower two row is not created , then create two new row
         if (row + 2 > nrow(obj$tree)){
-             obj$tree <- rbind(obj$tree, c(NA, NA, NA))
-             obj$tree <- rbind(obj$tree, c(NA, NA, NA))
+            obj$tree <- rbind(obj$tree, c(NA, NA, NA))
+            obj$tree <- rbind(obj$tree, c(NA, NA, NA))
         }
         # search for unused row
         # if left child , search from row + 1 to the end
@@ -41,45 +41,49 @@ push.bintree <- function(obj, value, row = 1) {
             #since we cannot find unusend row, we have to create new row at the end
             obj$tree <- rbind(obj$tree, c(NA, NA, NA))
         }
-
+        
         
         obj$tree[row, col] <- newIndex
         obj$tree[newIndex, 1] <- value
         return(obj)
     }
-
-
-  # check whether head is NA
-  if (is.na(obj$tree[1])) {
-    # first case : new tree -> one row with NA NA NA
-    # second case : empty tree with all unused rows
-    # if everything and head is delete, then we have a empty matrix with n rows,
-    # so we have to reset it to one row before turning vector to matrix
-    obj$tree <- c(NA,NA,NA)
-    # turn vector to 1 x 3 matrix
-    dim(obj$tree) <- c(1,3)
-    obj$tree[1,1] <- value
-    return(obj)
-  }
-
-  # if value is less than or equal to the first index
-  if (value <= obj$tree[row, 1]) {
-    # if left child is na , set it
-    if (is.na(obj$tree[row, 2])) {
-      obj <- modifyMatrix(obj, row, 2, value)
-    } else{
-      # if left child is not na, then find the appropriate row recusively
-      obj <- push(obj, value, obj$tree[row, 2])
+    
+    
+    # check whether head is NA
+    if (is.na(obj$tree[1])) {
+        # first case : new tree -> one row with NA NA NA
+        # second case : empty tree with all unused rows
+        # if everything and head is delete, then we have a empty matrix with n rows,
+        # so we have to reset it to one row before turning vector to matrix
+        
+        # if dim is not null, then it is second case, since vector's dim is null
+        if (!is.null(dim(obj$tree))){
+            obj$tree <- obj$tree[1,]
+        }
+        # turn vector to 1 x 3 matrix
+        dim(obj$tree) <- c(1,3)
+        obj$tree[1,1] <- value
+        return(obj)
     }
+    
+    # if value is less than or equal to the first index
+    if (value <= obj$tree[row, 1]) {
+        # if left child is na , set it
+        if (is.na(obj$tree[row, 2])) {
+            obj <- modifyMatrix(obj, row, 2, value)
+        } else{
+            # if left child is not na, then find the appropriate row recusively
+            obj <- push(obj, value, obj$tree[row, 2])
+        }
         # if value is greater than first index, the similar approach as above
-  } else if (value > obj$tree[row, 1]) {
+    } else if (value > obj$tree[row, 1]) {
         if (is.na(obj$tree[row, 3])) {
             obj <- modifyMatrix(obj, row, 3, value)
         } else{
             obj <- push(obj, value, obj$tree[row, 3])
         }
     }
-  
+    
     return (obj)
     
 }
@@ -122,7 +126,7 @@ pop.bintree <- function(obj,row = 1,crow = 1){
         obj <- pop(obj,obj$tree[row,2],crow)
     }
     return(obj)
-
+    
 }
 
 
@@ -133,20 +137,20 @@ print <- function(obj){
 
 
 print.bintree <- function(obj, row=1){
-  # Print left subtree
-  left <- obj$tree[row,2]
-  if(!is.na(left)){
-    print.bintree(obj,left)
-  }
-
-  # Print your value
-  print(obj$tree[row,1])
-
-  # Print right subtree
-  right <- obj$tree[row,3]
-  if(!is.na(right)){
-    print.bintree(obj,right)
-  }
+    # Print left subtree
+    left <- obj$tree[row,2]
+    if(!is.na(left)){
+        print.bintree(obj,left)
+    }
+    
+    # Print your value
+    print(obj$tree[row,1])
+    
+    # Print right subtree
+    right <- obj$tree[row,3]
+    if(!is.na(right)){
+        print.bintree(obj,right)
+    }
 }
 
 
