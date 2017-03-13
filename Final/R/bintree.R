@@ -25,9 +25,9 @@ push.bintree <- function(obj, value, row = 1) {
              obj$tree <- rbind(obj$tree, c(NA, NA, NA))
              obj$tree <- rbind(obj$tree, c(NA, NA, NA))
         }
-        # search for lower 2 unused row
-        # if left child start from row + 1
-        # if right child start from row + 2
+        # search for unused row
+        # if left child , search from row + 1 to the end
+        # if right child, search from row + 2 to the end
         for (i in  (row + col - 1):nrow(obj$tree)){
             if (is.na(obj$tree[i,1])){
                 newIndex <- i
@@ -35,14 +35,13 @@ push.bintree <- function(obj, value, row = 1) {
             }
         }
         
-        # if cannot find lower 2 unused row , then append to the end of the matrix
+        # if cannot find unused row , then append to the end of the matrix
         if (is.na(newIndex)){
             newIndex <- nrow(obj$tree) + 1
-        }
-        
-        if (newIndex > nrow(obj$tree)){
+            #since we cannot find unusend row, we have to create new row at the end
             obj$tree <- rbind(obj$tree, c(NA, NA, NA))
         }
+
         
         obj$tree[row, col] <- newIndex
         obj$tree[newIndex, 1] <- value
@@ -56,16 +55,16 @@ push.bintree <- function(obj, value, row = 1) {
     return(obj)
   }
 
-  # if first index is less than or equal to
+  # if value is less than or equal to the first index
   if (value <= obj$tree[row, 1]) {
     # if left child is na , set it
     if (is.na(obj$tree[row, 2])) {
       obj <- modifyMatrix(obj, row, 2, value)
     } else{
-      # if left child is not na, then find the index recusively
+      # if left child is not na, then find the appropriate row recusively
       obj <- push(obj, value, obj$tree[row, 2])
     }
-        # if first index is greater tha, the similar approach as above
+        # if value is greater than first index, the similar approach as above
   } else if (value > obj$tree[row, 1]) {
         if (is.na(obj$tree[row, 3])) {
             obj <- modifyMatrix(obj, row, 3, value)
@@ -151,7 +150,7 @@ print("Pushing 4")
 t <- push(t, 4)
 t <- pop(t)
 print("Popping (2 should be gone)")
-print(t)
+print(t$tree)
 print("Pushing 10")
 t <- push(t, 10)
 print("Pushing 7")
@@ -162,27 +161,27 @@ print("Pushing 11")
 t <- push(t, 11)
 print("Popping (1 should be gone)")
 t <- pop(t)
-print(t)
+print(t$tree)
 print("Pushing 100")
 t <- push(t, 100)
 print("Popping (4 should be gone)")
 t <- pop(t)
-print(t)
+print(t$tree)
 print("Popping (7 should be gone)")
 t <- pop(t)
-print(t)
+print(t$tree)
 print("Popping (10 should be gone, 11 should be head)")
 t <- pop(t)
-print(t)
+print(t$tree)
 print("Pushing 2")
 t <- push(t,2)
 print("Popping (2 should be gone)")
 t <- pop(t)
-print(t)
+print(t$tree)
 print("Popping (11 should be gone, 100 should be head)")
 t <- pop(t)
 print(t$tree)
 print("Popping (100 should be gone)")
 t <- pop(t)
-print(t)
+print(t$tree)
 
