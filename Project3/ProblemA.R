@@ -165,7 +165,7 @@ checkUp <- function(index,array,pa,counter=0,i=1){
 
   check <- wrapAround(index-i,pa)
   if(check %in% array){
-    return(checkDown(check,array,pa,counter+1,i+1))
+    return(checkUp(check,array,pa,counter+1,i+1))
   }
   return(counter)
 }
@@ -190,7 +190,7 @@ checkLeft <- function(index,array,pa,counter=0,i=1){
 
   check <- wrapAround(index-i*nrow(pa),pa)
   if(check %in% array){
-    return(checkRight(check,array,pa,counter+1,i+1))
+    return(checkLeft(check,array,pa,counter+1,i+1))
   }
   return(counter)
 }
@@ -210,7 +210,7 @@ checkRight <- function(index,array,pa,counter=0,i=1){
 
 # Modifies index to wrap around if needed
 wrapAround  <- function(index,mat){
-  if (index > length(mat)){
+  while (index > length(mat)){
     index <- index - length(mat)
   }
   return(index)
