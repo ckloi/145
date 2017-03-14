@@ -1,62 +1,58 @@
 
 
 
-Stack <- function()
+newstack <- function()
 {
-    
-    args <- list(
-    arr <- vector(length=0)
-    )
-    
+
+    rtrn <- list()
+    rtrn$arr <- NA
     ## Set the name for the class
-    
-    
-    class(args) <- append(class(args),"Stack")
-    
-    return(args)
+
+    class(rtrn) <- "stack"
+
+    return(rtrn)
 }
 
+push <- function(obj, newValue){
+  UseMethod("push", obj)
+}
 
-push <- function(obj, newValue)
+pop <- function(obj){
+  UseMethod("pop", obj)
+}
+
+push.stack <- function(obj, newValue)
 {
-    UseMethod("push",obj)
-}
-
-pop <- function(obj)
-{
-    UseMethod("pop",obj)
-}
-
-print <- function(obj){
-  UseMethod("print",obj)
-}
-
-
-push.Stack <- function(obj, newValue)
-{
+    if(is.na(obj$arr[1])){
+      obj$arr[1] <- newValue
+      return(obj)
+    }
     obj$arr <- c(obj$arr, newValue)
     return(obj)
 }
 
-pop.Stack <- function(obj)
+pop.stack <- function(obj)
 {
+    val <- obj$arr[length(obj$arr)]
     obj$arr <- obj$arr[-length(obj$arr)]
-    return(obj)
+    return(val)
 }
 
-print.Stack <- function(obj){
-  print(obj$arr)
+print.stack <- function(obj){
+  if(!NA %in% obj$arr){
+    cat(obj$arr, "\n")
+  }
 }
 
 
-v <- Stack()
-
-v <- push(v,1)
-v <- push(v,2)
-v <- push(v,3)
-v <- push(v,4)
-v <- push(v,5)
-v <- push(v,6)
-v <- push(v,7)
-v <- pop(v)
-print(v)
+# v <- newstack()
+#
+# v <- push(v,1)
+# v <- push(v,2)
+# v <- push(v,3)
+# v <- push(v,4)
+# v <- push(v,5)
+# v <- push(v,6)
+# v <- push(v,7)
+# pop(v)
+# print(v)

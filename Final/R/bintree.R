@@ -56,7 +56,8 @@ pop.bintree <- function(obj,row = 1){
   }
 
   # Look ahead one node to the left. If that node's left pointer is NA, pop that
-  #   node (change left pointer of current node to right node of child)
+  #   node (change left pointer of current node to right node of child, which
+  #   will either be an index or NA)
   left <- obj$tree[row,2]
   if(is.na(obj$tree[left,2])){
     obj$tree[row,2] <- obj$tree[left,3]
