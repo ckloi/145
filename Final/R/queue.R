@@ -1,62 +1,60 @@
+library(R6)
+Queue <- R6Class("Queue",
+        private = list(
+            arr = NULL
+        ),
+                 
+        public = list(
+                   
+          initialize = function() {
+          },
+                   
+                   
+          push = function(val) {
+              private$arr <- c(private$arr,val)
+          },
+                   
+                   
+          pop = function() {
+              x <- private$arr[1]
+              private$arr <- private$arr[-1]
+              if (length(private$arr) == 0){
+                  private$arr <- NULL
+              }
+              return (x)
+           },
+                   
+          print = function() {
+              print(private$arr)
+          }
+        )
+)
 
 
 
-Queue <- function()
-{
-    
-    args <- list(
-    arr <- vector(length=0)
-    )
-    
-    ## Set the name for the class
-    
-    
-    class(args) <- append(class(args),"Queue")
-    
-    return(args)
-}
+
+v <- Queue$new()
+
+v$push(1)
+v$push(2)
+v$push(3)
+v$push(4)
+v$push(5)
+v$push(6)
+v$push(7)
+a <- v$pop()
+v$push(8)
+v$push(-1)
+v$push(-27)
+v$push(-37)
+
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+
+v$print()
 
 
-push <- function(obj, newValue)
-{
-    UseMethod("push",obj)
-}
-
-pop <- function(obj)
-{
-    UseMethod("pop",obj)
-}
-
-print <- function(obj){
-  UseMethod("print",obj)
-}
-
-push.Queue <- function(obj, newValue)
-{
-    obj$arr <- c(obj$arr, newValue)
-    return(obj)
-}
-
-pop.Queue <- function(obj)
-{
-    obj$arr <- obj$arr[-1]
-    return (obj)
-}
-
-print.Queue <- function(obj){
-  print(obj$arr)
-}
-
-
-v <- Queue()
-
-v <- push(v,1)
-v <- push(v,2)
-v <- push(v,3)
-v <- push(v,4)
-v <- push(v,5)
-v <- push(v,6)
-v <- push(v,7)
-
-v <- pop(v)
-print(v)
