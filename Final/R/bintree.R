@@ -1,16 +1,11 @@
 
 
 
-bintree <- function() {
+newbintree <- function() {
   rtrn <- list()
   rtrn$tree <- rbind(c(NA,NA,NA))
   class(rtrn) <- "bintree"
   return(rtrn)
-}
-
-
-push <- function(obj, value, row = 1) {
-    UseMethod("push", obj)
 }
 
 push.bintree <- function(obj, value, row = 1) {
@@ -22,8 +17,7 @@ push.bintree <- function(obj, value, row = 1) {
   }
 
   nextIndex <- nrow(obj$tree) + 1
-  # If value to insert is less than current value, go left until left pointer is
-  #   NA
+  # If value to insert is less than current value, follow left pointer (column 2)
   if(value <= obj$tree[row,1]) {
     # If left pointer is NA, insert value at next row, with pointers of NA
     if(is.na(obj$tree[row,2])) {
@@ -36,20 +30,21 @@ push.bintree <- function(obj, value, row = 1) {
     return(push(obj,value,row))
   }
 
+  # If value to be pushed is greater than current value, follow right pointer
+  #   (column 3)
   if(value > obj$tree[row,1]) {
+    # If right pointer is NA, make it nextIndex and add new row with value and
+    #   NA indices
     if(is.na(obj$tree[row,3])) {
       obj$tree[row,3] <- nextIndex
       obj$tree <- rbind(obj$tree, c(value,NA,NA))
       return(obj)
     }
+    # Otherwise, recursively call on right pointer to find appropriate index
     row <- obj$tree[row,3]
     return(push(obj,value,row))
   }
   return(obj)
-}
-
-pop <- function(obj,row = 1) {
-    UseMethod("pop", obj)
 }
 
 pop.bintree <- function(obj,row = 1){
@@ -61,13 +56,13 @@ pop.bintree <- function(obj,row = 1){
   }
 
   # Look ahead one node to the left. If that node's left pointer is NA, pop that
-  #   node (change left pointer of current node to right node of child node)
+  #   node (change left pointer of current node to right node of child)
   left <- obj$tree[row,2]
   if(is.na(obj$tree[left,2])){
     obj$tree[row,2] <- obj$tree[left,3]
     return(obj)
   }
-
+  # If not at leftmost node, recurse until you are
   return(pop(obj,left))
 }
 
