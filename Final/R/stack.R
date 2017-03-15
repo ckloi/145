@@ -1,5 +1,5 @@
 library(R6)
-Stack <- R6Class("Stack",
+stack <- R6Class("stack",
         private = list(
           arr = NULL
         ),
@@ -35,7 +35,7 @@ Stack <- R6Class("Stack",
 
 
 
-v <- Stack$new()
+v <- stack$new()
 
 v$push(1)
 v$push(2)

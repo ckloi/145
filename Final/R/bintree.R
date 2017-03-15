@@ -1,201 +1,176 @@
 
 
 
-bintree <- function() {
-    
-    arg <- list(tree = c(NA,NA,NA))
-    
-    attr(arg, "class") <- "bintree"
-    arg
-    
-}
+
+library(R6)
+bintree <- R6Class(
+  "bintree",
+  private = list(
+    tree = c(NA,NA,NA)
+  )
+  ,
+  
+  public = list(
+    initialize = function() {
+
+    },
 
 
-push <- function(obj, value, row = 1) {
-    UseMethod("push", obj)
-}
-
-push.bintree <- function(obj, value, row = 1) {
-    
-    modifyMatrix <-  function (obj, row, col, value) {
-        
-        newIndex <- NA
-        # if lower two row is not created , then create two new row
-        if (row + 2 > nrow(obj$tree)){
-            obj$tree <- rbind(obj$tree, c(NA, NA, NA))
-            obj$tree <- rbind(obj$tree, c(NA, NA, NA))
-        }
-        # search for unused row
-        # if left child , search from row + 1 to the end
-        # if right child, search from row + 2 to the end
-        for (i in  (row + col - 1):nrow(obj$tree)){
-            if (is.na(obj$tree[i,1])){
-                newIndex <- i
-                break
-            }
-        }
-        
-        # if cannot find unused row , then append to the end of the matrix
-        if (is.na(newIndex)){
-            newIndex <- nrow(obj$tree) + 1
-            #since we cannot find unusend row, we have to create new row at the end
-            obj$tree <- rbind(obj$tree, c(NA, NA, NA))
-        }
-        
-        
-        obj$tree[row, col] <- newIndex
-        obj$tree[newIndex, 1] <- value
-        return(obj)
-    }
-    
-    
-    # check whether head is NA
-    if (is.na(obj$tree[1])) {
+    push = function(value,row=1) {
+      # check whether head is NA
+      if (is.na(private$tree[1])) {
         # first case : new tree -> one row with NA NA NA
         # second case : empty tree with all unused rows
         # if everything and head is delete, then we have a empty matrix with n rows,
         # so we have to reset it to one row before turning vector to matrix
-        
+
         # if dim is not null, then it is second case, since vector's dim is null
-        if (!is.null(dim(obj$tree))){
-            obj$tree <- obj$tree[1,]
+        if (!is.null(dim(private$tree))) {
+          private$tree <- private$tree[1, ]
         }
         # turn vector to 1 x 3 matrix
-        dim(obj$tree) <- c(1,3)
-        obj$tree[1,1] <- value
-        return(obj)
-    }
-    
-    # if value is less than or equal to the first index
-    if (value <= obj$tree[row, 1]) {
+        dim(private$tree) <- c(1, 3)
+        private$tree[1, 1] <- value
+        return()
+      }
+
+      # if value is less than or equal to the first index
+      if (value <= private$tree[row, 1]) {
         # if left child is na , set it
-        if (is.na(obj$tree[row, 2])) {
-            obj <- modifyMatrix(obj, row, 2, value)
+        if (is.na(private$tree[row, 2])) {
+          self$modifyMatrix(row, 2, value)
         } else{
-            # if left child is not na, then find the appropriate row recusively
-            obj <- push(obj, value, obj$tree[row, 2])
+          # if left child is not na, then find the appropriate row recusively
+          self$push(value, private$tree[row, 2])
         }
         # if value is greater than first index, the similar approach as above
-    } else if (value > obj$tree[row, 1]) {
-        if (is.na(obj$tree[row, 3])) {
-            obj <- modifyMatrix(obj, row, 3, value)
+      } else if (value > private$tree[row, 1]) {
+        if (is.na(private$tree[row, 3])) {
+          self$modifyMatrix(row, 3, value)
         } else{
-            obj <- push(obj, value, obj$tree[row, 3])
+          self$push(value, private$tree[row, 3])
         }
-    }
-    
-    return (obj)
-    
-}
+      }
+    },
+  #   
+  #   
+    pop = function(row=1,crow=1) {
+      #there is no more left child
+      if (is.na(private$tree[row, 2])) {
+        result <- private$tree[row, 1]
+        private$tree[row, 1]  <- NA
+        if (row == 1) {
+          if (!is.na(private$tree[row, 3])) {
+            rightchildIndex  <- private$tree[row, 3]
+            private$tree[row, ] <- private$tree[rightchildIndex, ]
+            private$tree[rightchildIndex, ] <- NA
+            return(result)
+          }
 
-pop <- function(obj,row = 1,crow = 1) {
-    UseMethod("pop", obj)
-}
+        }
 
-pop.bintree <- function(obj,row = 1,crow = 1){
-    
-    #there is no more left child
-    if(is.na(obj$tree[row,2])){
-        
-        obj$tree[row,1]  <- NA
-        
-        if (row == 1){
-            if (!is.na(obj$tree[row,3])){
-                rightchildIndex  <- obj$tree[row,3]
-                obj$tree[row,] <- obj$tree[rightchildIndex,]
-                obj$tree[rightchildIndex,] <- NA
-                return(obj)
-            }
-            
+
+        if (!is.na(private$tree[row, 3])) {
+          private$tree[crow, 2] <- private$tree[row, 3]
+          private$tree[row, 3] <- NA
+
+        } else{
+          private$tree[crow, 2] <- NA
         }
-        
-        
-        if(!is.na(obj$tree[row,3])){
-            obj$tree[crow,2] <- obj$tree[row,3]
-            obj$tree[row, 3] <- NA
-            
-        }else{
-            
-            obj$tree[crow,2] <- NA
-        }
-        #obj$tree <- rbind(obj$tree,c(NA,NA,NA))
-    }else{
+        return(result)
+        #private$tree <- rbind(private$tree,c(NA,NA,NA))
+      } else{
         #there is left chile
         #current row of the node that have left child
         crow <- row
-        obj <- pop(obj,obj$tree[row,2],crow)
+        return(self$pop(private$tree[row, 2], crow))
+      }
+    },
+
+    modifyMatrix =  function (row, col, value) {
+      newIndex <- nrow(private$tree) + 1
+      private$tree[row, col] <- newIndex
+      if (newIndex > nrow(private$tree)){
+        private$tree <- rbind(private$tree, c(NA, NA, NA))
+      }
+      private$tree[newIndex, 1] <- value
+    },
+  
+    print = function(row=1) {
+      # Print left subtree
+      left <- private$tree[row, 2]
+      if (!is.na(left)) {
+        self$print(left)
+      }
+      
+      
+      # Print your value
+      cat(private$tree[row, 1], " ")
+
+      # Print right subtree
+      right <- private$tree[row, 3]
+      if (!is.na(right)) {
+        self$print(right)
+      }
+      
+      if (row == 1){
+        cat('\n')
+      }
+      
     }
-    return(obj)
-    
-}
+  )
+)
 
 
 
-print <- function(obj){
-    UseMethod("print", obj)
-}
 
 
-print.bintree <- function(obj, row=1){
-    # Print left subtree
-    left <- obj$tree[row,2]
-    if(!is.na(left)){
-        print.bintree(obj,left)
-    }
-    
-    # Print your value
-    print(obj$tree[row,1])
-    
-    # Print right subtree
-    right <- obj$tree[row,3]
-    if(!is.na(right)){
-        print.bintree(obj,right)
-    }
-}
 
 
-t <- bintree()
+
+
+
+v <- bintree$new()
 print("Pushing 2")
-t <- push(t, 2)
+v$push(2)
 print("Pushing 4")
-t <- push(t, 4)
-t <- pop(t)
+v$push(4)
+print(v$pop())
 print("Popping (2 should be gone)")
-print(t$tree)
+v$print()
 print("Pushing 10")
-t <- push(t, 10)
+v$push(10)
 print("Pushing 7")
-t <- push(t, 7)
+v$push(7)
 print("Pushing 1")
-t <- push(t, 1)
+v$push(1)
 print("Pushing 11")
-t <- push(t, 11)
+v$push(11)
 print("Popping (1 should be gone)")
-t <- pop(t)
-print(t$tree)
+print(v$pop())
+v$print()
 print("Pushing 100")
-t <- push(t, 100)
+v$push( 100)
 print("Popping (4 should be gone)")
-t <- pop(t)
-print(t$tree)
+print(v$pop())
+v$print()
 print("Popping (7 should be gone)")
-t <- pop(t)
-print(t$tree)
+print(v$pop())
+v$print()
 print("Popping (10 should be gone, 11 should be head)")
-t <- pop(t)
-print(t$tree)
+print(v$pop())
+v$print()
 print("Pushing 2")
-t <- push(t,2)
+v$push( 2)
 print("Popping (2 should be gone)")
-t <- pop(t)
-print(t$tree)
+print(v$pop())
+v$print()
 print("Popping (11 should be gone, 100 should be head)")
-t <- pop(t)
-print(t$tree)
+print(v$pop())
+v$print()
 print("Popping (100 should be gone)")
-t <- pop(t)
-print(t$tree)
+print(v$pop())
+v$print()
 print("Pushing 2")
-t <- push(t,2)
-print(t$tree)
-
+v$push( 2)
+v$print()

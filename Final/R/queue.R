@@ -1,5 +1,5 @@
 library(R6)
-Queue <- R6Class("Queue",
+queue <- R6Class("queue",
         private = list(
             arr = NULL
         ),
@@ -33,7 +33,7 @@ Queue <- R6Class("Queue",
 
 
 
-v <- Queue$new()
+v <- queue$new()
 
 v$push(1)
 v$push(2)
