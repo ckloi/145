@@ -31,7 +31,7 @@ bintree <- R6Class(
         # turn vector to 1 x 3 matrix
         dim(private$tree) <- c(1, 3)
         private$tree[1, 1] <- value
-        return()
+        return(self)
       }
 
       # if value is less than or equal to the first index
@@ -51,40 +51,29 @@ bintree <- R6Class(
           self$push(value, private$tree[row, 3])
         }
       }
+      return(self)
     },
   #   
   #   
-    pop = function(row=1,crow=1) {
-      #there is no more left child
-      if (is.na(private$tree[row, 2])) {
-        result <- private$tree[row, 1]
-        private$tree[row, 1]  <- NA
-        if (row == 1) {
-          if (!is.na(private$tree[row, 3])) {
-            rightchildIndex  <- private$tree[row, 3]
-            private$tree[row, ] <- private$tree[rightchildIndex, ]
-            private$tree[rightchildIndex, ] <- NA
-            return(result)
-          }
-
+    pop = function(row=1) {
+        # Check if head is the leftmost node
+        if(is.na(private$tree[1,2])){
+            x <- private$tree[row,1]
+            right <- private$tree[row,3]
+            private$tree[row,] <- private$tree[right,]
+            return (x)
         }
-
-
-        if (!is.na(private$tree[row, 3])) {
-          private$tree[crow, 2] <- private$tree[row, 3]
-          private$tree[row, 3] <- NA
-
-        } else{
-          private$tree[crow, 2] <- NA
+        
+        # Look ahead one node to the left. If that node's left pointer is NA, pop that
+        #   node (change left pointer of current node to right node of child, which
+        #   will either be an index or NA)
+        left <- private$tree[row,2]
+        if(is.na(private$tree[left,2])){
+            private$tree[row,2] <- private$tree[left,3]
+            return (private$tree[left,1])
         }
-        return(result)
-        #private$tree <- rbind(private$tree,c(NA,NA,NA))
-      } else{
-        #there is left chile
-        #current row of the node that have left child
-        crow <- row
-        return(self$pop(private$tree[row, 2], crow))
-      }
+        # If not at leftmost node, recurse until you are
+        return(self$pop(private,left))
     },
 
     modifyMatrix =  function (row, col, value) {
@@ -132,25 +121,25 @@ bintree <- R6Class(
 
 v <- bintree$new()
 print("Pushing 2")
-v$push(2)
+a <- v$push(2)
 print("Pushing 4")
-v$push(4)
-print(v$pop())
+a <- v$push(4)
 print("Popping (2 should be gone)")
+print(v$pop())
 v$print()
 print("Pushing 10")
-v$push(10)
+a <- v$push(10)
 print("Pushing 7")
-v$push(7)
+a <- v$push(7)
 print("Pushing 1")
-v$push(1)
+a <- v$push(1)
 print("Pushing 11")
-v$push(11)
+a <- v$push(11)
 print("Popping (1 should be gone)")
 print(v$pop())
 v$print()
 print("Pushing 100")
-v$push( 100)
+a <- v$push( 100)
 print("Popping (4 should be gone)")
 print(v$pop())
 v$print()
@@ -161,7 +150,7 @@ print("Popping (10 should be gone, 11 should be head)")
 print(v$pop())
 v$print()
 print("Pushing 2")
-v$push( 2)
+a <- v$push( 2)
 print("Popping (2 should be gone)")
 print(v$pop())
 v$print()
@@ -172,5 +161,5 @@ print("Popping (100 should be gone)")
 print(v$pop())
 v$print()
 print("Pushing 2")
-v$push( 2)
+a <- v$push( 2)
 v$print()

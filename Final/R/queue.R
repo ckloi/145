@@ -1,7 +1,7 @@
 library(R6)
 queue <- R6Class("queue",
         private = list(
-            arr = NULL
+            arr = NA
         ),
                  
         public = list(
@@ -11,7 +11,12 @@ queue <- R6Class("queue",
                    
                    
           push = function(val) {
-              private$arr <- c(private$arr,val)
+              if (length(private$arr) == 1 && is.na(private$arr)){
+                  private$arr <- c(val)
+              }else{
+                  private$arr <- c(private$arr,val)
+              }
+              return (self)
           },
                    
                    
@@ -19,7 +24,7 @@ queue <- R6Class("queue",
               x <- private$arr[1]
               private$arr <- private$arr[-1]
               if (length(private$arr) == 0){
-                  private$arr <- NULL
+                  private$arr <- NA
               }
               return (x)
            },
@@ -54,7 +59,11 @@ a <- v$pop()
 a <- v$pop()
 a <- v$pop()
 a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+
 
 v$print()
-
 
