@@ -1,15 +1,12 @@
-
-
-
-
 library(R6)
+
 bintree <- R6Class(
   "bintree",
   private = list(
     tree = c(NA,NA,NA)
   )
   ,
-  
+
   public = list(
     initialize = function() {
 
@@ -53,8 +50,8 @@ bintree <- R6Class(
       }
       return(self)
     },
-  #   
-  #   
+  #
+  #
     pop = function(row=1) {
         # Check if head is the leftmost node
         if(is.na(private$tree[1,2])){
@@ -63,7 +60,7 @@ bintree <- R6Class(
             private$tree[row,] <- private$tree[right,]
             return (x)
         }
-        
+
         # Look ahead one node to the left. If that node's left pointer is NA, pop that
         #   node (change left pointer of current node to right node of child, which
         #   will either be an index or NA)
@@ -84,15 +81,15 @@ bintree <- R6Class(
         private$tree <- rbind(private$tree, c(value, NA, NA))
       }
     },
-  
+
     print = function(row=1) {
       # Print left subtree
       left <- private$tree[row, 2]
       if (!is.na(left)) {
         self$print(left)
       }
-      
-      
+
+
       # Print your value
       cat(private$tree[row, 1], " ")
 
@@ -101,11 +98,11 @@ bintree <- R6Class(
       if (!is.na(right)) {
         self$print(right)
       }
-      
+
       if (row == 1){
         cat('\n')
       }
-      
+
     }
   )
 )
