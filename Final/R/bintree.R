@@ -79,10 +79,10 @@ bintree <- R6Class(
     modifyMatrix =  function (row, col, value) {
       newIndex <- nrow(private$tree) + 1
       private$tree[row, col] <- newIndex
+      # Wont this always trigger? newIndex is nrow(private$tree) + 1
       if (newIndex > nrow(private$tree)){
-        private$tree <- rbind(private$tree, c(NA, NA, NA))
+        private$tree <- rbind(private$tree, c(value, NA, NA))
       }
-      private$tree[newIndex, 1] <- value
     },
   
     print = function(row=1) {
