@@ -7,9 +7,5 @@ Title: Classes for Stack, Queue, and Binary Tree
 Description: A collection of reference classes that mimic the typical Stack,
     Queue, and Binary Tree data structures.
 Depends: R6
-Suggests:
-ByteCompile:
+ByteCompile: yes
 NeedsCompilation: no
-License: GPL
-URL: https://github.com/ckloi/145/tree/master/Final
-BugReports: https://github.com/ckloi/145/issues
