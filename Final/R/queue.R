@@ -3,34 +3,37 @@ queue <- R6Class("queue",
         private = list(
             arr = NA
         ),
-                 
+
         public = list(
-                   
+
           initialize = function() {
           },
-                   
-                   
+
+
           push = function(val) {
-              if (length(private$arr) == 1 && is.na(private$arr)){
+              if (is.na(private$arr[1])){
                   private$arr <- c(val)
               }else{
                   private$arr <- c(private$arr,val)
               }
               return (self)
           },
-                   
-                   
+
+
           pop = function() {
               x <- private$arr[1]
-              private$arr <- private$arr[-1]
-              if (length(private$arr) == 0){
-                  private$arr <- NA
+              # Don't bother doing anything if there is nothing in the queue
+              if(!is.na(private$arr[1])){
+                private$arr <- private$arr[-1]
               }
               return (x)
            },
-                   
+
           print = function() {
-              print(private$arr)
+              if(!is.na(private$arr[1])){
+                cat(private$arr)
+                cat('\n')
+              }
           }
         )
 )
@@ -66,4 +69,3 @@ a <- v$pop()
 
 
 v$print()
-
