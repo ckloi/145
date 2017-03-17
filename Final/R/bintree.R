@@ -3,7 +3,16 @@ library(R6)
 bintree <- R6Class(
   "bintree",
   private = list(
-    tree = c(NA,NA,NA)
+    tree = c(NA,NA,NA),
+
+    modifyMatrix =  function (row, col, value) {
+      newIndex <- nrow(private$tree) + 1
+      private$tree[row, col] <- newIndex
+      # Wont this always trigger? newIndex is nrow(private$tree) + 1
+      if (newIndex > nrow(private$tree)){
+        private$tree <- rbind(private$tree, c(value, NA, NA))
+      }
+    }
   )
   ,
 
@@ -35,7 +44,7 @@ bintree <- R6Class(
       if (value <= private$tree[row, 1]) {
         # if left child is na , set it
         if (is.na(private$tree[row, 2])) {
-          self$modifyMatrix(row, 2, value)
+          private$modifyMatrix(row, 2, value)
         } else{
           # if left child is not na, then find the appropriate row recusively
           self$push(value, private$tree[row, 2])
@@ -43,7 +52,7 @@ bintree <- R6Class(
         # if value is greater than first index, the similar approach as above
       } else if (value > private$tree[row, 1]) {
         if (is.na(private$tree[row, 3])) {
-          self$modifyMatrix(row, 3, value)
+          private$modifyMatrix(row, 3, value)
         } else{
           self$push(value, private$tree[row, 3])
         }
@@ -71,15 +80,6 @@ bintree <- R6Class(
         }
         # If not at leftmost node, recurse until you are
         return(self$pop(private,left))
-    },
-
-    modifyMatrix =  function (row, col, value) {
-      newIndex <- nrow(private$tree) + 1
-      private$tree[row, col] <- newIndex
-      # Wont this always trigger? newIndex is nrow(private$tree) + 1
-      if (newIndex > nrow(private$tree)){
-        private$tree <- rbind(private$tree, c(value, NA, NA))
-      }
     },
 
     print = function(row=1) {
