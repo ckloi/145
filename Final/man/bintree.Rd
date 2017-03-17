@@ -13,7 +13,7 @@
 
 \arguments{
   \item{obj}{The object created by \code{queue$new()}.}
-  \item{value}{The element that wil be pushed onto the Binary Tree.}
+\item{value}{The element that wil be pushed onto the Binary Tree.}
 }
 
 \details{
@@ -32,8 +32,8 @@
 }
 
 \author{
-  Andrew Faust
-  Chi Kei Loi
-  Mano Wared
+  Andrew Faust,
+  Chi Kei Loi,
+  Mano Wared,
   Tingting Zhu
 }

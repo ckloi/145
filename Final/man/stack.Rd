@@ -12,8 +12,8 @@
 }
 
 \arguments{
-  \item{value}{The element to be pushed onto the stack.}
-  \item{obj}{The object created by stack$new().}
+  \item{value}{The element to be pushed -onto the stack.}
+\item{obj}{The object created by stack$new().}
 }
 
 \details{
@@ -27,8 +27,8 @@
 }
 
 \author{
-  Andrew Faust
-  Chi Kei Loi
-  Mano Wared
+  Andrew Faust,
+  Chi Kei Loi,
+  Mano Wared,
   Tingting Zhu
 }
