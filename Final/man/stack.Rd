@@ -12,8 +12,8 @@
 }
 
 \arguments{
+  \item{obj}{The object created by stack$new().}
   \item{value}{The element to be pushed -onto the stack.}
-\item{obj}{The object created by stack$new().}
 }
 
 \details{

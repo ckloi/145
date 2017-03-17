@@ -26,7 +26,7 @@
   will then be used when calling the \code{push()} and \code{pop()} functions.
 
   \code{push()} simply pushes the specified element onto the tree in the appropriate
-  position so the tree is sorted from least to gratest.
+  position so the tree is sorted from least to greatest.
 
   \code{pop()} will remove the smallest element of the tree, and return the element.
 }
