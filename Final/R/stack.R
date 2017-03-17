@@ -1,62 +1,68 @@
+library(R6)
+stack <- R6Class("stack",
+        private = list(
+          arr = NA
+        ),
+
+        public = list(
+
+          initialize = function() {
+            },
 
 
-
-Stack <- function()
-{
-    
-    args <- list(
-    arr <- vector(length=0)
-    )
-    
-    ## Set the name for the class
-    
-    
-    class(args) <- append(class(args),"Stack")
-    
-    return(args)
-}
+          push = function(val) {
+              if (is.na(private$arr[1])){
+                  private$arr <- c(val)
+              }else{
+                  private$arr <- c(private$arr,val)
+              }
+              return (self)
+          },
 
 
-push <- function(obj, newValue)
-{
-    UseMethod("push",obj)
-}
+          pop = function() {
+               lastIndex <- length(private$arr)
+               x <- private$arr[lastIndex]
+               if (lastIndex > 0){
+                  private$arr <- private$arr[-lastIndex]
+               }
+               return (x)
+          },
 
-pop <- function(obj)
-{
-    UseMethod("pop",obj)
-}
+          print = function() {
+            if(!is.na(private$arr[1])){
+              cat(private$arr)
+              cat('\n')
+            }
+          }
+        )
+)
 
-print <- function(obj){
-  UseMethod("print",obj)
-}
+v <- stack$new()
 
+v$push(1)
+v$push(2)
+v$push(3)
+v$push(4)
+v$push(5)
+v$push(6)
+v$push(7)
+a <- v$pop()
+v$push(8)
+v$push(-1)
+v$push(-27)
+v$push(-37)
 
-push.Stack <- function(obj, newValue)
-{
-    obj$arr <- c(obj$arr, newValue)
-    return(obj)
-}
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+a <- v$pop()
+#v$push(7)
 
-pop.Stack <- function(obj)
-{
-    obj$arr <- obj$arr[-length(obj$arr)]
-    return(obj)
-}
-
-print.Stack <- function(obj){
-  print(obj$arr)
-}
-
-
-v <- Stack()
-
-v <- push(v,1)
-v <- push(v,2)
-v <- push(v,3)
-v <- push(v,4)
-v <- push(v,5)
-v <- push(v,6)
-v <- push(v,7)
-v <- pop(v)
-print(v)
+v$print()
