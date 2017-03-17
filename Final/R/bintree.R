@@ -89,9 +89,10 @@ bintree <- R6Class(
         self$print(left)
       }
 
-
-      # Print your value
-      cat(private$tree[row, 1], " ")
+      if (!is.na(private$tree[1,1])){
+        # Print your value
+        cat(private$tree[row, 1], " ")
+      }
 
       # Print right subtree
       right <- private$tree[row, 3]
