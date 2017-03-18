@@ -107,3 +107,15 @@ bintree <- R6Class(
     }
   )
 )
+
+newbintree <- function(){
+  bintree$new()
+}
+
+push <- function(obj,value){
+  obj$push(value)
+}
+
+pop <- function(obj){
+  obj$pop()
+}

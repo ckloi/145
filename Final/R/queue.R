@@ -37,3 +37,15 @@ queue <- R6Class("queue",
           }
         )
 )
+
+newqueue <- function(){
+  queue$new()
+}
+
+push <- function(obj,value){
+  obj$push(value)
+}
+
+pop <- function(obj){
+  obj$pop()
+}

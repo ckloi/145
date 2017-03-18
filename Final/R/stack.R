@@ -37,3 +37,15 @@ stack <- R6Class("stack",
           }
         )
 )
+
+newstack <- function(){
+  stack$new()
+}
+
+push <- function(obj,value){
+  obj$push(value)
+}
+
+pop <- function(obj){
+  obj$pop()
+}
