@@ -79,7 +79,7 @@ bintree <- R6Class(
             return (private$tree[left,1])
         }
         # If not at leftmost node, recurse until you are
-        return(self$pop(private,left))
+        return(self$pop(left))
     },
 
     print = function(row=1) {
