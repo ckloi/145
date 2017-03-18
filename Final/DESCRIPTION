@@ -5,7 +5,7 @@ Authors: Andrew Faust<ajfaust@ucdavis,edu>, Chi Kei Loi<ckloi@ucdavis.edu>,
 Maintainers: Andrew Faust, Chi Kei Loi, Mano Wared, Tingting Zhu
 Title: Classes for Stack, Queue, and Binary Tree
 Description: A collection of reference classes that mimic the typical Stack,
-    Queue, and Binary Tree data structures.
+    Queue, and sorted Binary Tree data structures.
 Depends: R6
 ByteCompile: yes
 NeedsCompilation: no

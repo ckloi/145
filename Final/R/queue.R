@@ -38,34 +38,14 @@ queue <- R6Class("queue",
         )
 )
 
+newqueue <- function(){
+  queue$new()
+}
 
+push <- function(obj,value){
+  obj$push(value)
+}
 
-
-v <- queue$new()
-
-v$push(1)
-v$push(2)
-v$push(3)
-v$push(4)
-v$push(5)
-v$push(6)
-v$push(7)
-a <- v$pop()
-v$push(8)
-v$push(-1)
-v$push(-27)
-v$push(-37)
-
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-
-
-v$print()
+pop <- function(obj){
+  obj$pop()
+}

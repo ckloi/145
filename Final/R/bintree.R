@@ -3,7 +3,16 @@ library(R6)
 bintree <- R6Class(
   "bintree",
   private = list(
-    tree = c(NA,NA,NA)
+    tree = c(NA,NA,NA),
+
+    modifyMatrix =  function (row, col, value) {
+      newIndex <- nrow(private$tree) + 1
+      private$tree[row, col] <- newIndex
+      # Wont this always trigger? newIndex is nrow(private$tree) + 1
+      if (newIndex > nrow(private$tree)){
+        private$tree <- rbind(private$tree, c(value, NA, NA))
+      }
+    }
   )
   ,
 
@@ -35,7 +44,7 @@ bintree <- R6Class(
       if (value <= private$tree[row, 1]) {
         # if left child is na , set it
         if (is.na(private$tree[row, 2])) {
-          self$modifyMatrix(row, 2, value)
+          private$modifyMatrix(row, 2, value)
         } else{
           # if left child is not na, then find the appropriate row recusively
           self$push(value, private$tree[row, 2])
@@ -43,7 +52,7 @@ bintree <- R6Class(
         # if value is greater than first index, the similar approach as above
       } else if (value > private$tree[row, 1]) {
         if (is.na(private$tree[row, 3])) {
-          self$modifyMatrix(row, 3, value)
+          private$modifyMatrix(row, 3, value)
         } else{
           self$push(value, private$tree[row, 3])
         }
@@ -73,15 +82,6 @@ bintree <- R6Class(
         return(self$pop(private,left))
     },
 
-    modifyMatrix =  function (row, col, value) {
-      newIndex <- nrow(private$tree) + 1
-      private$tree[row, col] <- newIndex
-      # Wont this always trigger? newIndex is nrow(private$tree) + 1
-      if (newIndex > nrow(private$tree)){
-        private$tree <- rbind(private$tree, c(value, NA, NA))
-      }
-    },
-
     print = function(row=1) {
       # Print left subtree
       left <- private$tree[row, 2]
@@ -89,9 +89,10 @@ bintree <- R6Class(
         self$print(left)
       }
 
-
-      # Print your value
-      cat(private$tree[row, 1], " ")
+      if (!is.na(private$tree[1,1])){
+        # Print your value
+        cat(private$tree[row, 1], " ")
+      }
 
       # Print right subtree
       right <- private$tree[row, 3]
@@ -107,56 +108,14 @@ bintree <- R6Class(
   )
 )
 
+newbintree <- function(){
+  bintree$new()
+}
 
+push <- function(obj,value){
+  obj$push(value)
+}
 
-
-
-
-
-
-
-
-v <- bintree$new()
-print("Pushing 2")
-a <- v$push(2)
-print("Pushing 4")
-a <- v$push(4)
-print("Popping (2 should be gone)")
-print(v$pop())
-v$print()
-print("Pushing 10")
-a <- v$push(10)
-print("Pushing 7")
-a <- v$push(7)
-print("Pushing 1")
-a <- v$push(1)
-print("Pushing 11")
-a <- v$push(11)
-print("Popping (1 should be gone)")
-print(v$pop())
-v$print()
-print("Pushing 100")
-a <- v$push( 100)
-print("Popping (4 should be gone)")
-print(v$pop())
-v$print()
-print("Popping (7 should be gone)")
-print(v$pop())
-v$print()
-print("Popping (10 should be gone, 11 should be head)")
-print(v$pop())
-v$print()
-print("Pushing 2")
-a <- v$push( 2)
-print("Popping (2 should be gone)")
-print(v$pop())
-v$print()
-print("Popping (11 should be gone, 100 should be head)")
-print(v$pop())
-v$print()
-print("Popping (100 should be gone)")
-print(v$pop())
-v$print()
-print("Pushing 2")
-a <- v$push( 2)
-v$print()
+pop <- function(obj){
+  obj$pop()
+}

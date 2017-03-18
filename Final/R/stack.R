@@ -38,31 +38,14 @@ stack <- R6Class("stack",
         )
 )
 
-v <- stack$new()
+newstack <- function(){
+  stack$new()
+}
 
-v$push(1)
-v$push(2)
-v$push(3)
-v$push(4)
-v$push(5)
-v$push(6)
-v$push(7)
-a <- v$pop()
-v$push(8)
-v$push(-1)
-v$push(-27)
-v$push(-37)
+push <- function(obj,value){
+  obj$push(value)
+}
 
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-a <- v$pop()
-#v$push(7)
-
-v$print()
+pop <- function(obj){
+  obj$pop()
+}
