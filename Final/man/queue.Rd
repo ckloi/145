@@ -1,19 +1,20 @@
 \name{queue}
 \alias{queue}
+\alias{newqueue}
 
 \title{Queue Data Structure}
 
 \description{Aids in creating Queue data structures}
 
 \usage{
-  queue$new()
-  obj$push(value)
-  obj$pop()
+  newqueue()
+  push(obj,value)
+  pop(obj)
 }
 
 \arguments{
-  \item{obj}{The object created by \code{queue$new()}.}
-\item{value}{The element that wil be pushed onto the Queue.}
+  \item{obj}{The object created by \code{newqueue}.}
+  \item{value}{The element that wil be pushed onto the Queue.}
 }
 
 \details{
@@ -21,12 +22,51 @@
   to a line at the grocery store. The value first pushed to the Queue will be the first one
   removed.
 
-  A Queue object instance is created via \code{queue$new()}. The name of this
-  object will then be used to call \code{push()} and \code{pop()}.
-  \code{push(value)} will add element 'value' to the back of the queue and return the
-  new object.
-  \code{pop()} will remove the element at the front of the Queue and return the
-  element.
+  To create a new queue instance, simply call \code{newqueue} and assign it to
+  a variable of your choice.
+  \code{push} will push the specified element onto the back of the specified queue
+  instance.
+  \code{pop} will remove and return the object at the front of the specified queue
+  instance.
+
+  Printing an empty Queue instance will result in no ouput.
+}
+
+\examples{
+  # Instantiate a new Queue instance
+  myQueue <- newqueue()
+
+  # Push 23, 12, 20, and 6 onto the Queue
+  push(myQueue,23)
+  push(myQueue,12)
+  push(myQueue,20)
+  push(myQueue,6)
+
+  # Print the Queue. Should output '23 12 20 6'
+  print(myQueue)
+
+  # Pop off the first 2 elements of the Queue, assign them to w and x
+  w <- pop(myQueue)
+  x <- pop(myQueue)
+
+  # Print w and x. Should output 23 and 12, respectively.
+  print(w)
+  print(x)
+
+  # Print the Queue. Should output '20 6'
+  print(myQueue)
+
+  # Pop the remaining two elements off the Queue and assign them to y and z,
+  #   respectively.
+  y <- pop(myQueue)
+  z <- pop(myQueue)
+
+  # Print y and z. Should output 20 and 6, respectively.
+  print(y)
+  print(z)
+
+  # Print the Queue object. Since the object is empty, there will be no output.
+  print(myQueue)
 }
 
 \author{
